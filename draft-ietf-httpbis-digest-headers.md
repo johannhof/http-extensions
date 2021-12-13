@@ -629,7 +629,7 @@ a new "Status" field containing the most recent appraisal of the digest-algorith
 
 An endpoint might have a preference for algorithms,
 such as preferring "standard" algorithms over "insecure" ones
-(e.g. vulnerable to collisions, as in {{NO-MD5}} and {{NO-SHA}}).
+(e.g. vulnerable to collisions, as in {{NO-MD5}} and {{NO-SHA1}}).
 Transition from weak algorithms is supported
 by negotiation of digest-algorithm using `Want-Digest` or `Want-Content-Digest` (see {{want-fields}})
 or by sending multiple representation-data-digest values from which the receiver chooses.
