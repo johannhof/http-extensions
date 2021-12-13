@@ -628,7 +628,8 @@ this document adds to the IANA Digest Algorithm Values registry
 a new "Status" field containing the most recent appraisal of the digest-algorithm.
 
 An endpoint might have a preference for algorithms,
-such as preferring "standard" algorithms over "insecure" ones.
+such as preferring "standard" algorithms over "insecure" ones
+(e.g. vulnerable to collisions, as in {{NO-MD5}} and {{NO-SHA}}).
 Transition from weak algorithms is supported
 by negotiation of digest-algorithm using `Want-Digest` or `Want-Content-Digest` (see {{want-fields}})
 or by sending multiple representation-data-digest values from which the receiver chooses.
