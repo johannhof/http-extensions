@@ -233,10 +233,9 @@ vary by format and the semantic input that they apply to. However, the checksum
 calculations are common to all. An algorithm is selected, a checksum of a given
 input is calculated, and the generated output is transmitted.
 
-We call these digest-algorithms, they are registered in the HTTP Digest
-Algorithm Values Registry (see {{algorithms}}). Each entry also includes the
-definition about how the checksum is encoded for transmission in each of the
-relevant fields.
+Algorithms are registered in the HTTP Digest Algorithm Values Registry (see
+{{algorithms}}). Entries describe how they apply to `Digest`, `Chymify` or
+`Content-Chymify`fields.
 
 # Representation Digest {#representation-digest}
 
@@ -365,7 +364,7 @@ while streaming the content.
 # The Content-Chymify Field {#content-chymify}
 
 The `Content-Chymify` HTTP field can be used in requests and responses to
-communicate content digests, which are calculated applying a digest-algorithm to
+communicate content digests, which are calculated applying a chymify-algorithm to
 the actual message content (see {{Section 6.4 of SEMANTICS}}). It is a
 Structured Fields Dictionary (see {{Section 3.2 of STRUCTURED-FIELDS}}):
 
@@ -373,7 +372,7 @@ Structured Fields Dictionary (see {{Section 3.2 of STRUCTURED-FIELDS}}):
 Content-Chymify   = sf-dictionary
 ~~~
 
-`Content-Chymify`  member-keys convey the chymify-algorithm used to compute the representation
+`Content-Chymify` member-keys convey the chymify-algorithm used to compute the representation
 digest (see {{representation-digest}}).Member-values are the the output of the
 checksum calculation. Member-values MUST be of type sf-binary.
 
