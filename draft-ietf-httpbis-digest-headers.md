@@ -83,11 +83,13 @@ informative:
 
 --- abstract
 
-This document defines HTTP fields that support integrity checksums.
-The Digest field can be used for the integrity of HTTP representations.
-The Content-Digest field can be used for the integrity of HTTP message content.
-Want-Digest and Want-Content-Digest can be used to indicate a sender's desire to
-receive integrity fields respectively.
+This document defines HTTP fields that support integrity checksums. The Digest
+field can be used for the integrity of HTTP representations and is compatible
+with RFC 3230. The new Chymify field can be used for the integrity of HTTP
+representations, it uses Structured Fields format. The new Content-Chymify field can
+be used for the integrity of HTTP message content. Want-Digest and
+Want-Content-Chymify can be used to indicate a sender's desire to receive
+integrity fields respectively.
 
 This document obsoletes RFC 3230.
 
@@ -125,8 +127,9 @@ This document is structured as follows:
 - {{representation-digest}} describes concepts related to representation
   digests,
 - {{digest}} defines the Digest request and response header and trailer field,
-- {{content-digest}} defines the Content-Digest request and response header and trailer field,
-- {{want-fields}} defines the Want-Digest and Want-Content-Digest request and response header and
+- {{chymify}} defines the Chymify request and response header and trailer field,
+- {{content-chymify}} defines the Content-Chymify request and response header and trailer field,
+- {{want-fields}} defines the Want-Digest and Want-Content-Chymify request and response header and
   trailer field,
 - {{algorithms}} describes algorithms and their relation to Digest,
 - {{state-changing-requests}} details computing representation digests,
@@ -145,13 +148,16 @@ some sort of manipulation to be considered a representation or conveys a
 partial representation of a resource, such as Range Requests (see {{Section
 14.2 of SEMANTICS}}).
 
-To support use-cases where a simple checksum of the content bytes is required,
-this document introduces the `Content-Digest` request and response header and trailer field; see
-{{content-digest}}.
+The `Chymify` HTTP field also covers representation data but it uses a
+Structured Fields format that is incompatible with `Digest`.
 
-`Digest` and `Content-Digest` support algorithm agility. The `Want-Digest` and
-`Want-Content-Digest` fields allows endpoints to express interest in `Digest` and
-`Content-Digest` respectively, and preference of algorithms in either.
+To support use-cases where a simple checksum of the content bytes is required,
+this document introduces the `Content-Chymify` request and response header and trailer field; see
+{{content-chymify}}.
+
+`Digest`, `Chymify` and `Content-Chymify` support algorithm agility. The `Want-Digest` and
+`Want-Content-Chymify` fields allows endpoints to express interest in `Digest` and
+`Content-Chymify` respectively, and preference of algorithms in either.
 
 Digest field calculations are tied to the `Content-Encoding`
 and `Content-Type` header fields. Therefore, a given resource may have multiple
@@ -182,7 +188,7 @@ The `Digest` and `Want-Digest` field definitions are updated to align with the
 terms and notational conventions in {{SEMANTICS}}.
 
 Negotiation of `Content-MD5` is deprecated and has been replaced by
-`Content-Digest` negotiation via `Want-Content-Digest`.
+`Content-Chymify` negotiation via `Want-Content-Chymify`.
 
 {{Sections 4.1.1 and 4.2 of RFC3230}} defined field parameters. This document
 obsoletes the usage of parameters with `Digest` because this feature has not
@@ -206,6 +212,9 @@ This document uses the Augmented BNF defined in [RFC5234] and updated by
 SEMANTICS}}
 and the "qvalue" rule defined in {{Section 12.4.2 of SEMANTICS}}.
 
+The terms Dictionary, and sf-binary are imported from
+{{!STRUCTURED-FIELDS=RFC8941}}.
+
 The definitions "representation", "selected representation", "representation
 data", "representation metadata", and "content" in this document are to be
 interpreted as described in {{SEMANTICS}}.
@@ -217,48 +226,53 @@ The term "checksum" describes the output of the application of an algorithm
 to a sequence of bytes,
 whereas digest is only used in relation to the value of the fields.
 
+# Checksum calculations
+
+The HTTP fields defined in this document can be used for HTTP integrity. Fields
+vary by format and the semantic input that they apply to. However, the checksum
+calculations are common to all. An algorithm is selected, a checksum of a given
+input is calculated, and the generated output is transmitted.
+
+We call these digest-algorithms, they are registered in the HTTP Digest
+Algorithm Values Registry (see {{algorithms}}). Each entry also includes the
+definition about how the checksum is encoded for transmission in each of the
+relevant fields.
+
 # Representation Digest {#representation-digest}
 
-The representation digest is an integrity mechanism for HTTP resources
-which uses a checksum  that is calculated independently of the content
+HTTP defines representation data (see {{Section 8.1 of SEMANTICS}}) and content
 (see {{Section 6.4 of SEMANTICS}}).
-It uses the representation data (see {{Section 8.1 of SEMANTICS}}),
-that can be fully or partially contained in the content, or not contained at all.
 
-This takes into account the effect of the HTTP semantics on the messages;
-for example, the content can be affected by Range Requests or methods such as HEAD,
-while the way the content is transferred "on the wire" is dependent on other
-transformations (e.g. transfer codings for HTTP/1.1 - see {{Section 6.1 of
-HTTP11}}). To help illustrate how such things affect `Digest`,
+Representation digests are checksums that are calculated using HTTP
+representation data and they are sent in `Digest` and `Chymify` fields (see
+{{digest}} and {{chymify}} respectively).
+
+Representations take into account the effect of the HTTP semantics on
+messages. For example, the content can be affected by Range Requests or methods
+such as HEAD, while the way the content is transferred "on the wire" is
+dependent on other transformations (e.g. transfer codings for HTTP/1.1 - see
+{{Section 6.1 of HTTP11}}). To help illustrate HTTP representation concepts,
 several examples are provided in {{resource-representation}}.
 
-A representation digest consists of
-the value of a checksum computed on the entire selected `representation data`
-(see {{Section 8.1 of SEMANTICS}}) of a resource identified according to {{Section 6.4.2 of SEMANTICS}}
-together with an indication of the algorithm used:
+When a message has no representation data it is still possible to assert that no
+representation data was sent computing the representation digest on an empty
+string (see {{usage-in-signatures}}).
 
-~~~ abnf
-   representation-data-digest = digest-algorithm "="
-                                <encoded checksum output>
-~~~
-
-When a message has no representation data
-it is still possible to assert that no representation data was sent
-computing the representation digest on an empty string
-(see {{usage-in-signatures}}).
-
-The checksum is computed using one of the digest-algorithms listed in
-the HTTP Digest Algorithm Values Registry (see {{algorithms}})
-and then encoded in the associated format.
 
 # The Digest Field {#digest}
 
-The `Digest` field contains a comma-separated list of one or more representation digest values as
-defined in {{representation-digest}}. It can be used in both requests and
-responses.
+The `Digest` field can be used in both requests and responses to communicate
+representation digests. It is a comma-separated list of one or more
+`digest-item`s. These are key-value pairs where the key identifies the algorithm
+used to compute the representation digest (see {{representation-digest}}) and
+the value is the the output of the checksum calculation. The output is encoded
+in accordance with the instructions in the HTTP Digest Algorithm Values Registry
+(see {{algorithms}}).
 
 ~~~ abnf
-   Digest = 1#representation-data-digest
+   Digest = 1#digest-item
+   digest-item = digest-algorithm "="
+                                <encoded checksum output>
 ~~~
 
 For example:
@@ -268,8 +282,8 @@ Digest: sha-512=WZDPaVn/7XgHaAy8pmojAkGWoRx2UFChF41A2svX+TaPm
                 AbwAgBWnrIiYllu7BNNyealdVLvRwE\nmTHWXvJwew==
 ~~~
 
-A `Digest` field MAY contain multiple representation-data-digest values.
-For example, a server may provide representation-data-digest values using different algorithms,
+A `Digest` field MAY contain multiple digest-items.
+For example, a server may provide digest-times that use different algorithms,
 allowing it to support a population of clients with different evolving capabilities;
 this is particularly useful in support of transitioning away
 from weaker algorithms should the need arise (see {{algorithm-agility}}).
@@ -280,11 +294,11 @@ Digest: sha-256=4REjxQ4yrqUVicfSKYNO/cF9zNj5ANbzgDZt3/h3Qxo=,
                 AbwAgBWnrIiYllu7BNNyealdVLvRwE\nmTHWXvJwew==
 ~~~
 
-A recipient MAY ignore any or all of the representation-data-digests in a Digest
+A recipient MAY ignore any or all of the digest-items in a Digest
 field. This allows the recipient to choose which digest-algorithm(s) to use for
-validation instead of verifying every received representation-data-digest.
+validation instead of verifying every received digest-item.
 
-A sender MAY send a representation-data-digest using a digest-algorithm without
+A sender MAY send a digest-item using a digest-algorithm without
 knowing whether the recipient supports the digest-algorithm, or even knowing
 that the recipient will ignore it.
 
@@ -300,70 +314,121 @@ A non-comprehensive set of examples showing the impacts of
 representation metadata, payload transformations and HTTP methods on `Digest` is
 provided in {{examples-unsolicited}} and {{examples-solicited}}.
 
+# The Chymify Field {#chymify}
 
-# The Content-Digest Field {#content-digest}
-
-The `Content-Digest` field contains a comma-separated list of one or more content digest
-values.
-A content digest value is computed by applying a digest-algorithm to the actual message content
-(see {{Section 6.4 of SEMANTICS}}).
-It can be used in both requests and responses.
+The `Chymify` HTTP field can be used in requests and responses to communicate
+representation digests. It is a Structured Fields Dictionary (see {{Section 3.2
+of STRUCTURED-FIELDS}}):
 
 ~~~ abnf
-   Content-Digest = 1#content-digest
-   content-digest = digest-algorithm "="
-                    <encoded checksum output>
+Chymify   = sf-dictionary
 ~~~
+
+`Chymify` member-keys convey the chymify-algorithm used to compute the representation
+digest (see {{representation-digest}}).Member-values are the the output of the
+checksum calculation. Member-values MUST be of type sf-binary.
 
 For example:
 
 ~~~ http-message
-Content-Digest: sha-512=WZDPaVn/7XgHaAy8pmojAkGWoRx2UFChF41A2svX+TaPm
-                        AbwAgBWnrIiYllu7BNNyealdVLvRwE\nmTHWXvJwew==
+Chymify: sha-512=:WZDPaVn/7XgHaAy8pmojAkGWoRx2UFChF41A2svX+TaPm
+                AbwAgBWnrIiYllu7BNNyealdVLvRwE\nmTHWXvJwew==:
 ~~~
 
-A `Content-Digest` field MAY contain multiple content-digest values,
-similarly to `Digest` (see {{digest}})
+Since the `Chymify` field is a Dictionary, it can contain multiple members. This
+could be used, for example, to attach multiple checksums calculated using
+different algorithms in order to support a population of endpoints with
+different evolving capabilities. Such an approach could support transitions away
+from weaker algorithms (see {{algorithm-agility}}).
 
 ~~~ http-message
-Content-Digest: sha-256=4REjxQ4yrqUVicfSKYNO/cF9zNj5ANbzgDZt3/h3Qxo=,
-                sha-512=WZDPaVn/7XgHaAy8pmojAkGWoRx2UFChF41A2svX+TaPm
-                        AbwAgBWnrIiYllu7BNNyealdVLvRwE\nmTHWXvJwew==
+Chymify: sha-256=:4REjxQ4yrqUVicfSKYNO/cF9zNj5ANbzgDZt3/h3Qxo=:,
+        sha-512=:WZDPaVn/7XgHaAy8pmojAkGWoRx2UFChF41A2svX+TaPm
+                AbwAgBWnrIiYllu7BNNyealdVLvRwE\nmTHWXvJwew==:
 ~~~
 
-A recipient MAY ignore any or all of the content-digests in a Content-Digest
-field. This allows the recipient to choose which digest-algorithm(s) to use for
-validation instead of verifying every received content-digest.
+A recipient MAY ignore any or all of members of the Chymify field. This allows
+the recipient to choose which chymify-algorithm(s) to use for validation instead
+of verifying every received representation-data-digest.
 
-A sender MAY send a content-digest using a digest-algorithm without
-knowing whether the recipient supports the digest-algorithm, or even knowing
-that the recipient will ignore it.
+A sender MAY send a member without knowing whether the recipient supports the
+chymify-algorithm, or even knowing that the recipient will ignore it.
 
-`Content-Digest` can be sent in a trailer section.
+`Chymify` can be sent in a trailer section.
 In this case,
-`Content-Digest` MAY be merged into the header section; see {{Section 6.5.1 of SEMANTICS}}.
+`Chymify` MAY be merged into the header section; see {{Section 6.5.1 of SEMANTICS}}.
 
 When an incremental digest-algorithm
-is used, the sender and the receiver can dynamically compute the checksum
+is used, the sender and the receiver can dynamically compute a checksum
 while streaming the content.
 
-# Want-Digest and Want-Content-Digest Fields {#want-fields}
+# The Content-Chymify Field {#content-chymify}
+
+The `Content-Chymify` HTTP field can be used in requests and responses to
+communicate content digests, which are calculated applying a digest-algorithm to
+the actual message content (see {{Section 6.4 of SEMANTICS}}). It is a
+Structured Fields Dictionary (see {{Section 3.2 of STRUCTURED-FIELDS}}):
+
+~~~ abnf
+Content-Chymify   = sf-dictionary
+~~~
+
+`Content-Chymify`  member-keys convey the chymify-algorithm used to compute the representation
+digest (see {{representation-digest}}).Member-values are the the output of the
+checksum calculation. Member-values MUST be of type sf-binary.
+
+For example:
+
+~~~ http-message
+Content-Chymify: sha-512=:WZDPaVn/7XgHaAy8pmojAkGWoRx2UFChF41A2svX+TaPm
+                        AbwAgBWnrIiYllu7BNNyealdVLvRwE\nmTHWXvJwew==:
+~~~
+
+Since the `Content-Chymify` field is a Dictionary, it can contain multiple members. This
+could be used, for example, to attach multiple checksums calculated using
+different algorithms in order to support a population of endpoints with
+different evolving capabilities. Such an approach could support transitions away
+from weaker algorithms (see {{algorithm-agility}}).
+
+~~~ http-message
+Content-Chymify: sha-256=:4REjxQ4yrqUVicfSKYNO/cF9zNj5ANbzgDZt3/h3Qxo=:,
+                sha-512=:WZDPaVn/7XgHaAy8pmojAkGWoRx2UFChF41A2svX+TaPm
+                        AbwAgBWnrIiYllu7BNNyealdVLvRwE\nmTHWXvJwew==:
+~~~
+
+A recipient MAY ignore any or all of members of the Content-Chymify field. This allows
+the recipient to choose which chymify-algorithm(s) to use for validation instead
+of verifying every received representation-data-digest.
+
+A sender MAY send a representation-data-digest using a chymify-algorithm without
+knowing whether the recipient supports the chymify-algorithm, or even knowing
+that the recipient will ignore it.
+
+`Content-Chymify` can be sent in a trailer section.
+In this case,
+`Content-Chymify` MAY be merged into the header section; see {{Section 6.5.1 of SEMANTICS}}.
+
+When an incremental chymify-algorithm
+is used, the sender and the receiver can dynamically compute a checksum
+while streaming the content.
+
+# Want-Digest and Want-Content-Chymify Fields {#want-fields}
 
 Senders can indicate their integrity checksum preferences using the
-`Want-Digest` or `Want-Content-Digest` fields. These can be used in both
+`Want-Digest` or `Want-Content-Chymify` fields. These can be used in both
 requests and responses.
 
 `Want-Digest` indicates the sender's desire to receive a representation digest
 on messages associated with the request URI and representation metadata, using
 the `Digest` field.
 
-`Want-Content-Digest` indicates the sender's desire to receive a content digest
+`Want-Content-Chymify` indicates the sender's desire to receive a content digest
 on messages associated with the request URI and representation metadata, using
-the `Content-Digest` field.
+the `Content-Chymify` field.
 
 ~~~
    Want-Digest = 1#want-digest-value
-   Want-Content-Digest = 1#want-digest-value
+   Want-Content-Chymify = 1#want-digest-value
    want-digest-value = digest-algorithm [ ";" "q" "=" qvalue]
 ~~~
 
@@ -377,14 +442,20 @@ Examples:
 ~~~ http-message
 Want-Digest: sha-256
 Want-Digest: sha-512;q=0.3, sha-256;q=1, unixsum;q=0
-Want-Content-Digest: sha-256
-Want-Content-Digest: sha-512;q=0.3, sha-256;q=1, unixsum;q=0
+Want-Content-Chymify: sha-256
+Want-Content-Chymify: sha-512;q=0.3, sha-256;q=1, unixsum;q=0
 ~~~
 
 
 # Digest Algorithm Values {#algorithms}
 
-Digest-algorithm values are used to indicate a specific digest computation.
+The "HTTP Digest Algorithm Values Registry", maintained by IANA at
+<https://www.iana.org/assignments/http-dig-alg/> registers algorithms for use
+with Digest fields. Registrations define the algorithms computation procedure
+and any other required details.
+
+## Digest-Algorithms
+Algorithms that are used with `Digest`, need to register a digest-algorithm.
 
 ~~~
    digest-algorithm = token
@@ -394,17 +465,35 @@ All digest-algorithm token values are case-insensitive
 but lower case is preferred;
 digest-algorithm token values MUST be compared in a case-insensitive fashion.
 
-Every digest-algorithm defines its computation procedure and
-encoding output. Unless specified otherwise, comparison of
-encoded output is case-sensitive.
+Every digest-algorithm defines its encoding output. Unless specified otherwise,
+comparison of encoded output is case-sensitive.
 
-The "HTTP Digest Algorithm Values Registry",
-maintained by IANA at <https://www.iana.org/assignments/http-dig-alg/> registers
-digest-algorithm values.
+The associated encoding for new digest-algorithms MUST either
+be represented as a quoted string
+or MUST NOT include ";" or "," in the character sets used for the encoding.
+
+## Chymify-Algorithms
+Algorithms that are used with `Chmyify` or `Content-Chymify`, need a
+corresponding chymify-algorithm.
+
+TODO: import Structured Fields key definition.
+~~~
+   chymify-algorithm = key
+~~~
+
+All chymify-algorithms encode their output using sf-binary.
+
+### Registration guidelines
+
 Registrations MUST include the following fields:
 
- - Digest algorithm: the token value.
-     The registry can be used to reserve token values
+ - Algorithm: a friendly name of the algorithm
+ - Description: a description of the algorithm
+ - digest-algorithm-token: the digest-algorithm value for use with `Digest` field
+ - digest-algorithm-encoding: the digest-algorithm output encoding for use with
+   `Digest` field
+ - chymify-algorithm: the definition of the chymify-algorithm for use with
+   `Chymify` and `Content-Chymify` fields
  - Status: the status of the algorithm.
      Use "standard" for standardized algorithms without known problems;
      "experimental" or some other appropriate value
@@ -412,87 +501,94 @@ Registrations MUST include the following fields:
      in which the algorithm is defined;
      "insecure" when the algorithm is insecure;
      "reserved" when the algorithm references a reserved token value
- - Description: the description of the digest-algorithm and its encoding
- - Reference: a set of pointers to the primary documents defining the digest-algorithm
-
-The associated encoding for new digest-algorithms MUST either
-be represented as a quoted string
-or MUST NOT include ";" or "," in the character sets used for the encoding.
+ - Reference: a set of pointers to the primary documents defining the algorithm
 
 Insecure digest algorithms MAY be used to preserve integrity against corruption, but MUST
 NOT be used in a potentially adversarial setting; for example, when signing digest fields' values for
 authenticity.
 
-The registry is initialized with the tokens listed below.
+The registry is initialized with the algorithms listed below.
 
   {: vspace="0"}
-  sha-512
-  : * Digest Algorithm: sha-512
+  SHA-512
+  : * Algorithm: SHA-512
     * Description: The SHA-512 algorithm [RFC6234].
-      The output of this algorithm is encoded using base64 [RFC4648].
+    * digest-algorithm-token: sha-512
+    * digest-algorithm-output: base64 [RFC4648].
+    * chymify-algorithm-token: sha-512
     * Reference: [RFC6234], [RFC4648], this document.
     * Status: standard
 
-  sha-256
-  : * Digest Algorithm: sha-256
+  SHA-256
+  : * Algorithm: SHA-256
     * Description: The SHA-256 algorithm [RFC6234].
-      The output of this algorithm is encoded using base64 [RFC4648].
+    * digest-algorithm-token: sha-512
+    * digest-algorithm-output: base64 [RFC4648].
+    * chymify-algorithm-token: sha-512
     * Reference: [RFC6234], [RFC4648], this document.
     * Status: standard
 
-  md5
-  : * Digest Algorithm: md5
+  MD5
+  : * Algorithm: md5
     * Description: The MD5 algorithm [RFC1321].
-      The output of this algorithm is encoded using base64 [RFC4648].
       This digest-algorithm is now vulnerable
       to collision attacks. See {{?NO-MD5=RFC6151}} and [CMU-836068].
+    * digest-algorithm-token: md5
+    * digest-algorithm-output: base64 [RFC4648].
+    * chymify-algorithm-token: md5
     * Reference: [RFC1321], [RFC4648], this document.
     * Status: insecure
 
-  sha
-  : * Digest Algorithm: sha
+  SHA
+  : * Algorithm: SHA
     * Description:  The SHA-1 algorithm [RFC3174].
-      The output of this algorithm is encoded using base64 [RFC4648].
       This digest-algorithm is now vulnerable
       to collision attacks. See {{?NO-SHA1=RFC6194}} and [IACR-2020-014].
+    * digest-algorithm-token: sha
+    * digest-algorithm-output: base64 [RFC4648].
+    * chymify-algorithm-token: sha
     * Reference: [RFC3174], [RFC6234], [RFC4648], this document.
     * Status: insecure
 
-  unixsum
-  : * Digest Algorithm: unixsum
+  UNIXSUM
+  : * Algorithm: UNIXSUM
     * Description: The algorithm used by the UNIX "sum" command [UNIX].
-      The output of this algorithm is an
-      ASCII decimal-digit string representing the 16-bit
-      checksum, which is the first word of the output of
-      the UNIX "sum" command.
+    * digest-algorithm-token: unixsum
+    * digest-algorithm-ouput: An ASCII decimal-digit string representing the
+      16-bit checksum, which is the first word of the output of the UNIX "sum"
+      command.
+    * chymify-algorithm-token: unixsum
     * Reference: [UNIX], this document.
     * Status: insecure
 
-  unixcksum
-  : * Digest Algorithm: unixcksum
+  UNIXCKSUM
+  : * Algorithm: UNIXCKSUM
     * Description: The algorithm used by the UNIX "cksum" command [UNIX].
-      The output of this algorithm is an
-      ASCII digit string representing the 32-bit CRC,
-      which is the first word of the output of the UNIX
-      "cksum" command.
+    * digest-algorithm-token: unixcksum
+    * digest-algorithm-ouput: An ASCII digit string representing the 32-bit CRC,
+      which is the first word of the output of the UNIX "cksum" command.
+    * chymify-algorithm-token: unixcksum
     * Reference: [UNIX], this document.
     * Status: insecure
 
-  adler32
-  : * Digest Algorithm: adler32
+  ADLER
+  : * Algorithm: ADLER32
     * Description: The ADLER32 algorithm [RFC1950].
-      The 32-bit output is encoded in hexadecimal (using
+    * digest-algorithm-token: adler32
+    * digest-algorithm-ouput: The 32-bit output is encoded in hexadecimal (using
       between 1 and 8 ASCII characters from 0-9, A-F, and a-f; leading 0's are
       allowed). For example, adler32=03da0195 and adler32=3DA0195 are both valid
       checksums for the 4-byte message "Wiki". This algorithm is obsoleted and
       SHOULD NOT be used.
+    * chymify-algorithm-token: adler32
     * Reference: [RFC1950], this document.
     * Status: insecure
 
-  crc32c
-  : * Digest Algorithm: crc32c
+  CRC32C
+  : * Algorithm: CRC32C
     * Description: The CRC32c algorithm {{!RFC4960}}.
-      The 32-bit output is encoded in hexadecimal (using between 1 and 8
+    * digest-algorithm-token: crc32c
+    * digest-algorithm-ouput: The 32-bit output is encoded in hexadecimal (using between 1 and 8
       ASCII characters from 0-9, A-F, and a-f; leading 0's are allowed). For
       example, crc32c=0a72a4df and crc32c=A72A4DF are both valid checksums for the
       3-byte message "dog".
@@ -626,14 +722,14 @@ a new "Status" field containing the most recent appraisal of the digest-algorith
 An endpoint might have a preference for algorithms,
 such as preferring "standard" algorithms over "insecure" ones.
 Transition from weak algorithms is supported
-by negotiation of digest-algorithm using `Want-Digest` or `Want-Content-Digest` (see {{want-fields}})
+by negotiation of digest-algorithm using `Want-Digest` or `Want-Content-Chymify` (see {{want-fields}})
 or by sending multiple representation-data-digest values from which the receiver chooses.
 Endpoints are advised that sending multiple values consumes resources,
 which may be wasted if the receiver ignores them (see {{digest}}).
 
 While algorithm agility allows the migration to stronger algorithms
 it does not prevent the use of weaker algorithms.
-Digest fields do not provide any mitigiations for downgrade or substitution 
+Digest fields do not provide any mitigiations for downgrade or substitution
 attacks (see Section 1 of {{?RFC6211}}) of the digest-algorithm.
 To protect against such attacks, endpoints could restrict their set of supported algorithms
 to stronger ones and protect the fields value by using TLS and/or digital signatures.
@@ -723,27 +819,27 @@ Status:  permanent
 
 Specification document(s):  {{digest}} of this document
 
-## Want-Content-Digest Field Registration
+## Want-Content-Chymify Field Registration
 
-This section registers the `Want-Content-Digest` field in the "Hypertext Transfer
+This section registers the `Want-Content-Chymify` field in the "Hypertext Transfer
 Protocol (HTTP) Field Name Registry" {{SEMANTICS}}.
 
-Field name:  `Want-Content-Digest`
+Field name:  `Want-Content-Chymify`
 
 Status:  permanent
 
 Specification document(s):  {{want-fields}} of this document
 
-## Content-Digest Field Registration
+## Content-Chymify Field Registration
 
-This section registers the `Content-Digest` field in the "Hypertext Transfer Protocol
+This section registers the `Content-Chymify` field in the "Hypertext Transfer Protocol
 (HTTP) Field Name Registry" {{SEMANTICS}}.
 
-Field name:  `Content-Digest`
+Field name:  `Content-Chymify`
 
 Status:  permanent
 
-Specification document(s):  {{content-digest}} of this document
+Specification document(s):  {{content-chymify}} of this document
 
 --- back
 
@@ -854,8 +950,8 @@ Location: /authors/123
 # Examples of Unsolicited Digest {#examples-unsolicited}
 
 The following examples demonstrate interactions where a server responds with a
-`Digest` or `Content-Digest` fields even though the client did not solicit one using
-`Want-Digest` or `Want-Content-Digest`.
+`Digest` or `Content-Chymify` fields even though the client did not solicit one using
+`Want-Digest` or `Want-Content-Chymify`.
 
 Some examples include JSON objects in the content.
 For presentation purposes, objects that fit completely within the line-length limits
@@ -867,12 +963,12 @@ Checksum mechanisms defined in this document are media-type agnostic
 and do not provide canonicalization algorithms for specific formats.
 Examples are calculated inclusive of any space.
 While examples can include both fields,
-`Digest` and `Content-Digest` can be returned independently.
+`Digest` and `Content-Chymify` can be returned independently.
 
 ## Server Returns Full Representation Data {#example-full-representation}
 
 In this example, the message content conveys complete representation data,
-so `Digest` and `Content-Digest` have the same value.
+so `Digest` and `Content-Chymify` have the same value.
 
 ~~~ http-message
 GET /items/123 HTTP/1.1
@@ -885,11 +981,11 @@ Host: foo.example
 HTTP/1.1 200 OK
 Content-Type: application/json
 Digest: sha-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu9DBPE=
-Content-Digest: sha-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu9DBPE=
+Content-Chymify: sha-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu9DBPE=
 
 {"hello": "world"}
 ~~~
-{: title="Response with Content-Digest"}
+{: title="Response with Content-Chymify"}
 
 ## Server Returns No Representation Data
 
@@ -899,7 +995,7 @@ of a resource.
 The response `Digest` field-value is calculated over the JSON object
 `{"hello": "world"}`, which is not shown because there is no payload
 data.
-`Content-Digest` is computed on empty content.
+`Content-Chymify` is computed on empty content.
 
 ~~~ http-message
 HEAD /items/123 HTTP/1.1
@@ -912,16 +1008,16 @@ Host: foo.example
 HTTP/1.1 200 OK
 Content-Type: application/json
 Digest: sha-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu9DBPE=
-Content-Digest: sha-256=47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=
+Content-Chymify: sha-256=47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=
 
 ~~~
-{: title="Response with both Content-Digest and Digest; empty content"}
+{: title="Response with both Content-Chymify and Digest; empty content"}
 
 ## Server Returns Partial Representation Data
 
 In this example, the client makes a range request and the server responds with
 partial content. The `Digest` field-value represents the entire JSON object
-`{"hello": "world"}`, while the `Content-Digest` field-value is computed on the
+`{"hello": "world"}`, while the `Content-Chymify` field-value is computed on the
 message content `"hello"`.
 
 ~~~ http-message
@@ -937,11 +1033,11 @@ HTTP/1.1 206 Partial Content
 Content-Type: application/json
 Content-Range: bytes 1-7/18
 Digest: sha-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu9DBPE=
-Content-Digest: sha-256=Wqdirjg/u3J688ejbUlApbjECpiUUtIwT8lY/z81Tno=
+Content-Chymify: sha-256=Wqdirjg/u3J688ejbUlApbjECpiUUtIwT8lY/z81Tno=
 
 "hello"
 ~~~
-{: title="Partial response with both Content-Digest and Digest"}
+{: title="Partial response with both Content-Chymify and Digest"}
 
 
 ## Client and Server Provide Full Representation Data
@@ -1078,7 +1174,7 @@ Digest: sha-256=yxOAqEeoj+reqygSIsLpT0LhumrNkIds5uLKtmdLyYE=
 
 Note that a `204 No Content` response without content but with the same
 `Digest` field-value would have been legitimate too.
-In that case, `Content-Digest` would have been computed on an empty content.
+In that case, `Content-Chymify` would have been computed on an empty content.
 
 ## POST Response Describes the Request Status {#post-referencing-status}
 
@@ -1222,7 +1318,7 @@ Digest: sha-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu9DBPE=
 
 The following examples demonstrate interactions where a client solicits a
 `Digest` using `Want-Digest`.
-The behavior of `Content-Digest` and `Want-Content-Digest` is identical.
+The behavior of `Content-Chymify` and `Want-Content-Chymify` is identical.
 
 Some examples include JSON objects in the content.
 For presentation purposes, objects that fit completely within the line-length limits
