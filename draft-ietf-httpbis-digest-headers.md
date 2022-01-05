@@ -377,8 +377,8 @@ Algorithms used in `Representation-Digest` and `Content-Digest` are communicated
 using the value of `Digest Dictionary key`. The encoding for these fields is
 always sf-binary.
 
-Algorithms used in `Want-Representation-Digest` and `Want-Content-Digest` are communicated
-using the value of `Digest List item`.
+Algorithms used in `Want-Representation-Digest` and `Want-Content-Digest` are
+communicated using the value of `Digest List item`.
 
 Registrations MUST include the following fields:
 
