@@ -893,6 +893,16 @@ restrictions specified by its cookie policy, described in {{cookie-policy}}).
 However, such additional restrictions may reduce the likelihood that a user
 agent will be able to interoperate with existing servers.
 
+## The Set-Cookie Header Field {#set-cookie}
+
+When a user agent receives a Set-Cookie header field in an HTTP response, the
+user agent MAY ignore the Set-Cookie header field in its entirety
+(see {{ignoring-cookies}}).
+
+If the user agent does not ignore the Set-Cookie header field in its entirety,
+the user agent MUST parse the field-value of the Set-Cookie header field as
+defined in {{parsing}}.
+
 ## Subcomponent Algorithms
 
 This section defines some algorithms used by user agents to process specific
@@ -1253,15 +1263,7 @@ Set-Cookie: __host-SID=12345; Secure; Path=/
 Set-Cookie: __HOST-SID=12345; Secure; Path=/
 ~~~
 
-## The Set-Cookie Header Field {#set-cookie}
-
-When a user agent receives a Set-Cookie header field in an HTTP response, the
-user agent MAY ignore the Set-Cookie header field in its entirety
-(see {{ignoring-cookies}}).
-
-If the user agent does not ignore the Set-Cookie header field in its entirety,
-the user agent MUST parse the field-value of the Set-Cookie header field as a
-set-cookie-string (defined below).
+## Cookie Parsing {#parsing}
 
 NOTE: The algorithm below is more permissive than the grammar in {{sane-set-cookie}}.
 For example, the algorithm strips leading and trailing whitespace from the
@@ -1283,83 +1285,85 @@ percent-encoded as per {{Section 2.1 of RFC3986}}. However, a user agent
 MUST NOT decode these sequences and instead parse the individual octets
 as specified in this algorithm.
 
-A user agent MUST use an algorithm equivalent to the following algorithm to
-parse a set-cookie-string:
+XXX: Need to sort out byte sequence vs "string" here. (Should say bytes instead
+of characters, for example).
 
-1.  If the set-cookie-string contains a %x00-08 / %x0A-1F / %x7F character
-    (CTL characters excluding HTAB):
-    Abort these steps and ignore the set-cookie-string entirely.
+To parse a cookie given a byte sequence _input_, a boolean _isSecure_, a host
+_host_, URL-Path _requestPath_,
+the user agent MUST run the following steps which return a new cookie or failure:
 
-2.  If the set-cookie-string contains a %x3B (";") character:
+1.  If _input_ contains a %x00-08 / %x0A-1F / %x7F character
+    (CTL characters excluding HTAB): Abort these steps.
 
-    1.  The name-value-pair string consists of the characters up to, but not
-        including, the first %x3B (";"), and the unparsed-attributes consist of
-        the remainder of the set-cookie-string (including the %x3B (";") in
-        question).
+1.  Let _nameValueInput_ be null.
 
-    Otherwise:
+1.  Let _attributesInput_ be the empty string.
 
-    1.  The name-value-pair string consists of all the characters contained in
-        the set-cookie-string, and the unparsed-attributes is the empty
-        string.
+1.  If _input_ contains a %x3B (";") character, then
+    set _nameValueInput_ to the characters up to, but not including,
+    the first %x3B (";"), and _attributesInput_ to the remainder of
+    _input_ (including the %x3B (";") in question).
 
-3.  If the name-value-pair string lacks a %x3D ("=") character, then the name
-    string is empty, and the value string is the value of name-value-pair.
+1.  Otherwise, set _nameValueInput_ to _input_.
 
-    Otherwise, the name string consists of the characters up to, but not
-    including, the first %x3D ("=") character, and the (possibly empty) value
-    string consists of the characters after the first %x3D ("=") character.
+1.  Let _name_ be null.
 
-4.  Remove any leading or trailing WSP characters from the name string and the
-    value string.
+1.  Let _value_ be null.
 
-5.  If the sum of the lengths of the name string and the value string is more
-    than 4096 octets, abort these steps and ignore the set-cookie-string entirely.
+1.  If _nameValueInput_ lacks a %x3D ("=") character, then set _name_
+    to the empty string, and _value_ to _nameValueInput_.
 
-6.  The cookie-name is the name string, and the cookie-value is the value string.
+1.  Otherwise, set _name_ to the characters up to, but not
+    including, the first %x3D ("=") character, and set _value_
+    to the characters after the first %x3D ("=") character (possibly being the
+    empty string).
 
-The user agent MUST use an algorithm equivalent to the following algorithm to
-parse the unparsed-attributes:
+1.  Remove any leading or trailing WSP characters from _name_ and _value_.
 
-1.  If the unparsed-attributes string is empty, skip the rest of these steps.
+1.  If the sum of the lengths of _name_ and _value_ is greater than 4096 octets,
+    abort these steps.
 
-2.  Discard the first character of the unparsed-attributes (which will be a
-    %x3B (";") character).
+1.  Let _attributes_ be the result of parsing cookie attributes given _attributesInput_.
 
-3.  If the remaining unparsed-attributes contains a %x3B (";") character:
+1.  Return _name_ and _value_ and _attributes_.
 
-    1.  Consume the characters of the unparsed-attributes up to, but not
-        including, the first %x3B (";") character.
+To parse cookie attributes given a byte sequence _input_, the user agent MUST use an algorithm equivalent to the following algorithm which returns a list of byte sequence pairs (name, value).
 
-    Otherwise:
+1.  Let _cookieAttributes_ be an empty list.
 
-    1. Consume the remainder of the unparsed-attributes.
+1.  While _input_ is not empty:
 
-    Let the cookie-av string be the characters consumed in this step.
+    1.  Let _char_ be the result of consuming the first character of _input_.
 
-4.  If the cookie-av string contains a %x3D ("=") character:
+    1.  Assert: _char_ is a %x3B (";") character.
 
-    1.  The (possibly empty) attribute-name string consists of the characters
-        up to, but not including, the first %x3D ("=") character, and the
-        (possibly empty) attribute-value string consists of the characters
+    1.  Let _nameValueInput_ be null.
+
+    1.  If the remaining _input_ contains a %x3B (";") character,
+        set _nameValueInput_ to the result of consuming the characters of
+        the unparsed-attributes up to, but not including, the first %x3B (";") character.
+
+    1.  Otherwise, set _nameValueInput_ to the result of consuming the remainder of the unparsed-attributes.
+
+    1.  Let _name_ be null.
+
+    1.  Let _value_ be the empty string.
+
+    1.  If _nameValueInput_ contains a %x3D ("=") character, set _name_ to the characters
+        up to, but not including, the first %x3D ("=") character, and _value_ to the characters
         after the first %x3D ("=") character.
 
-    Otherwise:
+    1.  Otherwise, set _name_ to _nameValueInput_.
 
-    1.  The attribute-name string consists of the entire cookie-av string,
-        and the attribute-value string is empty.
+    1.  Remove any leading or trailing WSP characters from _name_ and _value_.
 
-5.  Remove any leading or trailing WSP characters from the attribute-name
-    string and the attribute-value string.
+    1.  If _value_ is longer than 1024 octets, continue.
 
-6.  If the attribute-value is longer than 1024 octets, ignore the cookie-av
-    string and return to Step 1 of this algorithm.
+    1.  Process _name_ and _value_ according to the
+        requirements in the following subsections. (Notice that attributes with
+        unrecognized _name_ are ignored.)
 
-7.  Process the attribute-name and attribute-value according to the
-    requirements in the following subsections. (Notice that attributes with
-    unrecognized attribute-names are ignored.)
-
-8.  Return to Step 1 of this algorithm.
+1.  Return _cookieAttributes_.
 
 When the user agent finishes parsing the set-cookie-string, the user agent is
 said to "receive a cookie" from the request-uri with name cookie-name,
@@ -1552,7 +1556,9 @@ with
            time elapsed since the cookie's creation-time is at most a
            duration of the user agent's choosing.
 
-## Storage Model {#storage-model}
+## Cookie Validation {#validation}
+
+## Cookie Storage {#storage-model}
 
 The user agent stores the following fields about each cookie: name, value,
 expiry-time, domain, path, creation-time, last-access-time,
@@ -1562,9 +1568,6 @@ and same-site-flag.
 When the user agent "receives a cookie" from a request-uri with name
 cookie-name, value cookie-value, and attributes cookie-attribute-list, the
 user agent MUST process the cookie as follows:
-
-1.  A user agent MAY ignore a received cookie in its entirety. See
-    {{ignoring-cookies}}.
 
 2. If cookie-name is empty and cookie-value is empty, abort these steps and
    ignore the cookie entirely.
