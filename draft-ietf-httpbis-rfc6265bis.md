@@ -536,6 +536,39 @@ default to {{sane-profile}}'s requirements.
 Doing so will reduce the chances that a developer's application can
 inadvertently create cookies that cannot be read by other servers.
 
+# Cookie representation {#cookie-representation}
+
+A cookie is a struct that represents a piece of state to be transmitted between a client and a
+server. To disambiguate from the Cookie response header it can also be referred to as a cookie
+record.
+
+A cookie's name is a byte sequence. It always needs to be set.
+
+A cookie's value is a byte sequence. It always needs to be set.
+
+<!--
+A cookie's partition is null or a partition-key. It is initially null.
+-->
+
+A cookie's secure is a boolean. It is initially false.
+
+A cookie's host is a host. It always needs to be set. FIXME: Should this be a domain?
+
+A cookie's host-only is a boolean. It is initially false.
+
+A cookie's path is a URL path.
+
+A cookie's same-site is "strict", "lax", "none", or "unset". It is initially unset.
+
+A cookie's http-only is a boolean. It is initially false.
+
+A cookie's creation-time is a time. It is initially the current time.
+
+A cookie's expiry-time is null or a time. It is initially null. Note: A previous version of this
+document referred to null as a distinct "persistent-flag".
+
+A cookie's last-access-time is null or a time. It is initially null.
+
 # Server Requirements {#sane-profile}
 
 This section describes the syntax and semantics of a well-behaved profile of the
