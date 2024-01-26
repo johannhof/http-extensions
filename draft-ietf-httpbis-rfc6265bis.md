@@ -1356,15 +1356,10 @@ the user agent MUST run the following steps which return a new cookie or failure
 1.  If the sum of the lengths of _name_ and _value_ is greater than 4096 octets,
     abort these steps.
 
-1.  Let _attributes_ be the result of parsing cookie attributes given _attributesInput_.
-
-1.  Return _name_ and _value_ and _attributes_.
-
-To parse cookie attributes given a byte sequence _input_, the user agent MUST use an algorithm equivalent to the following algorithm which returns a list of byte sequence pairs (name, value).
-
-1.  Let _cookieAttributes_ be an empty list.
+1. Let _cookie_ be a new Cookie given _name_ and _value_.
 
 1.  While _input_ is not empty:
+    1.  Let _maxAgeSeen_ be false.
 
     1.  Let _char_ be the result of consuming the first character of _input_.
 
@@ -1378,144 +1373,109 @@ To parse cookie attributes given a byte sequence _input_, the user agent MUST us
 
     1.  Otherwise, set _nameValueInput_ to the result of consuming the remainder of the unparsed-attributes.
 
-    1.  Let _name_ be null.
+    1.  Let _attributeName_ be null.
 
-    1.  Let _value_ be the empty string.
+    1.  Let _attributeValue_ be the empty string.
 
-    1.  If _nameValueInput_ contains a %x3D ("=") character, set _name_ to the characters
-        up to, but not including, the first %x3D ("=") character, and _value_ to the characters
+    1.  If _nameValueInput_ contains a %x3D ("=") character, set _attributeName_ to the characters
+        up to, but not including, the first %x3D ("=") character, and _attributeValue_ to the characters
         after the first %x3D ("=") character.
 
-    1.  Otherwise, set _name_ to _nameValueInput_.
+    1.  Otherwise, set _attributeName_ to _nameValueInput_.
 
-    1.  Remove any leading or trailing WSP characters from _name_ and _value_.
+    1.  Remove any leading or trailing WSP characters from _attributeName_ and _attributeValue_.
 
-    1.  If _value_ is longer than 1024 octets, continue.
+    1.  If _attributeValue_ is longer than 1024 octets, continue.
 
-    1.  Process _name_ and _value_ according to the
-        requirements in the following subsections. (Notice that attributes with
-        unrecognized _name_ are ignored.)
+    1.  If _attributeName_ case-insensitively matches the string "Expires":
 
-1.  Return _cookieAttributes_.
+        1.  If _maxAgeSeen_ is true, continue.
 
-When the user agent finishes parsing the set-cookie-string, the user agent is
-said to "receive a cookie" from the request-uri with name cookie-name,
-value cookie-value, and attributes cookie-attribute-list. (See {{storage-model}}
-for additional requirements triggered by receiving a cookie.)
+        1.  Let _expiryTime_ be the result of parsing _attributeValue_ as
+            cookie-date (see {{cookie-date}}).
 
-### The Expires Attribute
+        1.  If _attributeValue_ failed to parse as a cookie date, continue.
 
-If the attribute-name case-insensitively matches the string "Expires", the
-user agent MUST process the cookie-av as follows.
+        1.  Let _cookieAgeLimit_ be the maximum age of the cookie (which SHOULD
+            be 400 days in the future or sooner (see {{cookie-policy}})).
 
-1.  Let the expiry-time be the result of parsing the attribute-value as
-    cookie-date (see {{cookie-date}}).
+        1.  If _expiryTime_ is greater than _cookieAgeLimit_, then set _expiryTime_
+            to _cookieAgeLimit_.
 
-2.  If the attribute-value failed to parse as a cookie date, ignore the
-    cookie-av.
+        1.  If _expiryTime_ is earlier than the earliest date the user agent can
+            represent, the user agent MAY replace _expiryTime_ with the earliest
+            representable date.
 
-3.  Let cookie-age-limit be the maximum age of the cookie (which SHOULD be 400 days
-    in the future or sooner, see {{attribute-expires}}).
+        1.  Set _cookie_'s expiry-time to _expiryTime_.
 
-4.  If the expiry-time is more than cookie-age-limit, the user agent MUST set the
-    expiry time to cookie-age-limit in seconds.
+    1.  If _attributeName_ case-insensitively matches the string "Max-Age":
 
-5.  If the expiry-time is earlier than the earliest date the user agent can
-    represent, the user agent MAY replace the expiry-time with the earliest
-    representable date.
+      1.  If _attributeValue_ is empty, continue.
 
-6.  Append an attribute to the cookie-attribute-list with an attribute-name
-    of Expires and an attribute-value of expiry-time.
+      1.  If the first character of _attributeValue_ is neither a DIGIT, nor a "-"
+          character followed by a DIGIT, continue.
 
-### The Max-Age Attribute
+      1.  If the remainder of _attributeValue_ contains a non-DIGIT character, continue.
 
-If the attribute-name case-insensitively matches the string "Max-Age", the
-user agent MUST process the cookie-av as follows.
+      1.  Let _deltaSeconds_ be _attributeValue_ converted to a base 10 integer.
 
-1.  If the attribute-value is empty, ignore the cookie-av.
+      1.  Let _cookieAgeLimit_ be the maximum age of the cookie in seconds (which SHOULD
+          be 400 or less (see {{cookie-policy}})).
 
-2.  If the first character of the attribute-value is neither a DIGIT, nor a "-"
-    character followed by a DIGIT, ignore the cookie-av.
+      1.  Set _deltaSeconds_ to the smaller of its present value and _cookieAgeLimit_.
 
-3.  If the remainder of attribute-value contains a non-DIGIT character, ignore
-    the cookie-av.
+      1.  If _deltaSeconds_ is less than or equal to zero (0), let _expiryTime_ be
+          the earliest representable date and time. Otherwise, let _expiryTime_
+          be the current date and time plus _deltaSeconds_ seconds.
 
-4.  Let delta-seconds be the attribute-value converted to a base 10 integer.
+      1.  Set _cookie_'s expiry-time to _expiryTime_.
 
-5.  Let cookie-age-limit be the maximum age of the cookie (which SHOULD be 400 days
-    or less, see {{attribute-max-age}}).
+      1.  Set _maxAgeSeen_ to true.
 
-6.  Set delta-seconds to the smaller of its present value and cookie-age-limit.
+    1.  If _attributeName_ case-insensitively matches the string "Domain":
 
-7.  If delta-seconds is less than or equal to zero (0), let expiry-time be
-    the earliest representable date and time. Otherwise, let the expiry-time
-    be the current date and time plus delta-seconds seconds.
+      1.  If _attributeValue_ starts with %x2E ("."), set _attributeValue_ to be _attributeValue_
+          without its leading %x2E (".").
 
-8.  Append an attribute to the cookie-attribute-list with an attribute-name
-    of Max-Age and an attribute-value of expiry-time.
+      1.  Convert _attributeValue_ to lower case.
 
-### The Domain Attribute
+      1. Set _cookie_'s domain to _attributeValue_.
 
-If the attribute-name case-insensitively matches the string "Domain", the user
-agent MUST process the cookie-av as follows.
+    1.  If _attributeName_ case-insensitively matches the string "Path":
 
-1.  Let cookie-domain be the attribute-value.
+      1.  If _attributeValue_ is empty or if the first character of 
+          _attributeValue_ is not %x2F ("/"):
 
-2.  If cookie-domain starts with %x2E ("."), let cookie-domain be cookie-domain
-    without its leading %x2E (".").
+          TODO: Pass the right parameters to the "default-path" algorithm here
 
-3.  Convert the cookie-domain to lower case.
+          1.  Set _cookie_'s path to the default-path.
 
-4.  Append an attribute to the cookie-attribute-list with an attribute-name
-    of Domain and an attribute-value of cookie-domain.
+          Otherwise:
 
-### The Path Attribute
+          1.  Set _cookie_'s path to _attributeValue_.
 
-If the attribute-name case-insensitively matches the string "Path", the user
-agent MUST process the cookie-av as follows.
+    1.  If _attributeName_ case-insensitively matches the string "Secure":
 
-1.  If the attribute-value is empty or if the first character of the
-    attribute-value is not %x2F ("/"):
+      1. Set _cookie_'s secure to true.
 
-    1.  Let cookie-path be the default-path.
+    1.  If _attributeName_ case-insensitively matches the string "HttpOnly":
 
-    Otherwise:
+      1. Set _cookie_'s http-only to true.
 
-    1.  Let cookie-path be the attribute-value.
+    1.  If _attributeName_ case-insensitively matches the string "SameSite":
 
-2.  Append an attribute to the cookie-attribute-list with an attribute-name
-    of Path and an attribute-value of cookie-path.
+      1.  If _attributeValue_ is a case-insensitive match for "None", set _cookie_'s same-site to "none".
 
-### The Secure Attribute
+      1.  If _attributeValue_ is a case-insensitive match for "Strict", set _cookie_'s same-site to "strict".
 
-If the attribute-name case-insensitively matches the string "Secure", the
-user agent MUST append an attribute to the cookie-attribute-list with an
-attribute-name of Secure and an empty attribute-value.
+      1.  If _attributeValue_ is a case-insensitive match for "Lax", set _cookie_'s same-site to "lax".
 
-### The HttpOnly Attribute
+NOTE: Attributes with an unrecognized _attributeName_ are ignored.
 
-If the attribute-name case-insensitively matches the string "HttpOnly", the
-user agent MUST append an attribute to the cookie-attribute-list with an
-attribute-name of HttpOnly and an empty attribute-value.
+NOTE: This intentionally overrides earlier cookie attributes so that the last specified
+      cookie attribute "wins".
 
-### The SameSite Attribute
-
-If the attribute-name case-insensitively matches the string "SameSite", the
-user agent MUST process the cookie-av as follows:
-
-1.  Let `enforcement` be "Default".
-
-2.  If cookie-av's attribute-value is a case-insensitive match for "None",
-    set `enforcement` to "None".
-
-3.  If cookie-av's attribute-value is a case-insensitive match for "Strict",
-    set `enforcement` to "Strict".
-
-4.  If cookie-av's attribute-value is a case-insensitive match for "Lax", set
-    `enforcement` to "Lax".
-
-5.  Append an attribute to the cookie-attribute-list with an attribute-name
-    of "SameSite" and an attribute-value of `enforcement`.
+1. Return _cookie_.
 
 #### "Strict" and "Lax" enforcement {#strict-lax}
 
