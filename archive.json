@@ -1,0 +1,117 @@
+{
+  "magic": "E!vIA5L86J2I",
+  "timestamp": "2024-04-11T00:18:19.897586+00:00",
+  "repo": "johannhof/http-extensions",
+  "labels": [
+    {
+      "name": "bug",
+      "description": "Something isn't working",
+      "color": "d73a4a"
+    },
+    {
+      "name": "documentation",
+      "description": "Improvements or additions to documentation",
+      "color": "0075ca"
+    },
+    {
+      "name": "duplicate",
+      "description": "This issue or pull request already exists",
+      "color": "cfd3d7"
+    },
+    {
+      "name": "enhancement",
+      "description": "New feature or request",
+      "color": "a2eeef"
+    },
+    {
+      "name": "good first issue",
+      "description": "Good for newcomers",
+      "color": "7057ff"
+    },
+    {
+      "name": "help wanted",
+      "description": "Extra attention is needed",
+      "color": "008672"
+    },
+    {
+      "name": "invalid",
+      "description": "This doesn't seem right",
+      "color": "e4e669"
+    },
+    {
+      "name": "question",
+      "description": "Further information is requested",
+      "color": "d876e3"
+    },
+    {
+      "name": "wontfix",
+      "description": "This will not be worked on",
+      "color": "ffffff"
+    }
+  ],
+  "issues": [],
+  "pulls": [
+    {
+      "number": 1,
+      "id": "PR_kwDOGs4_ks5jzxol",
+      "title": "Add a section on cookie representation",
+      "url": "https://github.com/johannhof/http-extensions/pull/1",
+      "state": "MERGED",
+      "author": "annevk",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "This defines all the cookie fields we discussed. We will need to fiddle with the initial values some more as we go and also with some of the types potentially.\r\n\r\nIdeally we'd reference the Infra Standard directly for all of the definitions, but I'm not sure how to do that.",
+      "createdAt": "2024-01-11T13:39:40Z",
+      "updatedAt": "2024-01-12T08:28:08Z",
+      "baseRepository": "johannhof/http-extensions",
+      "baseRefName": "cookie-layering",
+      "baseRefOid": "63f5bfee9d2cbb2a28cf698dfdb248a8038caae5",
+      "headRepository": "annevk/http-extensions",
+      "headRefName": "cookie-representation",
+      "headRefOid": "e2e7745f82726cf5d3a6c3b7263ebfbb6cdd1a03",
+      "closedAt": "2024-01-11T21:20:34Z",
+      "mergedAt": "2024-01-11T21:20:34Z",
+      "mergedBy": "johannhof",
+      "mergeCommit": {
+        "oid": "2c3ecf6fea48c9e978a6dcbb5475f4a16d341eb4"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 2,
+      "id": "PR_kwDOGs4_ks5lJYus",
+      "title": "Operate on URL paths",
+      "url": "https://github.com/johannhof/http-extensions/pull/2",
+      "state": "OPEN",
+      "author": "annevk",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2024-01-26T10:33:02Z",
+      "updatedAt": "2024-01-26T10:33:28Z",
+      "baseRepository": "johannhof/http-extensions",
+      "baseRefName": "cookie-layering",
+      "baseRefOid": "e632c083dc62030ee09eeeadbfee9f440d8e6f0f",
+      "headRepository": "johannhof/http-extensions",
+      "headRefName": "default-cookie-path-and-path-matching",
+      "headRefOid": "6cd9164dc28e53b6cca6522f3a2436391d62f468",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [
+        {
+          "author": "annevk",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Ideally we'd add URL path serializing for a URL path to the URL standard as well.",
+          "createdAt": "2024-01-26T10:33:27Z",
+          "updatedAt": "2024-01-26T10:33:27Z"
+        }
+      ],
+      "reviews": []
+    }
+  ]
+}
