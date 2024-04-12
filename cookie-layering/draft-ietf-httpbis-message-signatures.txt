@@ -5,10 +5,10 @@
 HTTP                                                     A. Backman, Ed.
 Internet-Draft                                                    Amazon
 Intended status: Standards Track                          J. Richer, Ed.
-Expires: 29 July 2024                                Bespoke Engineering
+Expires: 14 October 2024                             Bespoke Engineering
                                                                M. Sporny
                                                           Digital Bazaar
-                                                         26 January 2024
+                                                           12 April 2024
 
 
                         HTTP Message Signatures
@@ -56,7 +56,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 29 July 2024.
+   This Internet-Draft will expire on 14 October 2024.
 
 Copyright Notice
 
@@ -4220,15 +4220,19 @@ Table of Contents
               <https://docs.aws.amazon.com/AmazonS3/latest/API/sig-v4-
               authenticating-requests.html>.
 
-   [BCP195]   Moriarty, K. and S. Farrell, "Deprecating TLS 1.0 and TLS
-              1.1", BCP 195, RFC 8996, March 2021.
+   [BCP195]   Best Current Practice 195,
+              <https://www.rfc-editor.org/info/bcp195>.
+              At the time of writing, this BCP comprises the following:
+
+              Moriarty, K. and S. Farrell, "Deprecating TLS 1.0 and TLS
+              1.1", BCP 195, RFC 8996, DOI 10.17487/RFC8996, March 2021,
+              <https://www.rfc-editor.org/info/rfc8996>.
 
               Sheffer, Y., Saint-Andre, P., and T. Fossati,
               "Recommendations for Secure Use of Transport Layer
               Security (TLS) and Datagram Transport Layer Security
-              (DTLS)", BCP 195, RFC 9325, November 2022.
-
-              <https://www.rfc-editor.org/info/bcp195>
+              (DTLS)", BCP 195, RFC 9325, DOI 10.17487/RFC9325, November
+              2022, <https://www.rfc-editor.org/info/rfc9325>.
 
    [CLIENT-CERT]
               Campbell, B. and M. Bishop, "Client-Cert HTTP Header
