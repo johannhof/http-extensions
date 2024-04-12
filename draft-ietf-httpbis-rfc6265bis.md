@@ -1326,7 +1326,7 @@ _host_, URL-Path _requestPath_,
 the user agent MUST run the following steps which return a new cookie or failure:
 
 1.  If _input_ contains a %x00-08 / %x0A-1F / %x7F character
-    (CTL characters excluding HTAB): Abort these steps.
+    (CTL characters excluding HTAB) return failure.
 
 1.  Let _nameValueInput_ be null.
 
@@ -1354,7 +1354,9 @@ the user agent MUST run the following steps which return a new cookie or failure
 1.  Remove any leading or trailing WSP characters from _name_ and _value_.
 
 1.  If the sum of the lengths of _name_ and _value_ is greater than 4096 octets,
-    abort these steps.
+    return failure.
+
+1. If _name_ is the empty string and _value_ is the empty string, then return failure.
 
 1. Let _cookie_ be a new Cookie given _name_ and _value_.
 
@@ -1410,40 +1412,40 @@ the user agent MUST run the following steps which return a new cookie or failure
 
     1.  If _attributeName_ case-insensitively matches the string "Max-Age":
 
-      1.  If _attributeValue_ is empty, continue.
+        1.  If _attributeValue_ is empty, continue.
 
-      1.  If the first character of _attributeValue_ is neither a DIGIT, nor a "-"
-          character followed by a DIGIT, continue.
+        1.  If the first character of _attributeValue_ is neither a DIGIT, nor a "-"
+            character followed by a DIGIT, continue.
 
-      1.  If the remainder of _attributeValue_ contains a non-DIGIT character, continue.
+        1.  If the remainder of _attributeValue_ contains a non-DIGIT character, continue.
 
-      1.  Let _deltaSeconds_ be _attributeValue_ converted to a base 10 integer.
+        1.  Let _deltaSeconds_ be _attributeValue_ converted to a base 10 integer.
 
-      1.  Let _cookieAgeLimit_ be the maximum age of the cookie in seconds (which SHOULD
-          be 400 or less (see {{cookie-policy}})).
+        1.  Let _cookieAgeLimit_ be the maximum age of the cookie in seconds (which SHOULD
+            be 400 or less (see {{cookie-policy}})).
 
-      1.  Set _deltaSeconds_ to the smaller of its present value and _cookieAgeLimit_.
+        1.  Set _deltaSeconds_ to the smaller of its present value and _cookieAgeLimit_.
 
-      1.  If _deltaSeconds_ is less than or equal to zero (0), let _expiryTime_ be
-          the earliest representable date and time. Otherwise, let _expiryTime_
-          be the current date and time plus _deltaSeconds_ seconds.
+        1.  If _deltaSeconds_ is less than or equal to zero (0), let _expiryTime_ be
+            the earliest representable date and time. Otherwise, let _expiryTime_
+            be the current date and time plus _deltaSeconds_ seconds.
 
-      1.  Set _cookie_'s expiry-time to _expiryTime_.
+        1.  Set _cookie_'s expiry-time to _expiryTime_.
 
-      1.  Set _maxAgeSeen_ to true.
+        1.  Set _maxAgeSeen_ to true.
 
     1.  If _attributeName_ case-insensitively matches the string "Domain":
 
-      1.  If _attributeValue_ starts with %x2E ("."), set _attributeValue_ to be _attributeValue_
-          without its leading %x2E (".").
+        1.  If _attributeValue_ starts with %x2E ("."), set _attributeValue_ to be _attributeValue_
+            without its leading %x2E (".").
 
-      1.  Convert _attributeValue_ to lower case.
+        1.  Convert _attributeValue_ to lower case.
 
-      1. Set _cookie_'s domain to _attributeValue_.
+        1. Set _cookie_'s domain to _attributeValue_.
 
     1.  If _attributeName_ case-insensitively matches the string "Path":
 
-      1.  If _attributeValue_ is empty or if the first character of 
+      1.  If _attributeValue_ is empty or if the first character of
           _attributeValue_ is not %x2F ("/"):
 
           TODO: Pass the right parameters to the "default-path" algorithm here
@@ -1456,19 +1458,19 @@ the user agent MUST run the following steps which return a new cookie or failure
 
     1.  If _attributeName_ case-insensitively matches the string "Secure":
 
-      1. Set _cookie_'s secure to true.
+        1. Set _cookie_'s secure to true.
 
     1.  If _attributeName_ case-insensitively matches the string "HttpOnly":
 
-      1. Set _cookie_'s http-only to true.
+        1. Set _cookie_'s http-only to true.
 
     1.  If _attributeName_ case-insensitively matches the string "SameSite":
 
-      1.  If _attributeValue_ is a case-insensitive match for "None", set _cookie_'s same-site to "none".
+        1.  If _attributeValue_ is a case-insensitive match for "None", set _cookie_'s same-site to "none".
 
-      1.  If _attributeValue_ is a case-insensitive match for "Strict", set _cookie_'s same-site to "strict".
+        1.  If _attributeValue_ is a case-insensitive match for "Strict", set _cookie_'s same-site to "strict".
 
-      1.  If _attributeValue_ is a case-insensitive match for "Lax", set _cookie_'s same-site to "lax".
+        1.  If _attributeValue_ is a case-insensitive match for "Lax", set _cookie_'s same-site to "lax".
 
 NOTE: Attributes with an unrecognized _attributeName_ are ignored.
 
@@ -1477,7 +1479,7 @@ NOTE: This intentionally overrides earlier cookie attributes so that the last sp
 
 1. Return _cookie_.
 
-#### "Strict" and "Lax" enforcement {#strict-lax}
+### "Strict" and "Lax" enforcement {#strict-lax}
 
 Same-site cookies in "Strict" enforcement mode will not be sent along with
 top-level navigations which are triggered from a cross-site document context.
@@ -1551,6 +1553,8 @@ with
 
 ## Cookie Validation {#validation}
 
+
+
 ## Cookie Storage {#storage-model}
 
 The user agent stores the following fields about each cookie: name, value,
@@ -1558,72 +1562,28 @@ expiry-time, domain, path, creation-time, last-access-time,
 persistent-flag, host-only-flag, secure-only-flag, http-only-flag,
 and same-site-flag.
 
-When the user agent "receives a cookie" from a request-uri with name
-cookie-name, value cookie-value, and attributes cookie-attribute-list, the
-user agent MUST process the cookie as follows:
+To store a Cookie _cookie_, given a URL _requestURL_ and a boolean requireHTTPOnly the user agent MUST run the following steps:
 
-2. If cookie-name is empty and cookie-value is empty, abort these steps and
-   ignore the cookie entirely.
+1. Assert _cookie_'s name is not empty and _cookie_'s value is not empty.
 
-3.  If the cookie-name or the cookie-value contains a
-    %x00-08 / %x0A-1F / %x7F character (CTL characters excluding HTAB),
-    abort these steps and ignore the cookie entirely.
+1. Assert that _cookie_'s name does not contain a
+    %x00-08 / %x0A-1F / %x7F character (CTL characters excluding HTAB).
 
-4.  If the sum of the lengths of cookie-name and cookie-value is more than
-    4096 octets, abort these steps and ignore the cookie entirely.
+1.  Assert that the sum of the lengths of _cookie_'s name and _cookie_'s value is not more than
+    4096 octets.
 
-5.  Create a new cookie with name cookie-name, value cookie-value. Set the
-    creation-time and the last-access-time to the current date and time.
+1.  Set _cookie_'s creation-time and last-access-time to the current date and time.
 
-6.  If the cookie-attribute-list contains an attribute with an attribute-name
-    of "Max-Age":
+XXX: Can we move the domain ASCII check to parsing?
 
-    1.  Set the cookie's persistent-flag to true.
-
-    2.  Set the cookie's expiry-time to attribute-value of the last
-        attribute in the cookie-attribute-list with an attribute-name of
-        "Max-Age".
-
-    Otherwise, if the cookie-attribute-list contains an attribute with an
-    attribute-name of "Expires" (and does not contain an attribute with an
-    attribute-name of "Max-Age"):
-
-    1.  Set the cookie's persistent-flag to true.
-
-    2.  Set the cookie's expiry-time to attribute-value of the last
-        attribute in the cookie-attribute-list with an attribute-name of
-        "Expires".
-
-    Otherwise:
-
-    1.  Set the cookie's persistent-flag to false.
-
-    2.  Set the cookie's expiry-time to the latest representable date.
-
-7.  If the cookie-attribute-list contains an attribute with an
-    attribute-name of "Domain":
-
-    1.  Let the domain-attribute be the attribute-value of the last
-        attribute in the cookie-attribute-list with both an
-        attribute-name of "Domain" and an attribute-value whose
-        length is no more than 1024 octets. (Note that a leading %x2E
-        ("."), if present, is ignored even though that character is not
-        permitted.)
-
-    Otherwise:
-
-    1.  Let the domain-attribute be the empty string.
-
-8.  If the domain-attribute contains a character that is not in the range of {{USASCII}}
+1.  If _cookie_'s domain contains a character that is not in the range of {{USASCII}}
     characters, abort these steps and ignore the cookie entirely.
 
-9.  If the user agent is configured to reject "public suffixes" and the
-    domain-attribute is a public suffix:
+1.  If the user agent is configured to reject "public suffixes" and _cookie_'s domain is a public suffix:
 
-    1.  If the domain-attribute is identical to the canonicalized
-        request-host:
+    1.  If _cookie_'s domain is identical to _requestURL_'s canonicalized host:
 
-        1.  Let the domain-attribute be the empty string.
+        1.  Set _cookie_'s domain to the empty string.
 
         Otherwise:
 
@@ -1632,43 +1592,25 @@ user agent MUST process the cookie as follows:
     NOTE: This step prevents `attacker.example` from disrupting the integrity of
     `site.example` by setting a cookie with a Domain attribute of "example".
 
-10. If the domain-attribute is non-empty:
+1. If _cookie_'s domain is non-empty:
 
-    1.  If the canonicalized request-host does not domain-match the
-        domain-attribute:
+    1.  If _requestURL_'s canonicalized host does not domain-match _cookie_'s domain:
 
         1.  Abort these steps and ignore the cookie entirely.
 
         Otherwise:
 
-        1.  Set the cookie's host-only-flag to false.
-
-        2.  Set the cookie's domain to the domain-attribute.
+        1.  Set _cookie_'s host-only to false.
 
     Otherwise:
 
-    1.  Set the cookie's host-only-flag to true.
+    1.  Set _cookie_'s host-only to true.
 
-    2.  Set the cookie's domain to the canonicalized request-host.
+    1.  Set _cookie_'s domain to the _requestURL_'s canonicalized host.
 
-11. If the cookie-attribute-list contains an attribute with an
-    attribute-name of "Path", set the cookie's path to attribute-value of
-    the last attribute in the cookie-attribute-list with both an
-    attribute-name of "Path" and an attribute-value whose length is no
-    more than 1024 octets. Otherwise, set the cookie's path to the
-    default-path of the request-uri.
-
-12. If the cookie-attribute-list contains an attribute with an
-    attribute-name of "Secure", set the cookie's secure-only-flag to true.
-    Otherwise, set the cookie's secure-only-flag to false.
-
-13.  If the scheme component of the request-uri does not denote a "secure"
-    protocol (as defined by the user agent), and the cookie's secure-only-flag
-    is true, then abort these steps and ignore the cookie entirely.
-
-14. If the cookie-attribute-list contains an attribute with an
-    attribute-name of "HttpOnly", set the cookie's http-only-flag to true.
-    Otherwise, set the cookie's http-only-flag to false.
+1. If _requestURL_'s scheme does not denote a "secure"
+   protocol (as defined by the user agent), and _cookie_'s secure-only
+   is true, then abort these steps and ignore the cookie entirely.
 
 15. If the cookie was received from a "non-HTTP" API and the cookie's
     http-only-flag is true, abort these steps and ignore the cookie entirely.
