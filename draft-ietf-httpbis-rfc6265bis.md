@@ -1059,37 +1059,40 @@ conditions hold:
 
     *   The string is a host name (i.e., not an IP address).
 
-### Paths and Path-Match {#cookie-path}
+### Paths: Cookie Default Path and Path Matching {#cookie-path}
 
-The user agent MUST use an algorithm equivalent to the following algorithm to
-compute the default-path of a cookie:
+To determine the **Cookie Default Path**, given a URL path _path_, run these steps.
+They return a URL path.
 
-1.  Let uri-path be the path portion of the request-uri if such a portion
-    exists (and empty otherwise).
+1.  Assert _path_ is a non-empty list.
 
-2.  If the uri-path is empty or if the first character of the uri-path is
-    not a %x2F ("/") character, output %x2F ("/") and skip the remaining steps.
+2.  If _path_'s size is greater than 1, then remove _path_'s last item.
 
-3.  If the uri-path contains no more than one %x2F ("/") character, output
-    %x2F ("/") and skip the remaining step.
+3.  Otherwise, set _path_[0] the empty string.
 
-4.  Output the characters of the uri-path from the first character up to, but
-    not including, the right-most %x2F ("/").
+4.  Return _path_.
 
-A request-path path-matches a given cookie-path if at least one of the
-following conditions holds:
+To determine if a URL path _requestPath_ **Path Matches** a URL path _cookiePath_, run these steps.
+They return a boolean.
 
-*   The cookie-path and the request-path are identical.
+1.  Let _serializedRequestPath_ be the result of URL path serializing _requestPath_.
 
-    Note that this differs from the rules in {{RFC3986}} for equivalence of the
-    path component, and hence two equivalent paths can have different cookies.
+2.  Let _serializedCookiePath_ be the result of URL path serializing _cookiePath_.
 
-*   The cookie-path is a prefix of the request-path, and the last character
-    of the cookie-path is %x2F ("/").
+3.  If _serializedCookiePath_ is _serializedRequestPath_, then return true.
 
-*   The cookie-path is a prefix of the request-path, and the first character
-    of the request-path that is not included in the cookie-path is a %x2F
-    ("/") character.
+4.  If _serializedCookiePath_ is a prefix of _serializedRequestPath_ and _serializedCookiePath_ ends
+    with a U+002F (/), then return true.
+
+5.  If _serializedCookiePath_ is a prefix of _serializedRequestPath_ and the first code point in
+    _serializedRequestPath_ that is not included in _serializedCookiePath_ is U+002F (/), then
+    return true.
+
+6.  Return false.
+
+<!-- It could be interesting to move Path Matching to the URL Standard. Service workers also needs
+     something like it if memory serves. Ideally it would even operate on URL path segments
+     directly. -->
 
 ## "Same-site" and "cross-site" Requests  {#same-site-requests}
 
@@ -1321,9 +1324,8 @@ as specified in this algorithm.
 XXX: Need to sort out byte sequence vs "string" here. (Should say bytes instead
 of characters, for example).
 
-To parse a cookie given a byte sequence _input_, a boolean _isSecure_, a host
-_host_, URL-Path _requestPath_,
-the user agent MUST run the following steps which return a new cookie or failure:
+To Parse A Cookie given a byte sequence _input_, a boolean _isSecure_, a host
+_host_, URL path _requestPath_, run these steps. They return a new cookie or failure:
 
 1.  If _input_ contains a %x00-08 / %x0A-1F / %x7F character
     (CTL characters excluding HTAB) return failure.
@@ -1448,13 +1450,11 @@ the user agent MUST run the following steps which return a new cookie or failure
       1.  If _attributeValue_ is empty or if the first character of
           _attributeValue_ is not %x2F ("/"):
 
-          TODO: Pass the right parameters to the "default-path" algorithm here
-
-          1.  Set _cookie_'s path to the default-path.
+          1.  Set _cookie_'s path to the result of running Cookie Default Path with _requestPath_.
 
           Otherwise:
 
-          1.  Set _cookie_'s path to _attributeValue_.
+          1.  Set _cookie_'s path to _attributeValue_ split on %x2F ("/").
 
     1.  If _attributeName_ case-insensitively matches the string "Secure":
 
