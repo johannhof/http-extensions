@@ -1,9 +1,9 @@
 ---
 title: "Cookies: HTTP State Management Mechanism"
-docname: draft-ietf-httpbis-rfc6265bis-latest
+docname: draft-ietf-httpbis-rfc6265ter-latest
 date: {DATE}
 category: std
-obsoletes: 6265
+obsoletes: 6265bis
 
 ipr: pre5378Trust200902
 area: Applications and Real-Time
@@ -19,28 +19,21 @@ venue:
   mail: ietf-http-wg@w3.org
   arch: https://lists.w3.org/Archives/Public/ietf-http-wg/
   repo: https://github.com/httpwg/http-extensions/labels/6265bis
-github-issue-label: 6265bis
+github-issue-label: 6265ter
 
 author:
 -
-  ins: S. Bingler
-  name: Steven Bingler
+  ins: J. Hofmann
+  name: Johann Hofmann
   role: editor
-  organization: Google LLC
-  email: bingler@google.com
+  organization: Google
+  email: johannhof@google.com
 -
-  ins: M. West
-  name: Mike West
+  ins: A. van Kesteren
+  name: Anne van Kesteren
   role: editor
-  organization: Google LLC
-  email: mkwst@google.com
-  uri: https://mikewest.org/
--
-  ins: J. Wilander
-  name: John Wilander
-  role: editor
-  organization: Apple, Inc
-  email: wilander@apple.com
+  organization: Apple
+  email: annevk@annevk.nl
 
 normative:
   RFC1034:
@@ -77,7 +70,7 @@ normative:
     -
       ins: A. van Kesteren
       name: Anne van Kesteren
-      organization: Mozilla
+      organization: Apple
   HTML:
     target: https://html.spec.whatwg.org/
     title: HTML
@@ -89,15 +82,15 @@ normative:
     -
       ins: S. Pieters
       name: Simon Pieters
-      organization: Opera
+      organization: Mozilla
     -
       ins: A. van Kesteren
       name: Anne van Kesteren
-      organization: Mozilla
+      organization: Apple
     -
       ins: P. Jägenstedt
       name: Philip Jägenstedt
-      organization: Opera
+      organization: Google
     -
       ins: D. Denicola
       name: Domenic Denicola
@@ -272,39 +265,14 @@ This document obsoletes {{RFC6265}}.
 
 # Conventions
 
-## Conformance Criteria
-
-The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
-"SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be
-interpreted as described in {{RFC2119}}.
-
-Requirements phrased in the imperative as part of algorithms (such as "strip any
-leading space characters" or "return false and abort these steps") are to be
-interpreted with the meaning of the key word ("MUST", "SHOULD", "MAY", etc.)
-used in introducing the algorithm.
-
-Conformance requirements phrased as algorithms or specific steps can be
-implemented in any manner, so long as the end result is equivalent. In
-particular, the algorithms defined in this specification are intended to be
-easy to understand and are not intended to be performant.
-
-## Syntax Notation
-
-This specification uses the Augmented Backus-Naur Form (ABNF) notation of
-{{RFC5234}}.
-
-The following core rules are included by reference, as defined in {{RFC5234}},
-Appendix B.1: ALPHA (letters), CR (carriage return), CRLF (CR LF), CTLs
-(controls), DIGIT (decimal 0-9), DQUOTE (double quote), HEXDIG
-(hexadecimal 0-9/A-F/a-f), LF (line feed), NUL (null octet), OCTET (any
-8-bit sequence of data except NUL), SP (space), HTAB (horizontal tab),
-CHAR (any {{USASCII}} character), VCHAR (any visible {{USASCII}} character),
-and WSP (whitespace).
-
-The OWS (optional whitespace) and BWS (bad whitespace) rules are defined in
-Section 5.6.3 of {{!HTTPSEM=I-D.ietf-httpbis-semantics}}.
-
 ## Terminology
+
+This specification depends on Infra. {{INFRA}}
+
+Some terms used in this specification are defined in the following standards and specifications:
+
+* HTTP {{HTTPSEM}}
+* URL {{URL}}
 
 The terms "user agent", "client", "server", "proxy", and "origin server" have
 the same meaning as in the HTTP/1.1 specification ({{HTTPSEM}}, Section 3).
@@ -329,23 +297,6 @@ The terms "active browsing context", "active document", "ancestor navigables",
 origin browsing context flag", "shared worker", "the worker's Documents",
 "top-level traversable", and "WorkerGlobalScope" are defined in {{HTML}}.
 
-"Service Workers" are defined in the Service Workers specification
-{{SERVICE-WORKERS}}.
-
-The term "origin", the mechanism of deriving an origin from a URI, and the "the
-same" matching algorithm for origins are defined in {{RFC6454}}.
-
-"Safe" HTTP methods include `GET`, `HEAD`, `OPTIONS`, and `TRACE`, as defined
-in Section 9.2.1 of {{HTTPSEM}}.
-
-A domain's "public suffix" is the portion of a domain that is controlled by a
-public registry, such as "com", "co.uk", and "pvt.k12.wy.us". A domain's
-"registrable domain" is the domain's public suffix plus the label to its left.
-That is, for `https://www.site.example`, the public suffix is `example`, and the
-registrable domain is `site.example`. Whenever possible, user agents SHOULD
-use an up-to-date public suffix list, such as the one maintained by the Mozilla
-project at {{PSL}}.
-
 The term "request", as well as a request's "client", "current url", "method",
 "target browsing context", and "url list", are defined in {{FETCH}}.
 
@@ -354,6 +305,23 @@ cookies, such as a web browser API that exposes cookies to scripts.
 
 The term "top-level navigation" refers to a navigation of a top-level
 traversable.
+
+## Syntax Notation
+
+This specification uses the Augmented Backus-Naur Form (ABNF) notation of
+{{RFC5234}}.
+
+The following core rules are included by reference, as defined in {{RFC5234}},
+Appendix B.1: ALPHA (letters), CR (carriage return), CRLF (CR LF), CTLs
+(controls), DIGIT (decimal 0-9), DQUOTE (double quote), HEXDIG
+(hexadecimal 0-9/A-F/a-f), LF (line feed), NUL (null octet), OCTET (any
+8-bit sequence of data except NUL), SP (space), HTAB (horizontal tab),
+CHAR (any {{USASCII}} character), VCHAR (any visible {{USASCII}} character),
+and WSP (whitespace).
+
+The OWS (optional whitespace) and BWS (bad whitespace) rules are defined in
+Section 5.6.3 of {{!HTTPSEM=I-D.ietf-httpbis-semantics}}.
+
 
 # Overview
 
@@ -552,13 +520,13 @@ A cookie's partition is null or a partition-key. It is initially null.
 
 A cookie's secure is a boolean. It is initially false.
 
-A cookie's host is a host. It always needs to be set. FIXME: Should this be a domain?
+A cookie's domain-attribute is a string. It is initially the empty string. Note: Once a cookie is in the user agent's cookie store its domain-attribute will be non-empty.
 
 A cookie's host-only is a boolean. It is initially false.
 
 A cookie's path is a URL path.
 
-A cookie's same-site is "strict", "lax", "none", or "unset". It is initially unset.
+A cookie's same-site is "strict", "lax", "none", or "unset". It is initially "unset".
 
 A cookie's http-only is a boolean. It is initially false.
 
@@ -1041,55 +1009,55 @@ A canonicalized host name is the string generated by the following algorithm:
 
 3.  Concatenate the resulting labels, separated by a %x2E (".") character.
 
+
 ### Domain Matching
 
-A string domain-matches a given domain string if at least one of the following
-conditions hold:
+A host _host_ **Domain-Matches** a string _domainAttributeValue_ if at least one of the following conditions hold:
 
-*   The domain string and the string are identical. (Note that both the domain
-    string and the string will have been canonicalized to lower case at this
-    point.)
+*   _host_ equals _domainAttributeValue_.
 
 *   All of the following conditions hold:
 
-    *   The domain string is a suffix of the string.
+    *   _host_ is a domain.
 
-    *   The last character of the string that is not included in the domain
-        string is a %x2E (".") character.
+    *   _host_ ends with the concatenation of U+002E (.) and _domainAttributeValue_.
 
-    *   The string is a host name (i.e., not an IP address).
 
-### Paths and Path-Match {#cookie-path}
+### Paths: Cookie Default Path and Path Matching {#cookie-path}
 
-The user agent MUST use an algorithm equivalent to the following algorithm to
-compute the default-path of a cookie:
+To determine the **Cookie Default Path**, given a URL path _path_, run these steps.
+They return a URL path.
 
-1.  Let uri-path be the path portion of the request-uri if such a portion
-    exists (and empty otherwise).
+1.  Assert _path_ is a non-empty list.
 
-2.  If the uri-path is empty or if the first character of the uri-path is
-    not a %x2F ("/") character, output %x2F ("/") and skip the remaining steps.
+2.  If _path_'s size is greater than 1, then remove _path_'s last item.
 
-3.  If the uri-path contains no more than one %x2F ("/") character, output
-    %x2F ("/") and skip the remaining step.
+3.  Otherwise, set _path_[0] the empty string.
 
-4.  Output the characters of the uri-path from the first character up to, but
-    not including, the right-most %x2F ("/").
+4.  Return _path_.
 
-A request-path path-matches a given cookie-path if at least one of the
-following conditions holds:
+To determine if a URL path _requestPath_ **Path-Matches** a URL path _cookiePath_, run these steps.
+They return a boolean.
 
-*   The cookie-path and the request-path are identical.
+1.  Let _serializedRequestPath_ be the result of URL path serializing _requestPath_.
 
-    Note that this differs from the rules in {{RFC3986}} for equivalence of the
-    path component, and hence two equivalent paths can have different cookies.
+2.  Let _serializedCookiePath_ be the result of URL path serializing _cookiePath_.
 
-*   The cookie-path is a prefix of the request-path, and the last character
-    of the cookie-path is %x2F ("/").
+3.  If _serializedCookiePath_ is _serializedRequestPath_, then return true.
 
-*   The cookie-path is a prefix of the request-path, and the first character
-    of the request-path that is not included in the cookie-path is a %x2F
-    ("/") character.
+4.  If _serializedCookiePath_ is a prefix of _serializedRequestPath_ and _serializedCookiePath_ ends
+    with a U+002F (/), then return true.
+
+5.  If _serializedCookiePath_ is a prefix of _serializedRequestPath_ and the first code point in
+    _serializedRequestPath_ that is not included in _serializedCookiePath_ is U+002F (/), then
+    return true.
+
+6.  Return false.
+
+<!-- It could be interesting to move Path Matching to the URL Standard. Service workers also needs
+     something like it if memory serves. Ideally it would even operate on URL path segments
+     directly. -->
+
 
 ## "Same-site" and "cross-site" Requests  {#same-site-requests}
 
@@ -1321,12 +1289,13 @@ as specified in this algorithm.
 XXX: Need to sort out byte sequence vs "string" here. (Should say bytes instead
 of characters, for example).
 
-To parse a cookie given a byte sequence _input_, a boolean _isSecure_, a host
-_host_, URL-Path _requestPath_,
-the user agent MUST run the following steps which return a new cookie or failure:
+### Parse a Cookie {#parse-a-cookie}
+
+To **Parse a Cookie** given a byte sequence _input_, a boolean _isSecure_, a host
+_host_, URL path _requestPath_, run these steps. They return a new cookie or failure:
 
 1.  If _input_ contains a %x00-08 / %x0A-1F / %x7F character
-    (CTL characters excluding HTAB) return failure.
+    (CTL characters excluding HTAB), then return failure.
 
 1.  Let _nameValueInput_ be null.
 
@@ -1358,9 +1327,10 @@ the user agent MUST run the following steps which return a new cookie or failure
 
 1. If _name_ is the empty string and _value_ is the empty string, then return failure.
 
-1. Let _cookie_ be a new Cookie given _name_ and _value_.
+1. Let _cookie_ be a new Cookie whose name is _name_ and value is _value_.
 
 1.  While _input_ is not empty:
+
     1.  Let _maxAgeSeen_ be false.
 
     1.  Let _char_ be the result of consuming the first character of _input_.
@@ -1441,20 +1411,18 @@ the user agent MUST run the following steps which return a new cookie or failure
 
         1.  Convert _attributeValue_ to lower case.
 
-        1. Set _cookie_'s domain to _attributeValue_.
+        1. Set _cookie_'s domain-attribute to _attributeValue_.
 
     1.  If _attributeName_ case-insensitively matches the string "Path":
 
       1.  If _attributeValue_ is empty or if the first character of
           _attributeValue_ is not %x2F ("/"):
 
-          TODO: Pass the right parameters to the "default-path" algorithm here
-
-          1.  Set _cookie_'s path to the default-path.
+          1.  Set _cookie_'s path to the result of running Cookie Default Path with _requestPath_.
 
           Otherwise:
 
-          1.  Set _cookie_'s path to _attributeValue_.
+          1.  Set _cookie_'s path to _attributeValue_ split on %x2F ("/").
 
     1.  If _attributeName_ case-insensitively matches the string "Secure":
 
@@ -1562,7 +1530,7 @@ expiry-time, domain, path, creation-time, last-access-time,
 persistent-flag, host-only-flag, secure-only-flag, http-only-flag,
 and same-site-flag.
 
-To store a Cookie _cookie_, given a URL _requestURL_ and a boolean requireHTTPOnly the user agent MUST run the following steps:
+To store a Cookie _cookie_, given a URL _requestURL_ and a boolean _httpOnlyAllowed_, the user agent MUST run the following steps:
 
 1. Assert _cookie_'s name is not empty and _cookie_'s value is not empty.
 
@@ -1576,14 +1544,14 @@ To store a Cookie _cookie_, given a URL _requestURL_ and a boolean requireHTTPOn
 
 XXX: Can we move the domain ASCII check to parsing?
 
-1.  If _cookie_'s domain contains a character that is not in the range of {{USASCII}}
+1.  If _cookie_'s domain-attribute contains a character that is not in the range of {{USASCII}}
     characters, abort these steps and ignore the cookie entirely.
 
-1.  If the user agent is configured to reject "public suffixes" and _cookie_'s domain is a public suffix:
+1.  If the user agent is configured to reject cookies for "public suffixes" and _cookie_'s domain-attribute is a public suffix:
 
-    1.  If _cookie_'s domain is identical to _requestURL_'s canonicalized host:
+    1.  If _cookie_'s domain-attribute is identical to _requestURL_'s canonicalized host:
 
-        1.  Set _cookie_'s domain to the empty string.
+        1.  Set _cookie_'s domain-attribute to the empty string.
 
         Otherwise:
 
@@ -1592,9 +1560,9 @@ XXX: Can we move the domain ASCII check to parsing?
     NOTE: This step prevents `attacker.example` from disrupting the integrity of
     `site.example` by setting a cookie with a Domain attribute of "example".
 
-1. If _cookie_'s domain is non-empty:
+1. If _cookie_'s domain-attribute is non-empty:
 
-    1.  If _requestURL_'s canonicalized host does not domain-match _cookie_'s domain:
+    1.  If _requestURL_'s canonicalized host does not domain-match _cookie_'s host:
 
         1.  Abort these steps and ignore the cookie entirely.
 
@@ -1606,29 +1574,36 @@ XXX: Can we move the domain ASCII check to parsing?
 
     1.  Set _cookie_'s host-only to true.
 
-    1.  Set _cookie_'s domain to the _requestURL_'s canonicalized host.
+    1.  Set _cookie_'s domain-attribute to the host serialization of _requestURL_'s host.
 
 1. If _requestURL_'s scheme does not denote a "secure"
    protocol (as defined by the user agent), and _cookie_'s secure-only
    is true, then abort these steps and ignore the cookie entirely.
 
-15. If the cookie was received from a "non-HTTP" API and the cookie's
-    http-only-flag is true, abort these steps and ignore the cookie entirely.
+1. If _httpOnlyAllowed_ is false and _cookie_'s http-only is true, abort
+   these steps and ignore the cookie entirely.
 
-16. If the cookie's secure-only-flag is false, and the scheme component of
-    request-uri does not denote a "secure" protocol, then abort these steps and
-    ignore the cookie entirely if the cookie store contains one or more cookies
-    that meet all of the following criteria:
+1. If _requestURL_'s scheme does not denote a "secure"
+   protocol (as defined by the user agent), and _cookie_'s secure-only
+   is false, then abort these steps and ignore the cookie entirely.
 
-    1.  Their name matches the name of the newly-created cookie.
+1. If the cookie's secure-only-flag is false, and the scheme component of
+   request-uri does not denote a "secure" protocol, then abort these steps and
+   ignore the cookie entirely if the cookie store contains at least one Cookie
+   _existingCookie_ that meets all of the following criteria:
 
-    2.  Their secure-only-flag is true.
+    1.  _existingCookie_'s name is equal to _cookie_'s name.
 
-    3.  Their domain domain-matches the domain of the newly-created cookie, or
+    2.  _existingCookie_'s secure-only is true.
+
+    XXX: We need to host parse these domain attributes here to make sure they're not IP addresses
+
+    3.  _existingCookie_'s domain-attribute Domain-Matches _cookie_'s domain-attribute, or
         vice-versa.
 
-    4.  The path of the newly-created cookie path-matches the path of the
-        existing cookie.
+    XXX: double-check this is in the correct order
+
+    4.  _cookie_'s path Path-Matches _existingCookie_'s path.
 
     Note: The path comparison is not symmetric, ensuring only that a
     newly-created, non-secure cookie does not overlay an existing secure
@@ -1637,13 +1612,9 @@ XXX: Can we move the domain ASCII check to parsing?
     non-secure cookie named 'a' could be set for a path of '/' or '/foo', but
     not for a path of '/login' or '/login/en'.
 
-17. If the cookie-attribute-list contains an attribute with an
-    attribute-name of "SameSite", and an attribute-value of "Strict", "Lax", or
-    "None", set the cookie's same-site-flag to the attribute-value of the last
-    attribute in the cookie-attribute-list with an attribute-name of "SameSite".
-    Otherwise, set the cookie's same-site-flag to "Default".
+XXX:
 
-18. If the cookie's `same-site-flag` is not "None":
+1.  If _cookie_'s same-site is not "none":
 
     1.  If the cookie was received from a "non-HTTP" API, and the API was called
         from a navigable's active document whose "site for cookies" is
@@ -1666,10 +1637,12 @@ XXX: Can we move the domain ASCII check to parsing?
 
     4.  Abort these steps and ignore the newly created cookie entirely.
 
-19. If the cookie's "same-site-flag" is "None", abort these steps and ignore the
-    cookie entirely unless the cookie's secure-only-flag is true.
+1. If _cookie_'s same-site is "none", abort these steps and ignore the
+   cookie entirely unless _cookie_'s secure-only is true.
 
-20. If the cookie-name begins with a case-insensitive match for the string
+XXX: Is "begins with a case insensitive match" a thing?
+
+1. If _cookie_'s name begins with a case-insensitive match for the string
     "__Secure-", abort these steps and ignore the cookie entirely unless the
     cookie's secure-only-flag is true.
 
@@ -1694,7 +1667,7 @@ XXX: Can we move the domain ASCII check to parsing?
       "__Host-"
 
 23. If the cookie store contains a cookie with the same name, domain,
-    host-only-flag, and path as the newly-created cookie:
+    host-only-flag, and path as the newly-created _cookie_:
 
     1.  Let old-cookie be the existing cookie with the same name, domain,
         host-only-flag, and path as the newly-created cookie. (Notice that this
@@ -1907,18 +1880,6 @@ Instead of providing string-based APIs to cookies, platforms would be
 well-served by providing more semantic APIs. It is beyond the scope of this
 document to recommend specific API designs, but there are clear benefits to
 accepting an abstract "Date" object instead of a serialized date string.
-
-## IDNA Dependency and Migration {#idna-migration}
-
-IDNA2008 {{RFC5890}} supersedes IDNA2003 {{RFC3490}}. However, there are
-differences between the two specifications, and thus there can be differences
-in processing (e.g., converting) domain name labels that have been registered
-under one from those registered under the other. There will be a transition
-period of some time during which IDNA2003-based domain name labels will exist
-in the wild. User agents SHOULD implement IDNA2008 {{RFC5890}} and MAY
-implement {{UTS46}} or {{RFC5895}} in order to facilitate their IDNA transition.
-If a user agent does not implement IDNA2008, the user agent MUST implement
-IDNA2003 {{RFC3490}}.
 
 # Privacy Considerations
 
