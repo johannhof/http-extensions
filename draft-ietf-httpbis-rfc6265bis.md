@@ -1294,158 +1294,152 @@ of characters, for example).
 To **Parse a Cookie** given a byte sequence _input_, a boolean _isSecure_, a host
 _host_, URL path _requestPath_, run these steps. They return a new cookie or failure:
 
-1.  If _input_ contains a %x00-08 / %x0A-1F / %x7F character
-    (CTL characters excluding HTAB), then return failure.
+1. If _input_ contains a byte in the range 0x00 to 0x08, inclusive,
+   the range 0x0A to 0x1F inclusive, or 0x7F (CTL bytes excluding HTAB),
+   then return failure.
 
-1.  Let _nameValueInput_ be null.
+1. Let _nameValueInput_ be null.
 
-1.  Let _attributesInput_ be the empty string.
+1. Let _attributesInput_ be the empty string.
 
-1.  If _input_ contains a %x3B (";") character, then
-    set _nameValueInput_ to the characters up to, but not including,
-    the first %x3B (";"), and _attributesInput_ to the remainder of
-    _input_ (including the %x3B (";") in question).
+1. If _input_ contains 0x3B (;), then set _nameValueInput_ to the bytes up to, but not including,
+   the first 0x3B (;), and _attributesInput_ to the remainder of _input_ (including the 0x3B (;) in question).
 
-1.  Otherwise, set _nameValueInput_ to _input_.
+1. Otherwise, set _nameValueInput_ to _input_.
 
-1.  Let _name_ be null.
+1. Let _name_ be null.
 
-1.  Let _value_ be null.
+1. Let _value_ be null.
 
-1.  If _nameValueInput_ lacks a %x3D ("=") character, then set _name_
-    to the empty string, and _value_ to _nameValueInput_.
+1. If _nameValueInput_ does not contain a 0x3D (=) character, then set _name_
+   to the empty byte sequence, and _value_ to _nameValueInput_.
 
-1.  Otherwise, set _name_ to the characters up to, but not
-    including, the first %x3D ("=") character, and set _value_
-    to the characters after the first %x3D ("=") character (possibly being the
-    empty string).
+1. Otherwise, set _name_ to the bytes up to, but not
+   including, the first 0x3D (=), and set _value_
+   to the bytes after the first 0x3D (=) (possibly being the
+   empty byte sequence).
 
-1.  Remove any leading or trailing WSP characters from _name_ and _value_.
+1. Remove any leading or trailing WSP bytes from _name_ and _value_.
 
-1.  If the sum of the lengths of _name_ and _value_ is greater than 4096 octets,
-    return failure.
-
-1. If _name_ is the empty string and _value_ is the empty string, then return failure.
+1. If _name_'s length + _value_'s length is 0 or is greater than 4096, then return failure.
 
 1. Let _cookie_ be a new Cookie whose name is _name_ and value is _value_.
 
-1.  While _input_ is not empty:
+1. While _attributesInput_ is not empty:
 
-    1.  Let _maxAgeSeen_ be false.
+    1. Let _maxAgeSeen_ be false.
 
-    1.  Let _char_ be the result of consuming the first character of _input_.
+    1. Let _char_ be the result of consuming the first byte of _attributesInput_.
 
-    1.  Assert: _char_ is a %x3B (";") character.
+    1. Assert: _char_ is 0x3B (;).
 
-    1.  Let _nameValueInput_ be null.
+    1. Let _attributeNameValueInput_ be null.
 
-    1.  If the remaining _input_ contains a %x3B (";") character,
-        set _nameValueInput_ to the result of consuming the characters of
-        the unparsed-attributes up to, but not including, the first %x3B (";") character.
+    1. If _attributesInput_ contains 0x3B (;), then
+       set _attributeNameValueInput_ to the result of consuming the bytes of
+       _attributesInput_ up to, but not including, the first 0x3B (;).
 
-    1.  Otherwise, set _nameValueInput_ to the result of consuming the remainder of the unparsed-attributes.
+    1. Otherwise, set _attributeNameValueInput_ to the result of consuming the remainder of _attributesInput_.
 
-    1.  Let _attributeName_ be null.
+    1. Let _attributeName_ be null.
 
-    1.  Let _attributeValue_ be the empty string.
+    1. Let _attributeValue_ be the empty string.
 
-    1.  If _nameValueInput_ contains a %x3D ("=") character, set _attributeName_ to the characters
-        up to, but not including, the first %x3D ("=") character, and _attributeValue_ to the characters
-        after the first %x3D ("=") character.
+    1. If _attributeNameValueInput_ contains a 0x3D (=), then set _attributeName_ to the bytes
+       up to, but not including, the first 0x3D (=) of _attributeNameValueInput_, and _attributeValue_ to the bytes
+       after the first 0x3D (=) of _attributeNameValueInput_.
 
-    1.  Otherwise, set _attributeName_ to _nameValueInput_.
+    1. Otherwise, set _attributeName_ to _attributeNameValueInput_.
 
-    1.  Remove any leading or trailing WSP characters from _attributeName_ and _attributeValue_.
+    1. Remove any leading or trailing WSP bytes from _attributeName_ and _attributeValue_.
 
-    1.  If _attributeValue_ is longer than 1024 octets, continue.
+    1. If _attributeValue_'s length is greater than 1024, then continue.
 
-    1.  If _attributeName_ case-insensitively matches the string "Expires":
+    1. If _attributeName_ is a byte-case-insensitive match for `Expires`:
 
-        1.  If _maxAgeSeen_ is true, continue.
+        1. If _maxAgeSeen_ is true, then continue.
 
-        1.  Let _expiryTime_ be the result of parsing _attributeValue_ as
-            cookie-date (see {{cookie-date}}).
+        1. Let _expiryTime_ be the result of parsing _attributeValue_ as
+           cookie-date (see {{cookie-date}}).
 
-        1.  If _attributeValue_ failed to parse as a cookie date, continue.
+        1. If _attributeValue_ failed to parse as a cookie date, then continue.
 
-        1.  Let _cookieAgeLimit_ be the maximum age of the cookie (which SHOULD
-            be 400 days in the future or sooner (see {{cookie-policy}})).
+        1. Let _cookieAgeLimit_ be the maximum age of the cookie (which SHOULD
+           be 400 days in the future or sooner (see {{cookie-policy}})).
 
-        1.  If _expiryTime_ is greater than _cookieAgeLimit_, then set _expiryTime_
-            to _cookieAgeLimit_.
+        1. If _expiryTime_ is greater than _cookieAgeLimit_, then set _expiryTime_
+           to _cookieAgeLimit_.
 
-        1.  If _expiryTime_ is earlier than the earliest date the user agent can
-            represent, the user agent MAY replace _expiryTime_ with the earliest
-            representable date.
+        1. If _expiryTime_ is earlier than the earliest date the user agent can
+           represent, the user agent MAY replace _expiryTime_ with the earliest
+           representable date.
 
-        1.  Set _cookie_'s expiry-time to _expiryTime_.
+        1. Set _cookie_'s expiry-time to _expiryTime_.
 
-    1.  If _attributeName_ case-insensitively matches the string "Max-Age":
+    1. If _attributeName_ is a byte-case-insensitive match for `Max-Age`:
 
-        1.  If _attributeValue_ is empty, continue.
+        1. If _attributeValue_ is empty, continue.
 
-        1.  If the first character of _attributeValue_ is neither a DIGIT, nor a "-"
-            character followed by a DIGIT, continue.
+        1. If the first byte of _attributeValue_ is neither a DIGIT, nor 0x2D (-)
+           followed by a DIGIT, then continue.
 
-        1.  If the remainder of _attributeValue_ contains a non-DIGIT character, continue.
+        1. If the remainder of _attributeValue_ contains a non-DIGIT, then continue.
 
-        1.  Let _deltaSeconds_ be _attributeValue_ converted to a base 10 integer.
+        1. Let _deltaSeconds_ be _attributeValue_, converted to a base 10 integer.
 
-        1.  Let _cookieAgeLimit_ be the maximum age of the cookie in seconds (which SHOULD
-            be 400 or less (see {{cookie-policy}})).
+        1. Let _cookieAgeLimit_ be the maximum age of the cookie in seconds (which SHOULD
+           be 400 or less (see {{cookie-policy}})).
 
-        1.  Set _deltaSeconds_ to the smaller of its present value and _cookieAgeLimit_.
+        1. Set _deltaSeconds_ to the smaller of _deltaSeconds_ and _cookieAgeLimit_.
 
-        1.  If _deltaSeconds_ is less than or equal to zero (0), let _expiryTime_ be
-            the earliest representable date and time. Otherwise, let _expiryTime_
-            be the current date and time plus _deltaSeconds_ seconds.
+        1. If _deltaSeconds_ is less than or equal to 0, let _expiryTime_ be
+           the earliest representable date and time. Otherwise, let _expiryTime_
+           be the current date and time plus _deltaSeconds_ seconds.
 
-        1.  Set _cookie_'s expiry-time to _expiryTime_.
+        1. Set _cookie_'s expiry-time to _expiryTime_.
 
-        1.  Set _maxAgeSeen_ to true.
+        1. Set _maxAgeSeen_ to true.
 
-    1.  If _attributeName_ case-insensitively matches the string "Domain":
+    1. If _attributeName_ is a byte-case-insensitive match for `Domain`:
 
-        1.  If _attributeValue_ starts with %x2E ("."), set _attributeValue_ to be _attributeValue_
-            without its leading %x2E (".").
+        1. If _attributeValue_ starts with 0x2E (.), then set _attributeValue_ to _attributeValue_
+           without its leading 0x2E (.).
 
-        1.  Convert _attributeValue_ to lower case.
+        1. Set _attributeValue_ to _attributeValue_, byte-lowercased.
 
         1. Set _cookie_'s domain-attribute to _attributeValue_.
 
-    1.  If _attributeName_ case-insensitively matches the string "Path":
+    1. If _attributeName_ is a byte-case-insensitive match for `Path`:
 
-      1.  If _attributeValue_ is empty or if the first character of
-          _attributeValue_ is not %x2F ("/"):
+        1. If _attributeValue_ is empty or if the first character of
+           _attributeValue_ is not %x2F ("/"), then set _cookie_'s path
+           to the result of running Cookie Default Path with _requestPath_.
 
-          1.  Set _cookie_'s path to the result of running Cookie Default Path with _requestPath_.
+        1. Otherwise, set _cookie_'s path to _attributeValue_ split on %x2F ("/").
 
-          Otherwise:
-
-          1.  Set _cookie_'s path to _attributeValue_ split on %x2F ("/").
-
-    1.  If _attributeName_ case-insensitively matches the string "Secure":
+    1.  If _attributeName_ is a byte-case-insensitive match for `Secure`:
 
         1. Set _cookie_'s secure to true.
 
-    1.  If _attributeName_ case-insensitively matches the string "HttpOnly":
+    1.  If _attributeName_ is a byte-case-insensitive match for `HttpOnly`:
 
         1. Set _cookie_'s http-only to true.
 
-    1.  If _attributeName_ case-insensitively matches the string "SameSite":
+    1.  If _attributeName_ is a byte-case-insensitive match for `SameSite`:
 
-        1.  If _attributeValue_ is a case-insensitive match for "None", set _cookie_'s same-site to "none".
+        1.  If _attributeValue_ is a byte-case-insensitive match for `None`, then set _cookie_'s same-site to "none".
 
-        1.  If _attributeValue_ is a case-insensitive match for "Strict", set _cookie_'s same-site to "strict".
+        1.  If _attributeValue_ is a byte-case-insensitive match for `Strict`, then set _cookie_'s same-site to "strict".
 
-        1.  If _attributeValue_ is a case-insensitive match for "Lax", set _cookie_'s same-site to "lax".
+        1.  If _attributeValue_ is a byte-case-insensitive match for `Lax`, then set _cookie_'s same-site to "lax".
+
+1. Return _cookie_.
 
 NOTE: Attributes with an unrecognized _attributeName_ are ignored.
 
-NOTE: This intentionally overrides earlier cookie attributes so that the last specified
+NOTE: This intentionally overrides earlier cookie attributes so that generally the last specified
       cookie attribute "wins".
 
-1. Return _cookie_.
 
 ### "Strict" and "Lax" enforcement {#strict-lax}
 
@@ -1530,7 +1524,8 @@ expiry-time, domain, path, creation-time, last-access-time,
 persistent-flag, host-only-flag, secure-only-flag, http-only-flag,
 and same-site-flag.
 
-To store a Cookie _cookie_, given a URL _requestURL_ and a boolean _httpOnlyAllowed_, the user agent MUST run the following steps:
+To store a Cookie _cookie_, given a URL _requestURL_, a boolean _httpOnlyAllowed_ and a boolean _sameSiteStrictOrLaxAllowed_,
+the user agent MUST run the following steps:
 
 1. Assert _cookie_'s name is not empty and _cookie_'s value is not empty.
 
@@ -1542,9 +1537,7 @@ To store a Cookie _cookie_, given a URL _requestURL_ and a boolean _httpOnlyAllo
 
 1.  Set _cookie_'s creation-time and last-access-time to the current date and time.
 
-XXX: Can we move the domain ASCII check to parsing?
-
-1.  If _cookie_'s domain-attribute contains a character that is not in the range of {{USASCII}}
+1.  If _cookie_'s domain-attribute contains a byte that is not in the range of {{USASCII}}
     characters, abort these steps and ignore the cookie entirely.
 
 1.  If the user agent is configured to reject cookies for "public suffixes" and _cookie_'s domain-attribute is a public suffix:
@@ -1612,9 +1605,10 @@ XXX: Can we move the domain ASCII check to parsing?
     non-secure cookie named 'a' could be set for a path of '/' or '/foo', but
     not for a path of '/login' or '/login/en'.
 
-XXX:
+1. If _cookie_'s same-site is not "none" and _sameSiteStrictOrLaxAllowed_ is false,
+   then abort these steps and ignore the cookie entirely.
 
-1.  If _cookie_'s same-site is not "none":
+XXX: Move these to browser specs to set _sameSiteStrictOrLaxAllowed_ appropriately
 
     1.  If the cookie was received from a "non-HTTP" API, and the API was called
         from a navigable's active document whose "site for cookies" is
@@ -1637,53 +1631,49 @@ XXX:
 
     4.  Abort these steps and ignore the newly created cookie entirely.
 
-1. If _cookie_'s same-site is "none", abort these steps and ignore the
-   cookie entirely unless _cookie_'s secure-only is true.
+1. If _cookie_'s same-site is "none" and _cookie_'s secure-only is false,
+   abort these steps and ignore the cookie entirely.
 
 XXX: Is "begins with a case insensitive match" a thing?
 
-1. If _cookie_'s name begins with a case-insensitive match for the string
-    "__Secure-", abort these steps and ignore the cookie entirely unless the
-    cookie's secure-only-flag is true.
+1. If _cookie_'s name byte-lowercased starts with the string "__secure-" and _cookie_'s secure-only is false,
+   abort these steps and ignore the cookie entirely.
 
-21. If the cookie-name begins with a case-insensitive match for the string
-    "__Host-", abort these steps and ignore the cookie entirely unless the
-    cookie meets all the following criteria:
+1. If _cookie_'s name byte-lowercased starts with the string
+   "__host-" and not all of the following are true:
 
-    1.  The cookie's secure-only-flag is true.
+    1. _cookie_'s secure-only is true.
 
-    2.  The cookie's host-only-flag is true.
+    1. _cookie_'s host-only is true.
+    
+    1. _cookie_'s path's size is 1 and _cookie_'s path[0] is the empty string.
 
-    3.  The cookie-attribute-list contains an attribute with an attribute-name
-        of "Path", and the cookie's path is `/`.
+    abort these steps and ignore the cookie entirely,       
 
-22. If the cookie-name is empty and either of the following conditions are
-    true, abort these steps and ignore the cookie:
+1. If _cookie_'s name is empty and either of the following conditions are
+   true, abort these steps and ignore the cookie:
 
-    * the cookie-value begins with a case-insensitive match for the string
+    * _cookie_'s value begins with a case-insensitive match for the string
       "__Secure-"
 
-    * the cookie-value begins with a case-insensitive match for the string
+    * _cookie_'s value begins with a case-insensitive match for the string
       "__Host-"
 
-23. If the cookie store contains a cookie with the same name, domain,
-    host-only-flag, and path as the newly-created _cookie_:
+1. If the cookie store contains a Cookie _oldCookie_ with the same name, domain-attribute,
+   host-only, and path as the newly-created _cookie_:
 
-    1.  Let old-cookie be the existing cookie with the same name, domain,
-        host-only-flag, and path as the newly-created cookie. (Notice that this
-        algorithm maintains the invariant that there is at most one such
-        cookie.)
+    NOTE: This algorithm maintains the invariant that there is at most one such cookie.
 
-    2.  If the newly-created cookie was received from a "non-HTTP" API and the
-        old-cookie's http-only-flag is true, abort these steps and ignore the
-        newly created cookie entirely.
+    1. If _httpOnlyAllowed_ is false and _oldCookie_'s http-only is true,
+       abort these steps and ignore the newly created cookie entirely.
 
-    3.  Update the creation-time of the newly-created cookie to match the
-        creation-time of the old-cookie.
+    1. Update _cookie_'s creation-time to _oldCookie_'s creation-time.
 
-    4.  Remove the old-cookie from the cookie store.
+    1. Remove _oldCookie_ from the cookie store.
 
-24. Insert the newly-created cookie into the cookie store.
+XXX: Define insertion operation for the cookie store including expiry.
+
+1. Insert _cookie_ into the cookie store.
 
 A cookie is "expired" if the cookie has an expiry date in the past.
 
