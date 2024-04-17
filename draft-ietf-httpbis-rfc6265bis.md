@@ -1,9 +1,9 @@
 ---
 title: "Cookies: HTTP State Management Mechanism"
-docname: draft-ietf-httpbis-rfc6265ter-latest
+docname: draft-ietf-httpbis-rfc6265bis-latest
 date: {DATE}
 category: std
-obsoletes: 6265bis
+obsoletes: 6265
 
 ipr: pre5378Trust200902
 area: Applications and Real-Time
@@ -242,12 +242,12 @@ This document obsoletes {{RFC6265}}.
 
 ## Terminology
 
-This specification depends on Infra. {{INFRA}}
+This specification depends on Infra. TODO: INFRA
 
 Some terms used in this specification are defined in the following standards and specifications:
 
 * HTTP {{HTTPSEM}}
-* URL {{URL}}
+* URL TODO: URL
 
 The terms "user agent", "client", "server", "proxy", and "origin server" have
 the same meaning as in the HTTP/1.1 specification ({{HTTPSEM}}, Section 3).
@@ -583,9 +583,8 @@ stripped. They are part of the cookie-value, and will be included in Cookie
 header fields sent to the server.
 
 The domain-value is a subdomain as defined by {{RFC1034}}, Section 3.5, and
-as enhanced by {{RFC1123}}, Section 2.1. Thus, domain-value is a string of
-{{USASCII}} characters, such as one obtained by applying the "ToASCII" operation
-defined in {{Section 4 of RFC3490}}.
+as enhanced by {{RFC1123}}, Section 2.1. Thus, domain-value is a byte sequence of
+ASCII bytes.
 
 The portions of the set-cookie-string produced by the cookie-av term are
 known as attributes. To maximize compatibility with user agents, servers SHOULD
@@ -1253,7 +1252,7 @@ of characters, for example).
 ### Parse a Cookie {#parse-a-cookie}
 
 To **Parse a Cookie** given a byte sequence _input_, a boolean _isSecure_, a host
-_host_, URL path _requestPath_, run these steps. They return a new cookie or failure:
+_host_, URL path _path_, run these steps. They return a new cookie or failure:
 
 1. If _input_ contains a byte in the range 0x00 to 0x08, inclusive,
    the range 0x0A to 0x1F inclusive, or 0x7F (CTL bytes excluding HTAB),
@@ -1285,6 +1284,10 @@ _host_, URL path _requestPath_, run these steps. They return a new cookie or fai
 1. If _name_'s length + _value_'s length is 0 or is greater than 4096, then return failure.
 
 1. Let _cookie_ be a new Cookie whose name is _name_ and value is _value_.
+
+1. Set _cookie_'s path to the result of running Cookie Default Path with _path_.
+
+   NOTE: A Path attribute can override this.
 
 1. While _attributesInput_ is not empty:
 
@@ -1364,25 +1367,23 @@ _host_, URL path _requestPath_, run these steps. They return a new cookie or fai
     1. If _attributeName_ is a byte-case-insensitive match for `Domain`:
 
         1. Let _host_ be failure.
-        
+
         1. If _attributeValue_ contains only ASCII bytes:
-        
+
             1. Let _hostInput_ be _attributeValue_, ASCII decoded.
-        
+
             1. If _hostInput_ starts with U+002E (.), then set _hostInput_ to _hostInput_
                without its leading U+002E (.).
-               
+
             1. Set _host_ to the result of host parsing _hostInput_.
-        
+
         1. Set _cookie_'s host to _host_.
 
     1. If _attributeName_ is a byte-case-insensitive match for `Path`:
 
-        1. If _attributeValue_ is empty or if the first character of
-           _attributeValue_ is not %x2F ("/"), then set _cookie_'s path
-           to the result of running Cookie Default Path with _requestPath_.
-
-        1. Otherwise, set _cookie_'s path to _attributeValue_ split on %x2F ("/").
+        1. If _attributeValue_ is not empty and if the first byte of
+           _attributeValue_ is 0x2F (/), then set _cookie_'s path to _attributeValue_
+           split on 0x2F (/).
 
     1.  If _attributeName_ is a byte-case-insensitive match for `Secure`:
 
@@ -1480,10 +1481,6 @@ with
            time elapsed since the cookie's creation-time is at most a
            duration of the user agent's choosing.
 
-## Cookie Validation {#validation}
-
-
-
 ## Cookie Storage {#storage-model}
 
 
@@ -1514,13 +1511,21 @@ At any time, the user agent MAY "remove excess cookies" from the cookie store
 if the cookie store exceeds some predetermined upper bound (such as 3000
 cookies).
 
-When the user agent removes excess cookies from the cookie store, the user
+XXX: Finish these steps
+
+To **Remove Expired Cookies** from the cookie store, the user
 agent MUST evict cookies in the following priority order:
 
 1.  Expired cookies.
 
-2.  Cookies whose secure-only-flag is false, and which share a domain field
+To **Remove Excess Cookies for a Domain** from the cookie store, the user
+agent MUST evict cookies in the following priority order:
+
+2.  Cookies whose secure is false, and which share a domain field
     with more than a predetermined number of other cookies.
+
+To **Remove Global Excess Cookies** from the cookie store, the user
+agent MUST evict cookies in the following priority order:
 
 3.  Cookies that share a domain field with more than a predetermined number of
     other cookies.
@@ -1530,25 +1535,9 @@ agent MUST evict cookies in the following priority order:
 If two cookies have the same removal priority, the user agent MUST evict the
 cookie with the earliest last-access-time first.
 
-To **Remove Excess Cookies** from the cookie store:
+### Store a Cookie {#store-a-cookie}
 
-1. For each Cookie _cookie_ in the cookie store:
-
-XXX: What's the best way to compare to the current time here?
-
-  1. If _cookie_'s expiry-time is expired, remove _cookie_ from the cookie store.
-  
-1. Let _domainLimit_ be an implementation-defined number, which is recommended to be at least 50.
-
-1. TODO: Remove domain cookies
-
-1. Let _globalLimit_ be an implementation-defined number, which is recommended to be at least 3000.
-
-1. TODO: Remove global cookies
-
-### Store a Cookie {#store-a-cookie} 
-
-To **Store a Cookie** _cookie_, given a boolean _isSecure_, a domain or IP address _host_, a URL path _urlPath_,
+To **Store a Cookie** _cookie_, given a boolean _isSecure_, a domain or IP address _host_,
 a boolean _httpOnlyAllowed_, a boolean _allowCookieForPublicSuffix_, and a boolean _sameSiteStrictOrLaxAllowed_:
 
 1. Assert: _cookie_'s name's length + _cookie_'s value's length is not 0 or greater than 4096.
@@ -1588,7 +1577,7 @@ a boolean _httpOnlyAllowed_, a boolean _allowCookieForPublicSuffix_, and a boole
 1. If _httpOnlyAllowed_ is false and _cookie_'s http-only is true, then return.
 
 1. If _isSecure_ is false:
- 
+
     1. If _cookie_'s secure-only is true, then return.
 
     1. If the user agent's cookie store contains at least one Cookie _existingCookie_ that meets all of the following criteria:
@@ -1607,7 +1596,7 @@ a boolean _httpOnlyAllowed_, a boolean _allowCookieForPublicSuffix_, and a boole
            given an existing secure cookie named 'a' with a path of '/login', a
            non-secure cookie named 'a' could be set for a path of '/' or '/foo', but
            not for a path of '/login' or '/login/en'.
-    
+
        then return.
 
 1. If _cookie_'s same-site is not "none" and _sameSiteStrictOrLaxAllowed_ is false,
@@ -1647,10 +1636,10 @@ XXX: Move these to browser specs to set _sameSiteStrictOrLaxAllowed_ appropriate
     1. _cookie_'s secure-only is true;
 
     1. _cookie_'s host-only is true; and
-    
+
     1. _cookie_'s path's size is 1 and _cookie_'s path[0] is the empty string,
 
-   then return.       
+   then return.
 
 1. If _cookie_'s name is the empty byte sequence and one of the following is true:
 
@@ -1672,9 +1661,9 @@ XXX: Move these to browser specs to set _sameSiteStrictOrLaxAllowed_ appropriate
 
     1. Remove _oldCookie_ from the user agent's cookie store.
 
-1. Remove Excess Cookies from the user agent's cookie store.
-
 1. Insert _cookie_ into the user agent's cookie store.
+
+1. Remove Excess Cookies from the user agent's cookie store.
 
 ## Retrieval Model {#retrieval-model}
 
