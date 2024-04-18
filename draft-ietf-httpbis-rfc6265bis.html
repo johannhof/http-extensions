@@ -1817,11 +1817,6 @@ ignore unrecognized cookie attributes (but not the entire cookie).<a href="#sect
 represented as the date and time at which the cookie expires. The user agent is
 not required to retain the cookie until the specified date has passed. In fact,
 user agents often evict cookies due to memory pressure or privacy concerns.<a href="#section-5.1.2.1-1" class="pilcrow">¶</a></p>
-<p id="section-5.1.2.1-2">The user agent MUST limit the maximum value of the Expires attribute.
-The limit SHOULD NOT be greater than 400 days (34560000 seconds) in the future.
-The RECOMMENDED limit is 400 days in the future, but the user agent MAY adjust
-the limit (see <a href="#cookie-policy" class="auto internal xref">Section 8.2</a>).
-Expires attributes that are greater than the limit MUST be reduced to the limit.<a href="#section-5.1.2.1-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="attribute-max-age">
@@ -1833,18 +1828,13 @@ Expires attributes that are greater than the limit MUST be reduced to the limit.
 represented as the number of seconds until the cookie expires. The user agent is
 not required to retain the cookie for the specified duration. In fact, user
 agents often evict cookies due to memory pressure or privacy concerns.<a href="#section-5.1.2.2-1" class="pilcrow">¶</a></p>
-<p id="section-5.1.2.2-2">The user agent MUST limit the maximum value of the Max-Age attribute.
-The limit SHOULD NOT be greater than 400 days (34560000 seconds) in duration.
-The RECOMMENDED limit is 400 days in duration, but the user agent MAY adjust
-the limit (see <a href="#cookie-policy" class="auto internal xref">Section 8.2</a>).
-Max-Age attributes that are greater than the limit MUST be reduced to the limit.<a href="#section-5.1.2.2-2" class="pilcrow">¶</a></p>
-<p id="section-5.1.2.2-3">NOTE: Some existing user agents do not support the Max-Age attribute. User
-agents that do not support the Max-Age attribute ignore the attribute.<a href="#section-5.1.2.2-3" class="pilcrow">¶</a></p>
-<p id="section-5.1.2.2-4">If a cookie has both the Max-Age and the Expires attribute, the Max-Age
+<p id="section-5.1.2.2-2">NOTE: Some existing user agents do not support the Max-Age attribute. User
+agents that do not support the Max-Age attribute ignore the attribute.<a href="#section-5.1.2.2-2" class="pilcrow">¶</a></p>
+<p id="section-5.1.2.2-3">If a cookie has both the Max-Age and the Expires attribute, the Max-Age
 attribute has precedence and controls the expiration date of the cookie. If a
 cookie has neither the Max-Age nor the Expires attribute, the user agent
 will retain the cookie until "the current session is over" (as defined by the
-user agent).<a href="#section-5.1.2.2-4" class="pilcrow">¶</a></p>
+user agent).<a href="#section-5.1.2.2-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="attribute-domain">
@@ -2421,185 +2411,181 @@ empty byte sequence).<a href="#section-6.3.2-4.9.1" class="pilcrow">¶</a></p>
 NOTE: A Path attribute can override this.<a href="#section-6.3.2-4.13.2" class="pilcrow">¶</a></p>
 </li>
             <li id="section-6.3.2-4.14">
-              <p id="section-6.3.2-4.14.1">While <em>attributesInput</em> is not empty:<a href="#section-6.3.2-4.14.1" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-6.3.2-4.14.2">
-<li id="section-6.3.2-4.14.2.1">
-                  <p id="section-6.3.2-4.14.2.1.1">Let <em>maxAgeSeen</em> be false.<a href="#section-6.3.2-4.14.2.1.1" class="pilcrow">¶</a></p>
+              <p id="section-6.3.2-4.14.1">Let <em>cookieAgeLimit</em> be the maximum age of the cookie (which SHOULD
+be 400 days in the future or sooner (see <a href="#cookie-policy" class="auto internal xref">Section 8.2</a>)).<a href="#section-6.3.2-4.14.1" class="pilcrow">¶</a></p>
 </li>
-                <li id="section-6.3.2-4.14.2.2">
-                  <p id="section-6.3.2-4.14.2.2.1">Let <em>char</em> be the result of consuming the first byte of <em>attributesInput</em>.<a href="#section-6.3.2-4.14.2.2.1" class="pilcrow">¶</a></p>
+            <li id="section-6.3.2-4.15">
+              <p id="section-6.3.2-4.15.1">While <em>attributesInput</em> is not empty:<a href="#section-6.3.2-4.15.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-6.3.2-4.15.2">
+<li id="section-6.3.2-4.15.2.1">
+                  <p id="section-6.3.2-4.15.2.1.1">Let <em>maxAgeSeen</em> be false.<a href="#section-6.3.2-4.15.2.1.1" class="pilcrow">¶</a></p>
 </li>
-                <li id="section-6.3.2-4.14.2.3">
-                  <p id="section-6.3.2-4.14.2.3.1">Assert: <em>char</em> is 0x3B (;).<a href="#section-6.3.2-4.14.2.3.1" class="pilcrow">¶</a></p>
+                <li id="section-6.3.2-4.15.2.2">
+                  <p id="section-6.3.2-4.15.2.2.1">Let <em>char</em> be the result of consuming the first byte of <em>attributesInput</em>.<a href="#section-6.3.2-4.15.2.2.1" class="pilcrow">¶</a></p>
 </li>
-                <li id="section-6.3.2-4.14.2.4">
-                  <p id="section-6.3.2-4.14.2.4.1">Let <em>attributeNameValueInput</em> be null.<a href="#section-6.3.2-4.14.2.4.1" class="pilcrow">¶</a></p>
+                <li id="section-6.3.2-4.15.2.3">
+                  <p id="section-6.3.2-4.15.2.3.1">Assert: <em>char</em> is 0x3B (;).<a href="#section-6.3.2-4.15.2.3.1" class="pilcrow">¶</a></p>
 </li>
-                <li id="section-6.3.2-4.14.2.5">
-                  <p id="section-6.3.2-4.14.2.5.1">If <em>attributesInput</em> contains 0x3B (;), then
+                <li id="section-6.3.2-4.15.2.4">
+                  <p id="section-6.3.2-4.15.2.4.1">Let <em>attributeNameValueInput</em> be null.<a href="#section-6.3.2-4.15.2.4.1" class="pilcrow">¶</a></p>
+</li>
+                <li id="section-6.3.2-4.15.2.5">
+                  <p id="section-6.3.2-4.15.2.5.1">If <em>attributesInput</em> contains 0x3B (;), then
 set <em>attributeNameValueInput</em> to the result of consuming the bytes of
-<em>attributesInput</em> up to, but not including, the first 0x3B (;).<a href="#section-6.3.2-4.14.2.5.1" class="pilcrow">¶</a></p>
+<em>attributesInput</em> up to, but not including, the first 0x3B (;).<a href="#section-6.3.2-4.15.2.5.1" class="pilcrow">¶</a></p>
 </li>
-                <li id="section-6.3.2-4.14.2.6">
-                  <p id="section-6.3.2-4.14.2.6.1">Otherwise, set <em>attributeNameValueInput</em> to the result of consuming the remainder of <em>attributesInput</em>.<a href="#section-6.3.2-4.14.2.6.1" class="pilcrow">¶</a></p>
+                <li id="section-6.3.2-4.15.2.6">
+                  <p id="section-6.3.2-4.15.2.6.1">Otherwise, set <em>attributeNameValueInput</em> to the result of consuming the remainder of <em>attributesInput</em>.<a href="#section-6.3.2-4.15.2.6.1" class="pilcrow">¶</a></p>
 </li>
-                <li id="section-6.3.2-4.14.2.7">
-                  <p id="section-6.3.2-4.14.2.7.1">Let <em>attributeName</em> be null.<a href="#section-6.3.2-4.14.2.7.1" class="pilcrow">¶</a></p>
+                <li id="section-6.3.2-4.15.2.7">
+                  <p id="section-6.3.2-4.15.2.7.1">Let <em>attributeName</em> be null.<a href="#section-6.3.2-4.15.2.7.1" class="pilcrow">¶</a></p>
 </li>
-                <li id="section-6.3.2-4.14.2.8">
-                  <p id="section-6.3.2-4.14.2.8.1">Let <em>attributeValue</em> be the empty string.<a href="#section-6.3.2-4.14.2.8.1" class="pilcrow">¶</a></p>
+                <li id="section-6.3.2-4.15.2.8">
+                  <p id="section-6.3.2-4.15.2.8.1">Let <em>attributeValue</em> be the empty string.<a href="#section-6.3.2-4.15.2.8.1" class="pilcrow">¶</a></p>
 </li>
-                <li id="section-6.3.2-4.14.2.9">
-                  <p id="section-6.3.2-4.14.2.9.1">If <em>attributeNameValueInput</em> contains a 0x3D (=), then set <em>attributeName</em> to the bytes
+                <li id="section-6.3.2-4.15.2.9">
+                  <p id="section-6.3.2-4.15.2.9.1">If <em>attributeNameValueInput</em> contains a 0x3D (=), then set <em>attributeName</em> to the bytes
 up to, but not including, the first 0x3D (=) of <em>attributeNameValueInput</em>, and <em>attributeValue</em> to the bytes
-after the first 0x3D (=) of <em>attributeNameValueInput</em>.<a href="#section-6.3.2-4.14.2.9.1" class="pilcrow">¶</a></p>
+after the first 0x3D (=) of <em>attributeNameValueInput</em>.<a href="#section-6.3.2-4.15.2.9.1" class="pilcrow">¶</a></p>
 </li>
-                <li id="section-6.3.2-4.14.2.10">
-                  <p id="section-6.3.2-4.14.2.10.1">Otherwise, set <em>attributeName</em> to <em>attributeNameValueInput</em>.<a href="#section-6.3.2-4.14.2.10.1" class="pilcrow">¶</a></p>
+                <li id="section-6.3.2-4.15.2.10">
+                  <p id="section-6.3.2-4.15.2.10.1">Otherwise, set <em>attributeName</em> to <em>attributeNameValueInput</em>.<a href="#section-6.3.2-4.15.2.10.1" class="pilcrow">¶</a></p>
 </li>
-                <li id="section-6.3.2-4.14.2.11">
-                  <p id="section-6.3.2-4.14.2.11.1">Remove any leading or trailing WSP bytes from <em>attributeName</em> and <em>attributeValue</em>.<a href="#section-6.3.2-4.14.2.11.1" class="pilcrow">¶</a></p>
+                <li id="section-6.3.2-4.15.2.11">
+                  <p id="section-6.3.2-4.15.2.11.1">Remove any leading or trailing WSP bytes from <em>attributeName</em> and <em>attributeValue</em>.<a href="#section-6.3.2-4.15.2.11.1" class="pilcrow">¶</a></p>
 </li>
-                <li id="section-6.3.2-4.14.2.12">
-                  <p id="section-6.3.2-4.14.2.12.1">If <em>attributeValue</em>'s length is greater than 1024, then continue.<a href="#section-6.3.2-4.14.2.12.1" class="pilcrow">¶</a></p>
+                <li id="section-6.3.2-4.15.2.12">
+                  <p id="section-6.3.2-4.15.2.12.1">If <em>attributeValue</em>'s length is greater than 1024, then continue.<a href="#section-6.3.2-4.15.2.12.1" class="pilcrow">¶</a></p>
 </li>
-                <li id="section-6.3.2-4.14.2.13">
-                  <p id="section-6.3.2-4.14.2.13.1">If <em>attributeName</em> is a byte-case-insensitive match for <code>Expires</code>:<a href="#section-6.3.2-4.14.2.13.1" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-6.3.2-4.14.2.13.2">
-<li id="section-6.3.2-4.14.2.13.2.1">
-                      <p id="section-6.3.2-4.14.2.13.2.1.1">If <em>maxAgeSeen</em> is true, then continue.<a href="#section-6.3.2-4.14.2.13.2.1.1" class="pilcrow">¶</a></p>
+                <li id="section-6.3.2-4.15.2.13">
+                  <p id="section-6.3.2-4.15.2.13.1">If <em>attributeName</em> is a byte-case-insensitive match for <code>Expires</code>:<a href="#section-6.3.2-4.15.2.13.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-6.3.2-4.15.2.13.2">
+<li id="section-6.3.2-4.15.2.13.2.1">
+                      <p id="section-6.3.2-4.15.2.13.2.1.1">If <em>maxAgeSeen</em> is true, then continue.<a href="#section-6.3.2-4.15.2.13.2.1.1" class="pilcrow">¶</a></p>
 </li>
-                    <li id="section-6.3.2-4.14.2.13.2.2">
-                      <p id="section-6.3.2-4.14.2.13.2.2.1">Let <em>expiryTime</em> be the result of parsing <em>attributeValue</em> as
-cookie-date (see <a href="#cookie-date" class="auto internal xref">Section 6.2.1</a>).<a href="#section-6.3.2-4.14.2.13.2.2.1" class="pilcrow">¶</a></p>
+                    <li id="section-6.3.2-4.15.2.13.2.2">
+                      <p id="section-6.3.2-4.15.2.13.2.2.1">Let <em>expiryTime</em> be the result of parsing <em>attributeValue</em> as
+cookie-date (see <a href="#cookie-date" class="auto internal xref">Section 6.2.1</a>).<a href="#section-6.3.2-4.15.2.13.2.2.1" class="pilcrow">¶</a></p>
 </li>
-                    <li id="section-6.3.2-4.14.2.13.2.3">
-                      <p id="section-6.3.2-4.14.2.13.2.3.1">If <em>attributeValue</em> failed to parse as a cookie date, then continue.<a href="#section-6.3.2-4.14.2.13.2.3.1" class="pilcrow">¶</a></p>
+                    <li id="section-6.3.2-4.15.2.13.2.3">
+                      <p id="section-6.3.2-4.15.2.13.2.3.1">If <em>attributeValue</em> failed to parse as a cookie date, then continue.<a href="#section-6.3.2-4.15.2.13.2.3.1" class="pilcrow">¶</a></p>
 </li>
-                    <li id="section-6.3.2-4.14.2.13.2.4">
-                      <p id="section-6.3.2-4.14.2.13.2.4.1">Let <em>cookieAgeLimit</em> be the maximum age of the cookie (which SHOULD
-be 400 days in the future or sooner (see <a href="#cookie-policy" class="auto internal xref">Section 8.2</a>)).<a href="#section-6.3.2-4.14.2.13.2.4.1" class="pilcrow">¶</a></p>
+                    <li id="section-6.3.2-4.15.2.13.2.4">
+                      <p id="section-6.3.2-4.15.2.13.2.4.1">If <em>expiryTime</em> is greater than <em>cookieAgeLimit</em>, then set <em>expiryTime</em>
+to <em>cookieAgeLimit</em>.<a href="#section-6.3.2-4.15.2.13.2.4.1" class="pilcrow">¶</a></p>
 </li>
-                    <li id="section-6.3.2-4.14.2.13.2.5">
-                      <p id="section-6.3.2-4.14.2.13.2.5.1">If <em>expiryTime</em> is greater than <em>cookieAgeLimit</em>, then set <em>expiryTime</em>
-to <em>cookieAgeLimit</em>.<a href="#section-6.3.2-4.14.2.13.2.5.1" class="pilcrow">¶</a></p>
-</li>
-                    <li id="section-6.3.2-4.14.2.13.2.6">
-                      <p id="section-6.3.2-4.14.2.13.2.6.1">If <em>expiryTime</em> is earlier than the earliest date the user agent can
+                    <li id="section-6.3.2-4.15.2.13.2.5">
+                      <p id="section-6.3.2-4.15.2.13.2.5.1">If <em>expiryTime</em> is earlier than the earliest date the user agent can
 represent, the user agent MAY replace <em>expiryTime</em> with the earliest
-representable date.<a href="#section-6.3.2-4.14.2.13.2.6.1" class="pilcrow">¶</a></p>
+representable date.<a href="#section-6.3.2-4.15.2.13.2.5.1" class="pilcrow">¶</a></p>
 </li>
-                    <li id="section-6.3.2-4.14.2.13.2.7">
-                      <p id="section-6.3.2-4.14.2.13.2.7.1">Set <em>cookie</em>'s expiry-time to <em>expiryTime</em>.<a href="#section-6.3.2-4.14.2.13.2.7.1" class="pilcrow">¶</a></p>
+                    <li id="section-6.3.2-4.15.2.13.2.6">
+                      <p id="section-6.3.2-4.15.2.13.2.6.1">Set <em>cookie</em>'s expiry-time to <em>expiryTime</em>.<a href="#section-6.3.2-4.15.2.13.2.6.1" class="pilcrow">¶</a></p>
 </li>
                   </ol>
 </li>
-                <li id="section-6.3.2-4.14.2.14">
-                  <p id="section-6.3.2-4.14.2.14.1">If <em>attributeName</em> is a byte-case-insensitive match for <code>Max-Age</code>:<a href="#section-6.3.2-4.14.2.14.1" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-6.3.2-4.14.2.14.2">
-<li id="section-6.3.2-4.14.2.14.2.1">
-                      <p id="section-6.3.2-4.14.2.14.2.1.1">If <em>attributeValue</em> is empty, continue.<a href="#section-6.3.2-4.14.2.14.2.1.1" class="pilcrow">¶</a></p>
+                <li id="section-6.3.2-4.15.2.14">
+                  <p id="section-6.3.2-4.15.2.14.1">If <em>attributeName</em> is a byte-case-insensitive match for <code>Max-Age</code>:<a href="#section-6.3.2-4.15.2.14.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-6.3.2-4.15.2.14.2">
+<li id="section-6.3.2-4.15.2.14.2.1">
+                      <p id="section-6.3.2-4.15.2.14.2.1.1">If <em>attributeValue</em> is empty, continue.<a href="#section-6.3.2-4.15.2.14.2.1.1" class="pilcrow">¶</a></p>
 </li>
-                    <li id="section-6.3.2-4.14.2.14.2.2">
-                      <p id="section-6.3.2-4.14.2.14.2.2.1">If the first byte of <em>attributeValue</em> is neither a DIGIT, nor 0x2D (-)
-followed by a DIGIT, then continue.<a href="#section-6.3.2-4.14.2.14.2.2.1" class="pilcrow">¶</a></p>
+                    <li id="section-6.3.2-4.15.2.14.2.2">
+                      <p id="section-6.3.2-4.15.2.14.2.2.1">If the first byte of <em>attributeValue</em> is neither a DIGIT, nor 0x2D (-)
+followed by a DIGIT, then continue.<a href="#section-6.3.2-4.15.2.14.2.2.1" class="pilcrow">¶</a></p>
 </li>
-                    <li id="section-6.3.2-4.14.2.14.2.3">
-                      <p id="section-6.3.2-4.14.2.14.2.3.1">If the remainder of <em>attributeValue</em> contains a non-DIGIT, then continue.<a href="#section-6.3.2-4.14.2.14.2.3.1" class="pilcrow">¶</a></p>
+                    <li id="section-6.3.2-4.15.2.14.2.3">
+                      <p id="section-6.3.2-4.15.2.14.2.3.1">If the remainder of <em>attributeValue</em> contains a non-DIGIT, then continue.<a href="#section-6.3.2-4.15.2.14.2.3.1" class="pilcrow">¶</a></p>
 </li>
-                    <li id="section-6.3.2-4.14.2.14.2.4">
-                      <p id="section-6.3.2-4.14.2.14.2.4.1">Let <em>deltaSeconds</em> be <em>attributeValue</em>, converted to a base 10 integer.<a href="#section-6.3.2-4.14.2.14.2.4.1" class="pilcrow">¶</a></p>
+                    <li id="section-6.3.2-4.15.2.14.2.4">
+                      <p id="section-6.3.2-4.15.2.14.2.4.1">Let <em>deltaSeconds</em> be <em>attributeValue</em>, converted to a base 10 integer.<a href="#section-6.3.2-4.15.2.14.2.4.1" class="pilcrow">¶</a></p>
 </li>
-                    <li id="section-6.3.2-4.14.2.14.2.5">
-                      <p id="section-6.3.2-4.14.2.14.2.5.1">Let <em>cookieAgeLimit</em> be the maximum age of the cookie in seconds (which SHOULD
-be 400 or less (see <a href="#cookie-policy" class="auto internal xref">Section 8.2</a>)).<a href="#section-6.3.2-4.14.2.14.2.5.1" class="pilcrow">¶</a></p>
+                    <li id="section-6.3.2-4.15.2.14.2.5">
+                      <p id="section-6.3.2-4.15.2.14.2.5.1">Set <em>deltaSeconds</em> to the smaller of <em>deltaSeconds</em> and <em>cookieAgeLimit</em>, in seconds.<a href="#section-6.3.2-4.15.2.14.2.5.1" class="pilcrow">¶</a></p>
 </li>
-                    <li id="section-6.3.2-4.14.2.14.2.6">
-                      <p id="section-6.3.2-4.14.2.14.2.6.1">Set <em>deltaSeconds</em> to the smaller of <em>deltaSeconds</em> and <em>cookieAgeLimit</em>.<a href="#section-6.3.2-4.14.2.14.2.6.1" class="pilcrow">¶</a></p>
-</li>
-                    <li id="section-6.3.2-4.14.2.14.2.7">
-                      <p id="section-6.3.2-4.14.2.14.2.7.1">If <em>deltaSeconds</em> is less than or equal to 0, let <em>expiryTime</em> be
+                    <li id="section-6.3.2-4.15.2.14.2.6">
+                      <p id="section-6.3.2-4.15.2.14.2.6.1">If <em>deltaSeconds</em> is less than or equal to 0, let <em>expiryTime</em> be
 the earliest representable date and time. Otherwise, let <em>expiryTime</em>
-be the current date and time plus <em>deltaSeconds</em> seconds.<a href="#section-6.3.2-4.14.2.14.2.7.1" class="pilcrow">¶</a></p>
+be the current date and time plus <em>deltaSeconds</em> seconds.<a href="#section-6.3.2-4.15.2.14.2.6.1" class="pilcrow">¶</a></p>
 </li>
-                    <li id="section-6.3.2-4.14.2.14.2.8">
-                      <p id="section-6.3.2-4.14.2.14.2.8.1">Set <em>cookie</em>'s expiry-time to <em>expiryTime</em>.<a href="#section-6.3.2-4.14.2.14.2.8.1" class="pilcrow">¶</a></p>
+                    <li id="section-6.3.2-4.15.2.14.2.7">
+                      <p id="section-6.3.2-4.15.2.14.2.7.1">Set <em>cookie</em>'s expiry-time to <em>expiryTime</em>.<a href="#section-6.3.2-4.15.2.14.2.7.1" class="pilcrow">¶</a></p>
 </li>
-                    <li id="section-6.3.2-4.14.2.14.2.9">
-                      <p id="section-6.3.2-4.14.2.14.2.9.1">Set <em>maxAgeSeen</em> to true.<a href="#section-6.3.2-4.14.2.14.2.9.1" class="pilcrow">¶</a></p>
+                    <li id="section-6.3.2-4.15.2.14.2.8">
+                      <p id="section-6.3.2-4.15.2.14.2.8.1">Set <em>maxAgeSeen</em> to true.<a href="#section-6.3.2-4.15.2.14.2.8.1" class="pilcrow">¶</a></p>
 </li>
                   </ol>
 </li>
-                <li id="section-6.3.2-4.14.2.15">
-                  <p id="section-6.3.2-4.14.2.15.1">If <em>attributeName</em> is a byte-case-insensitive match for <code>Domain</code>:<a href="#section-6.3.2-4.14.2.15.1" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-6.3.2-4.14.2.15.2">
-<li id="section-6.3.2-4.14.2.15.2.1">
-                      <p id="section-6.3.2-4.14.2.15.2.1.1">Let <em>host</em> be failure.<a href="#section-6.3.2-4.14.2.15.2.1.1" class="pilcrow">¶</a></p>
+                <li id="section-6.3.2-4.15.2.15">
+                  <p id="section-6.3.2-4.15.2.15.1">If <em>attributeName</em> is a byte-case-insensitive match for <code>Domain</code>:<a href="#section-6.3.2-4.15.2.15.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-6.3.2-4.15.2.15.2">
+<li id="section-6.3.2-4.15.2.15.2.1">
+                      <p id="section-6.3.2-4.15.2.15.2.1.1">Let <em>host</em> be failure.<a href="#section-6.3.2-4.15.2.15.2.1.1" class="pilcrow">¶</a></p>
 </li>
-                    <li id="section-6.3.2-4.14.2.15.2.2">
-                      <p id="section-6.3.2-4.14.2.15.2.2.1">If <em>attributeValue</em> contains only ASCII bytes:<a href="#section-6.3.2-4.14.2.15.2.2.1" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-6.3.2-4.14.2.15.2.2.2">
-<li id="section-6.3.2-4.14.2.15.2.2.2.1">
-                          <p id="section-6.3.2-4.14.2.15.2.2.2.1.1">Let <em>hostInput</em> be <em>attributeValue</em>, ASCII decoded.<a href="#section-6.3.2-4.14.2.15.2.2.2.1.1" class="pilcrow">¶</a></p>
+                    <li id="section-6.3.2-4.15.2.15.2.2">
+                      <p id="section-6.3.2-4.15.2.15.2.2.1">If <em>attributeValue</em> contains only ASCII bytes:<a href="#section-6.3.2-4.15.2.15.2.2.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-6.3.2-4.15.2.15.2.2.2">
+<li id="section-6.3.2-4.15.2.15.2.2.2.1">
+                          <p id="section-6.3.2-4.15.2.15.2.2.2.1.1">Let <em>hostInput</em> be <em>attributeValue</em>, ASCII decoded.<a href="#section-6.3.2-4.15.2.15.2.2.2.1.1" class="pilcrow">¶</a></p>
 </li>
-                        <li id="section-6.3.2-4.14.2.15.2.2.2.2">
-                          <p id="section-6.3.2-4.14.2.15.2.2.2.2.1">If <em>hostInput</em> starts with U+002E (.), then set <em>hostInput</em> to <em>hostInput</em>
-without its leading U+002E (.).<a href="#section-6.3.2-4.14.2.15.2.2.2.2.1" class="pilcrow">¶</a></p>
+                        <li id="section-6.3.2-4.15.2.15.2.2.2.2">
+                          <p id="section-6.3.2-4.15.2.15.2.2.2.2.1">If <em>hostInput</em> starts with U+002E (.), then set <em>hostInput</em> to <em>hostInput</em>
+without its leading U+002E (.).<a href="#section-6.3.2-4.15.2.15.2.2.2.2.1" class="pilcrow">¶</a></p>
 </li>
-                        <li id="section-6.3.2-4.14.2.15.2.2.2.3">
-                          <p id="section-6.3.2-4.14.2.15.2.2.2.3.1">Set <em>host</em> to the result of host parsing <em>hostInput</em>.<a href="#section-6.3.2-4.14.2.15.2.2.2.3.1" class="pilcrow">¶</a></p>
+                        <li id="section-6.3.2-4.15.2.15.2.2.2.3">
+                          <p id="section-6.3.2-4.15.2.15.2.2.2.3.1">Set <em>host</em> to the result of host parsing <em>hostInput</em>.<a href="#section-6.3.2-4.15.2.15.2.2.2.3.1" class="pilcrow">¶</a></p>
 </li>
                       </ol>
 </li>
-                    <li id="section-6.3.2-4.14.2.15.2.3">
-                      <p id="section-6.3.2-4.14.2.15.2.3.1">Set <em>cookie</em>'s host to <em>host</em>.<a href="#section-6.3.2-4.14.2.15.2.3.1" class="pilcrow">¶</a></p>
+                    <li id="section-6.3.2-4.15.2.15.2.3">
+                      <p id="section-6.3.2-4.15.2.15.2.3.1">Set <em>cookie</em>'s host to <em>host</em>.<a href="#section-6.3.2-4.15.2.15.2.3.1" class="pilcrow">¶</a></p>
 </li>
                   </ol>
 </li>
-                <li id="section-6.3.2-4.14.2.16">
-                  <p id="section-6.3.2-4.14.2.16.1">If <em>attributeName</em> is a byte-case-insensitive match for <code>Path</code>:<a href="#section-6.3.2-4.14.2.16.1" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-6.3.2-4.14.2.16.2">
-<li id="section-6.3.2-4.14.2.16.2.1">
-                      <p id="section-6.3.2-4.14.2.16.2.1.1">If <em>attributeValue</em> is not empty and if the first byte of
+                <li id="section-6.3.2-4.15.2.16">
+                  <p id="section-6.3.2-4.15.2.16.1">If <em>attributeName</em> is a byte-case-insensitive match for <code>Path</code>:<a href="#section-6.3.2-4.15.2.16.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-6.3.2-4.15.2.16.2">
+<li id="section-6.3.2-4.15.2.16.2.1">
+                      <p id="section-6.3.2-4.15.2.16.2.1.1">If <em>attributeValue</em> is not empty and if the first byte of
 <em>attributeValue</em> is 0x2F (/), then set <em>cookie</em>'s path to <em>attributeValue</em>
-split on 0x2F (/).<a href="#section-6.3.2-4.14.2.16.2.1.1" class="pilcrow">¶</a></p>
+split on 0x2F (/).<a href="#section-6.3.2-4.15.2.16.2.1.1" class="pilcrow">¶</a></p>
 </li>
                   </ol>
 </li>
-                <li id="section-6.3.2-4.14.2.17">
-                  <p id="section-6.3.2-4.14.2.17.1">If <em>attributeName</em> is a byte-case-insensitive match for <code>Secure</code>:<a href="#section-6.3.2-4.14.2.17.1" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-6.3.2-4.14.2.17.2">
-<li id="section-6.3.2-4.14.2.17.2.1">
-                      <p id="section-6.3.2-4.14.2.17.2.1.1">Set <em>cookie</em>'s secure to true.<a href="#section-6.3.2-4.14.2.17.2.1.1" class="pilcrow">¶</a></p>
+                <li id="section-6.3.2-4.15.2.17">
+                  <p id="section-6.3.2-4.15.2.17.1">If <em>attributeName</em> is a byte-case-insensitive match for <code>Secure</code>:<a href="#section-6.3.2-4.15.2.17.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-6.3.2-4.15.2.17.2">
+<li id="section-6.3.2-4.15.2.17.2.1">
+                      <p id="section-6.3.2-4.15.2.17.2.1.1">Set <em>cookie</em>'s secure to true.<a href="#section-6.3.2-4.15.2.17.2.1.1" class="pilcrow">¶</a></p>
 </li>
                   </ol>
 </li>
-                <li id="section-6.3.2-4.14.2.18">
-                  <p id="section-6.3.2-4.14.2.18.1">If <em>attributeName</em> is a byte-case-insensitive match for <code>HttpOnly</code>:<a href="#section-6.3.2-4.14.2.18.1" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-6.3.2-4.14.2.18.2">
-<li id="section-6.3.2-4.14.2.18.2.1">
-                      <p id="section-6.3.2-4.14.2.18.2.1.1">Set <em>cookie</em>'s http-only to true.<a href="#section-6.3.2-4.14.2.18.2.1.1" class="pilcrow">¶</a></p>
+                <li id="section-6.3.2-4.15.2.18">
+                  <p id="section-6.3.2-4.15.2.18.1">If <em>attributeName</em> is a byte-case-insensitive match for <code>HttpOnly</code>:<a href="#section-6.3.2-4.15.2.18.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-6.3.2-4.15.2.18.2">
+<li id="section-6.3.2-4.15.2.18.2.1">
+                      <p id="section-6.3.2-4.15.2.18.2.1.1">Set <em>cookie</em>'s http-only to true.<a href="#section-6.3.2-4.15.2.18.2.1.1" class="pilcrow">¶</a></p>
 </li>
                   </ol>
 </li>
-                <li id="section-6.3.2-4.14.2.19">
-                  <p id="section-6.3.2-4.14.2.19.1">If <em>attributeName</em> is a byte-case-insensitive match for <code>SameSite</code>:<a href="#section-6.3.2-4.14.2.19.1" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-6.3.2-4.14.2.19.2">
-<li id="section-6.3.2-4.14.2.19.2.1">
-                      <p id="section-6.3.2-4.14.2.19.2.1.1">If <em>attributeValue</em> is a byte-case-insensitive match for <code>None</code>, then set <em>cookie</em>'s same-site to "none".<a href="#section-6.3.2-4.14.2.19.2.1.1" class="pilcrow">¶</a></p>
+                <li id="section-6.3.2-4.15.2.19">
+                  <p id="section-6.3.2-4.15.2.19.1">If <em>attributeName</em> is a byte-case-insensitive match for <code>SameSite</code>:<a href="#section-6.3.2-4.15.2.19.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-6.3.2-4.15.2.19.2">
+<li id="section-6.3.2-4.15.2.19.2.1">
+                      <p id="section-6.3.2-4.15.2.19.2.1.1">If <em>attributeValue</em> is a byte-case-insensitive match for <code>None</code>, then set <em>cookie</em>'s same-site to "none".<a href="#section-6.3.2-4.15.2.19.2.1.1" class="pilcrow">¶</a></p>
 </li>
-                    <li id="section-6.3.2-4.14.2.19.2.2">
-                      <p id="section-6.3.2-4.14.2.19.2.2.1">If <em>attributeValue</em> is a byte-case-insensitive match for <code>Strict</code>, then set <em>cookie</em>'s same-site to "strict".<a href="#section-6.3.2-4.14.2.19.2.2.1" class="pilcrow">¶</a></p>
+                    <li id="section-6.3.2-4.15.2.19.2.2">
+                      <p id="section-6.3.2-4.15.2.19.2.2.1">If <em>attributeValue</em> is a byte-case-insensitive match for <code>Strict</code>, then set <em>cookie</em>'s same-site to "strict".<a href="#section-6.3.2-4.15.2.19.2.2.1" class="pilcrow">¶</a></p>
 </li>
-                    <li id="section-6.3.2-4.14.2.19.2.3">
-                      <p id="section-6.3.2-4.14.2.19.2.3.1">If <em>attributeValue</em> is a byte-case-insensitive match for <code>Lax</code>, then set <em>cookie</em>'s same-site to "lax".<a href="#section-6.3.2-4.14.2.19.2.3.1" class="pilcrow">¶</a></p>
+                    <li id="section-6.3.2-4.15.2.19.2.3">
+                      <p id="section-6.3.2-4.15.2.19.2.3.1">If <em>attributeValue</em> is a byte-case-insensitive match for <code>Lax</code>, then set <em>cookie</em>'s same-site to "lax".<a href="#section-6.3.2-4.15.2.19.2.3.1" class="pilcrow">¶</a></p>
 </li>
                   </ol>
 </li>
               </ol>
 </li>
-            <li id="section-6.3.2-4.15">
-              <p id="section-6.3.2-4.15.1">Return <em>cookie</em>.<a href="#section-6.3.2-4.15.1" class="pilcrow">¶</a></p>
+            <li id="section-6.3.2-4.16">
+              <p id="section-6.3.2-4.16.1">Return <em>cookie</em>.<a href="#section-6.3.2-4.16.1" class="pilcrow">¶</a></p>
 </li>
           </ol>
 <p id="section-6.3.2-5">NOTE: Attributes with an unrecognized <em>attributeName</em> are ignored.<a href="#section-6.3.2-5" class="pilcrow">¶</a></p>
