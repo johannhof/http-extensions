@@ -556,12 +556,6 @@ represented as the date and time at which the cookie expires. The user agent is
 not required to retain the cookie until the specified date has passed. In fact,
 user agents often evict cookies due to memory pressure or privacy concerns.
 
-The user agent MUST limit the maximum value of the Expires attribute.
-The limit SHOULD NOT be greater than 400 days (34560000 seconds) in the future.
-The RECOMMENDED limit is 400 days in the future, but the user agent MAY adjust
-the limit (see {{cookie-policy}}).
-Expires attributes that are greater than the limit MUST be reduced to the limit.
-
 
 #### The Max-Age Attribute {#attribute-max-age}
 
@@ -569,12 +563,6 @@ The Max-Age attribute indicates the maximum lifetime of the cookie,
 represented as the number of seconds until the cookie expires. The user agent is
 not required to retain the cookie for the specified duration. In fact, user
 agents often evict cookies due to memory pressure or privacy concerns.
-
-The user agent MUST limit the maximum value of the Max-Age attribute.
-The limit SHOULD NOT be greater than 400 days (34560000 seconds) in duration.
-The RECOMMENDED limit is 400 days in duration, but the user agent MAY adjust
-the limit (see {{cookie-policy}}).
-Max-Age attributes that are greater than the limit MUST be reduced to the limit.
 
 NOTE: Some existing user agents do not support the Max-Age attribute. User
 agents that do not support the Max-Age attribute ignore the attribute.
@@ -1048,6 +1036,9 @@ URL path _path_, run these steps. They return a new cookie or failure:
 
    NOTE: A Path attribute can override this.
 
+1. Let _cookieAgeLimit_ be the maximum age of the cookie (which SHOULD
+   be 400 days in the future or sooner (see {{cookie-policy}})).
+
 1. While _attributesInput_ is not empty:
 
     1. Let _maxAgeSeen_ be false.
@@ -1087,9 +1078,6 @@ URL path _path_, run these steps. They return a new cookie or failure:
 
         1. If _attributeValue_ failed to parse as a cookie date, then continue.
 
-        1. Let _cookieAgeLimit_ be the maximum age of the cookie (which SHOULD
-           be 400 days in the future or sooner (see {{cookie-policy}})).
-
         1. If _expiryTime_ is greater than _cookieAgeLimit_, then set _expiryTime_
            to _cookieAgeLimit_.
 
@@ -1110,10 +1098,7 @@ URL path _path_, run these steps. They return a new cookie or failure:
 
         1. Let _deltaSeconds_ be _attributeValue_, converted to a base 10 integer.
 
-        1. Let _cookieAgeLimit_ be the maximum age of the cookie in seconds (which SHOULD
-           be 400 or less (see {{cookie-policy}})).
-
-        1. Set _deltaSeconds_ to the smaller of _deltaSeconds_ and _cookieAgeLimit_.
+        1. Set _deltaSeconds_ to the smaller of _deltaSeconds_ and _cookieAgeLimit_, in seconds.
 
         1. If _deltaSeconds_ is less than or equal to 0, let _expiryTime_ be
            the earliest representable date and time. Otherwise, let _expiryTime_
