@@ -19,7 +19,7 @@ venue:
   mail: ietf-http-wg@w3.org
   arch: https://lists.w3.org/Archives/Public/ietf-http-wg/
   repo: https://github.com/httpwg/http-extensions/labels/6265bis
-github-issue-label: 6265ter
+github-issue-label: 6265bis
 
 author:
 -
@@ -123,26 +123,6 @@ informative:
     title: "An Analysis of Private Browsing Modes in Modern Browsers"
     date: 2010
     target: http://www.usenix.org/events/sec10/tech/full_papers/Aggarwal.pdf
-  app-isolation:
-    target: http://www.collinjackson.com/research/papers/appisolation.pdf
-    title: App Isolation - Get the Security of Multiple Browsers with Just One
-    author:
-    -
-      ins: E. Chen
-      name: Eric Y. Chen
-    -
-      ins: J. Bau
-      name: Jason Bau
-    -
-      ins: C. Reis
-      name: Charles Reis
-    -
-      ins: A. Barth
-      name: Adam Barth
-    -
-      ins: C. Jackson
-      name: Collin Jackson
-    date: 2011
   prerendering:
     target: https://www.chromium.org/developers/design-documents/prerender
     title: Chrome Prerendering
@@ -485,6 +465,7 @@ A cookie's expiry-time is null or a time. It is initially null. Note: A previous
 document referred to null as a distinct "persistent-flag".
 
 A cookie's last-access-time is null or a time. It is initially null.
+
 
 # Server Requirements {#sane-profile}
 
@@ -830,9 +811,8 @@ these cookies appear in the header field.
 # User Agent Requirements {#ua-requirements}
 
 This section specifies the Cookie and Set-Cookie header fields in sufficient
-detail that a user agent implementing these requirements precisely can
-interoperate with existing servers (even those that do not conform to the
-well-behaved profile described in {{sane-profile}}).
+detail that a user agent can interoperate with existing servers (even those
+that do not conform to the well-behaved profile described in {{sane-profile}}).
 
 A user agent could enforce more restrictions than those specified herein (e.g.,
 restrictions specified by its cookie policy, described in {{cookie-policy}}).
@@ -842,12 +822,8 @@ agent will be able to interoperate with existing servers.
 ## The Set-Cookie Header Field {#set-cookie}
 
 When a user agent receives a Set-Cookie header field in an HTTP response, the
-user agent MAY ignore the Set-Cookie header field in its entirety
-(see {{ignoring-cookies}}).
+user agent MAY ignore the Set-Cookie header field in its entirety.
 
-If the user agent does not ignore the Set-Cookie header field in its entirety,
-the user agent MUST parse the field-value of the Set-Cookie header field as
-defined in {{parsing}}.
 
 ## Ignoring Set-Cookie Header Fields {#ignoring-cookies}
 
@@ -1348,7 +1324,7 @@ XXX: Move these to browser specs to set _sameSiteStrictOrLaxAllowed_ appropriate
         ignore the newly created cookie entirely.
 
     2.  If the cookie was received from a "same-site" request (as defined in
-        {{same-site-requests}}), skip the remaining substeps and continue
+        same-site-requests), skip the remaining substeps and continue
         processing the cookie.
 
     3.  If the cookie was received from a request which is navigating a
@@ -1426,11 +1402,13 @@ A user agent MAY omit the Cookie header field in its entirety.  For example, the
 user agent might wish to block sending cookies during "third-party" requests
 from setting cookies (see {{third-party-cookies}}).
 
+<!--
 If the user agent does attach a Cookie header field to an HTTP request, the
 user agent MUST compute the cookie-string following the algorithm defined in
 {{retrieval-algorithm}}, where the retrieval's URI is the request-uri, the
 retrieval's same-site status is computed for the HTTP request as defined in
 {{same-site-requests}}, and the retrieval's type is "HTTP".
+-->
 
 <!--
 XXX 5.7.2. Non-HTTP APIs
@@ -1876,8 +1854,6 @@ security properties required by applications.
 
 ## SameSite Cookies
 
-### Defense in depth
-
 "SameSite" cookies offer a robust defense against CSRF attack when deployed in
 strict mode, and when supported by the client. It is, however, prudent to ensure
 that this designation is not the extent of a site's defense against CSRF, as
@@ -1888,116 +1864,6 @@ Developers are strongly encouraged to deploy the usual server-side defenses
 (CSRF tokens, ensuring that "safe" HTTP methods are idempotent, etc) to mitigate
 the risk more fully.
 
-Additionally, client-side techniques such as those described in
-{{app-isolation}} may also prove effective against CSRF, and are certainly worth
-exploring in combination with "SameSite" cookies.
-
-### Top-level Navigations {#top-level-navigations}
-
-Setting the `SameSite` attribute in "strict" mode provides robust defense in
-depth against CSRF attacks, but has the potential to confuse users unless sites'
-developers carefully ensure that their cookie-based session management systems
-deal reasonably well with top-level navigations.
-
-Consider the scenario in which a user reads their email at MegaCorp Inc's
-webmail provider `https://site.example/`. They might expect that clicking on an
-emailed link to `https://projects.example/secret/project` would show them the
-secret project that they're authorized to see, but if `https://projects.example`
-has marked their session cookies as `SameSite=Strict`, then this cross-site
-navigation won't send them along with the request. `https://projects.example`
-will render a 404 error to avoid leaking secret information, and the user will
-be quite confused.
-
-Developers can avoid this confusion by adopting a session management system that
-relies on not one, but two cookies: one conceptually granting "read" access,
-another granting "write" access. The latter could be marked as `SameSite=Strict`,
-and its absence would prompt a reauthentication step before executing any
-non-idempotent action. The former could be marked as `SameSite=Lax`, in
-order to allow users access to data via top-level navigation, or
-`SameSite=None`, to permit access in all contexts (including cross-site
-embedded contexts).
-
-
-### Mashups and Widgets
-
-The `Lax` and `Strict` values for the `SameSite` attribute are inappropriate
-for some important use-cases. In particular, note that content intended for
-embedding in cross-site contexts (social networking widgets or commenting
-services, for instance) will not have access to same-site cookies. Cookies
-which are required in these situations should be marked with `SameSite=None`
-to allow access in cross-site contexts.
-
-Likewise, some forms of Single-Sign-On might require cookie-based authentication
-in a cross-site context; these mechanisms will not function as intended with
-same-site cookies and will also require `SameSite=None`.
-
-### Server-controlled
-
-SameSite cookies in and of themselves don't do anything to address the
-general privacy concerns outlined in Section 7.1 of {{RFC6265}}. The "SameSite"
-attribute is set by the server, and serves to mitigate the risk of certain kinds
-of attacks that the server is worried about. The user is not involved in this
-decision. Moreover, a number of side-channels exist which could allow a server
-to link distinct requests even in the absence of cookies (for example, connection
-and/or socket pooling between same-site and cross-site requests).
-
-### Reload navigations
-
-Requests issued for reloads triggered through user interface elements (such as a
-refresh button on a toolbar) are same-site only if the reloaded document was
-originally navigated to via a same-site request. This differs from the handling
-of other reload navigations, which are always same-site if top-level, since the
-source navigable's active document is precisely the document being
-reloaded.
-
-This special handling of reloads triggered through a user interface element
-avoids sending `SameSite` cookies on user-initiated reloads if they were
-withheld on the original navigation (i.e., if the initial navigation were
-cross-site). If the reload navigation were instead considered same-site, and
-sent all the initially withheld `SameSite` cookies, the security benefits of
-withholding the cookies in the first place would be nullified. This is
-especially important given that the absence of `SameSite` cookies withheld on a
-cross-site navigation request may lead to visible site breakage, prompting the
-user to trigger a reload.
-
-For example, suppose the user clicks on a link from `https://attacker.example/`
-to `https://victim.example/`. This is a cross-site request, so `SameSite=Strict`
-cookies are withheld. Suppose this causes `https://victim.example/` to appear
-broken, because the site only displays its sensitive content if a particular
-`SameSite` cookie is present in the request. The user, frustrated by the
-unexpectedly broken site, presses refresh on their browser's toolbar. To now
-consider the reload request same-site and send the initially withheld `SameSite`
-cookie would defeat the purpose of withholding it in the first place, as the
-reload navigation triggered through the user interface may replay the original
-(potentially malicious) request. Thus, the reload request should be considered
-cross-site, like the request that initially navigated to the page.
-
-### Top-level requests with "unsafe" methods {#unsafe-top-level-requests}
-
-The "Lax" enforcement mode described in {{strict-lax}} allows a cookie to be
-sent with a cross-site HTTP request if and only if it is a top-level navigation
-with a "safe" HTTP method. Implementation experience shows that this is
-difficult to apply as the default behavior, as some sites may rely on cookies
-not explicitly specifying a `SameSite` attribute being included on top-level
-cross-site requests with "unsafe" HTTP methods (as was the case prior to the
-introduction of the `SameSite` attribute).
-
-For example, a login flow may involve a cross-site top-level `POST` request to
-an endpoint which expects a cookie with login information. For such a cookie,
-"Lax" enforcement is not appropriate, as it would cause the cookie to be
-excluded due to the unsafe HTTP request method. On the other hand, "None"
-enforcement would allow the cookie to be sent with all cross-site requests,
-which may not be desirable due to the cookie's sensitive contents.
-
-The "Lax-allowing-unsafe" enforcement mode described in {{lax-allowing-unsafe}}
-retains some of the protections of "Lax" enforcement (as compared to "None")
-while still allowing cookies to be sent cross-site with unsafe top-level
-requests.
-
-As a more permissive variant of "Lax" mode, "Lax-allowing-unsafe" mode
-necessarily provides fewer protections against CSRF. Ultimately, the provision
-of such an enforcement mode should be seen as a temporary, transitional measure
-to ease adoption of "Lax" enforcement by default.
 
 # IANA Considerations
 
