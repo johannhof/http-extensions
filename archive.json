@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-04-16T00:17:32.559408+00:00",
+  "timestamp": "2024-04-18T00:17:51.183611+00:00",
   "repo": "johannhof/http-extensions",
   "labels": [
     {
@@ -91,7 +91,7 @@
       "labels": [],
       "body": "",
       "createdAt": "2024-01-26T10:33:02Z",
-      "updatedAt": "2024-01-26T10:33:28Z",
+      "updatedAt": "2024-04-17T07:16:31Z",
       "baseRepository": "johannhof/http-extensions",
       "baseRefName": "cookie-layering",
       "baseRefOid": "e632c083dc62030ee09eeeadbfee9f440d8e6f0f",
@@ -109,6 +109,13 @@
           "body": "Ideally we'd add URL path serializing for a URL path to the URL standard as well.",
           "createdAt": "2024-01-26T10:33:27Z",
           "updatedAt": "2024-01-26T10:33:27Z"
+        },
+        {
+          "author": "annevk",
+          "authorAssociation": "COLLABORATOR",
+          "body": "This landed in https://github.com/johannhof/http-extensions/commit/29b857c7093589b312a230180007b4313056cdfd. Still need to change the URL Standard to make the URL path serializer take a URL path.",
+          "createdAt": "2024-04-17T07:16:30Z",
+          "updatedAt": "2024-04-17T07:16:30Z"
         }
       ],
       "reviews": []
