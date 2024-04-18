@@ -422,36 +422,37 @@ inadvertently create cookies that cannot be read by other servers.
 
 # Cookie representation {#cookie-representation}
 
-A cookie is a struct that represents a piece of state to be transmitted between a client and a
-server. To disambiguate from the Cookie response header it can also be referred to as a cookie
-record.
+A **cookie** is a struct that represents a piece of state to be transmitted between a client and a
+server. To disambiguate from the Cookie response header field it can also be referred to as a
+**cookie record**.
 
-A cookie's name is a byte sequence. It always needs to be set.
+A cookie's **name** is a byte sequence. It always needs to be set.
 
-A cookie's value is a byte sequence. It always needs to be set.
+A cookie's **value** is a byte sequence. It always needs to be set.
+
+A cookie's **secure** is a boolean. It is initially false.
+
+A cookie's **host** is a domain, IP address, null, or failure. It is initially null. Note: Once a
+cookie is in the user agent's cookie store its host is a domain or IP address.
+
+A cookie's **host-only** is a boolean. It is initially false.
+
+A cookie's **path** is a URL path.
+
+A cookie's **same-site** is "strict", "lax", "unset", or "none". It is initially "unset".
+
+A cookie's **http-only** is a boolean. It is initially false.
 
 <!--
-A cookie's partition is null or a partition-key. It is initially null.
+A cookie's **partition** is null or a partition-key. It is initially null.
 -->
 
-A cookie's secure is a boolean. It is initially false.
+A cookie's **creation-time** is a time. It is initially the current time.
 
-A cookie's host is a domain, IP address, null, or failure. It is initially null. Note: Once a cookie is in the user agent's cookie store its host is a domain or IP address.
+A cookie's **expiry-time** is null or a time. It is initially null. Note: A prior version of this
+specification referred to null with a distinct "persistent-flag" field being false.
 
-A cookie's host-only is a boolean. It is initially false.
-
-A cookie's path is a URL path.
-
-A cookie's same-site is "strict", "lax", "unset", or "none". It is initially "unset".
-
-A cookie's http-only is a boolean. It is initially false.
-
-A cookie's creation-time is a time. It is initially the current time.
-
-A cookie's expiry-time is null or a time. It is initially null. Note: A previous version of this
-document referred to null with a distinct "persistent-flag" being false.
-
-A cookie's last-access-time is null or a time. It is initially null.
+A cookie's **last-access-time** is null or a time. It is initially null.
 
 
 # Server Requirements {#sane-profile}
@@ -1041,8 +1042,8 @@ explicitly. Horizontal tab (0x09) is excluded from the CTL characters that
 lead to failure, as it is considered whitespace, which is
 handled separately.
 
-To **Parse a Cookie** given a byte sequence _input_, a boolean _isSecure_, a host
-_host_, URL path _path_, run these steps. They return a new cookie or failure:
+To **Parse a Cookie** given a byte sequence _input_, boolean _isSecure_, host _host_,
+URL path _path_, run these steps. They return a new cookie or failure:
 
 1. If _input_ contains a byte in the range 0x00 to 0x08, inclusive,
    the range 0x0A to 0x1F inclusive, or 0x7F (CTL bytes excluding HTAB),
@@ -1212,8 +1213,8 @@ Both of these sections need to integrated directly into HTML/Fetch/Service Worke
 
 ### Store a Cookie {#store-a-cookie}
 
-To **Store a Cookie** _cookie_, given a boolean _isSecure_, a domain or IP address _host_,
-a boolean _httpOnlyAllowed_, a boolean _allowCookieForPublicSuffix_, and a boolean _sameSiteStrictOrLaxAllowed_:
+To **Store a Cookie** _cookie_, given a boolean _isSecure_, domain or IP address _host_,
+boolean _httpOnlyAllowed_, boolean _allowCookieForPublicSuffix_, and boolean _sameSiteStrictOrLaxAllowed_:
 
 1. Assert: _cookie_'s name's length + _cookie_'s value's length is not 0 or greater than 4096.
 
@@ -1277,6 +1278,7 @@ a boolean _httpOnlyAllowed_, a boolean _allowCookieForPublicSuffix_, and a boole
 1. If _cookie_'s same-site is not "none" and _sameSiteStrictOrLaxAllowed_ is false,
    then return.
 
+<!--
 XXX: Move these to browser specs to set _sameSiteStrictOrLaxAllowed_ appropriately
 
     1.  If the cookie was received from a "non-HTTP" API, and the API was called
@@ -1299,6 +1301,7 @@ XXX: Move these to browser specs to set _sameSiteStrictOrLaxAllowed_ appropriate
         the request had it already existed prior to the navigation.
 
     4.  Abort these steps and ignore the newly created cookie entirely.
+-->
 
 1. If _cookie_'s same-site is "none" and _cookie_'s secure-only is false,
    then return.
@@ -1326,10 +1329,8 @@ XXX: Move these to browser specs to set _sameSiteStrictOrLaxAllowed_ appropriate
 
    then return.
 
-1. If the user agent's cookie store contains a Cookie _oldCookie_ with the same name, host,
-   host-only, and path as the newly-created _cookie_:
-
-   NOTE: This algorithm maintains the invariant that there is at most one such cookie.
+1. If the user agent's cookie store contains a cookie _oldCookie_ whose name is _cookie_'s name,
+   host host equals _cookie_'s host, host-only is _cookie_'s host-only, and path is _cookie_'s path:
 
     1. If _httpOnlyAllowed_ is false and _oldCookie_'s http-only is true,
        then return.
@@ -1337,6 +1338,8 @@ XXX: Move these to browser specs to set _sameSiteStrictOrLaxAllowed_ appropriate
     1. Update _cookie_'s creation-time to _oldCookie_'s creation-time.
 
     1. Remove _oldCookie_ from the user agent's cookie store.
+
+   NOTE: This algorithm maintains the invariant that there is at most one such cookie.
 
 1. Insert _cookie_ into the user agent's cookie store.
 
@@ -1353,7 +1356,7 @@ This should just be in HTML and Cookie Store directly.
 ### Retrieve Cookies {#retrieve-cookies}
 
 To **Retrieve Cookies** given a boolean _isSecure_, host _host_, URL path _path_,
-boolean _httpOnlyAllowed_, and a string _sameSite_:
+boolean _httpOnlyAllowed_, and string _sameSite_:
 
 1. Assert: _sameSite_ is "strict-or-less", "lax-or-less", "unset-or-less", or "none".
 
