@@ -13,27 +13,27 @@ as an external dictionary for future HTTP responses for compression schemes
 that support using external dictionaries (e.g., Brotli   and
 Zstandard  ). 
     " name="description">
-<meta content="xml2rfc 3.18.2" name="generator">
+<meta content="xml2rfc 3.21.0" name="generator">
 <meta content="compression dictionary" name="keyword">
 <meta content="shared brotli" name="keyword">
 <meta content="zstandard dictionary" name="keyword">
 <meta content="delta compression" name="keyword">
 <meta content="draft-ietf-httpbis-compression-dictionary-latest" name="ietf.draft">
 <!-- Generator version information:
-  xml2rfc 3.18.2
-    Python 3.11.6
-    ConfigArgParse 1.5.3
+  xml2rfc 3.21.0
+    Python 3.11.9
+    ConfigArgParse 1.7
     google-i18n-address 3.1.0
     intervaltree 3.1.0
     Jinja2 3.1.2
     lxml 4.9.3
-    platformdirs 4.0.0
+    platformdirs 4.2.0
     pycountry 22.3.5
-    PyYAML 6.0
+    PyYAML 6.0.1
     requests 2.31.0
-    setuptools 67.7.2
+    setuptools 68.2.2
     six 1.16.0
-    wcwidth 0.2.10
+    wcwidth 0.2.13
 -->
 <link href="draft-ietf-httpbis-compression-dictionary.xml" rel="alternate" type="application/rfc+xml">
 <link href="#copyright" rel="license">
@@ -1032,11 +1032,11 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <thead><tr>
 <td class="left">Internet-Draft</td>
 <td class="center">compression-dictionary</td>
-<td class="right">November 2023</td>
+<td class="right">April 2024</td>
 </tr></thead>
 <tfoot><tr>
 <td class="left">Meenan &amp; Weiss</td>
-<td class="center">Expires 23 May 2024</td>
+<td class="center">Expires 20 October 2024</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1049,12 +1049,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-ietf-httpbis-compression-dictionary-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2023-11-20" class="published">20 November 2023</time>
+<time datetime="2024-04-18" class="published">18 April 2024</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2024-05-23">23 May 2024</time></dd>
+<dd class="expires"><time datetime="2024-10-20">20 October 2024</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1112,7 +1112,7 @@ Zstandard <span>[<a href="#RFC8878" class="cite xref">RFC8878</a>]</span>).<a hr
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 23 May 2024.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 20 October 2024.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1121,7 +1121,7 @@ Zstandard <span>[<a href="#RFC8878" class="cite xref">RFC8878</a>]</span>).<a hr
 <a href="#name-copyright-notice" class="section-name selfRef">Copyright Notice</a>
         </h2>
 <p id="section-boilerplate.2-1">
-            Copyright (c) 2023 IETF Trust and the persons identified as the
+            Copyright (c) 2024 IETF Trust and the persons identified as the
             document authors. All rights reserved.<a href="#section-boilerplate.2-1" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.2-2">
             This document is subject to BCP 78 and the IETF Trust's Legal
@@ -1154,19 +1154,16 @@ Zstandard <span>[<a href="#RFC8878" class="cite xref">RFC8878</a>]</span>).<a hr
                     <p id="section-toc.1-1.2.2.1.2.1.1" class="keepWithNext"><a href="#section-2.1.1" class="auto internal xref">2.1.1</a>.  <a href="#name-match" class="internal xref">match</a></p>
 </li>
                   <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.1.2.2">
-                    <p id="section-toc.1-1.2.2.1.2.2.1" class="keepWithNext"><a href="#section-2.1.2" class="auto internal xref">2.1.2</a>.  <a href="#name-match-query" class="internal xref">match-query</a></p>
+                    <p id="section-toc.1-1.2.2.1.2.2.1" class="keepWithNext"><a href="#section-2.1.2" class="auto internal xref">2.1.2</a>.  <a href="#name-ttl" class="internal xref">ttl</a></p>
 </li>
                   <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.1.2.3">
-                    <p id="section-toc.1-1.2.2.1.2.3.1"><a href="#section-2.1.3" class="auto internal xref">2.1.3</a>.  <a href="#name-match-dest" class="internal xref">match-dest</a></p>
+                    <p id="section-toc.1-1.2.2.1.2.3.1"><a href="#section-2.1.3" class="auto internal xref">2.1.3</a>.  <a href="#name-type" class="internal xref">type</a></p>
 </li>
                   <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.1.2.4">
-                    <p id="section-toc.1-1.2.2.1.2.4.1"><a href="#section-2.1.4" class="auto internal xref">2.1.4</a>.  <a href="#name-ttl" class="internal xref">ttl</a></p>
+                    <p id="section-toc.1-1.2.2.1.2.4.1"><a href="#section-2.1.4" class="auto internal xref">2.1.4</a>.  <a href="#name-hashes" class="internal xref">hashes</a></p>
 </li>
                   <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.1.2.5">
-                    <p id="section-toc.1-1.2.2.1.2.5.1"><a href="#section-2.1.5" class="auto internal xref">2.1.5</a>.  <a href="#name-type" class="internal xref">type</a></p>
-</li>
-                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.1.2.6">
-                    <p id="section-toc.1-1.2.2.1.2.6.1"><a href="#section-2.1.6" class="auto internal xref">2.1.6</a>.  <a href="#name-examples" class="internal xref">Examples</a></p>
+                    <p id="section-toc.1-1.2.2.1.2.5.1"><a href="#section-2.1.5" class="auto internal xref">2.1.5</a>.  <a href="#name-examples" class="internal xref">Examples</a></p>
 </li>
                 </ul>
 </li>
@@ -1280,67 +1277,40 @@ negotiated dictionary.<a href="#section-1-2" class="pilcrow">¶</a></p>
 <a href="#section-2.1" class="section-number selfRef">2.1. </a><a href="#name-use-as-dictionary" class="section-name selfRef">Use-As-Dictionary</a>
         </h3>
 <p id="section-2.1-1">When responding to a HTTP Request, a server can advertise that the response can
-be used as a dictionary for future requests for URLs that match the rules
+be used as a dictionary for future requests for URLs that match the pattern
 specified in the Use-As-Dictionary response header.<a href="#section-2.1-1" class="pilcrow">¶</a></p>
 <p id="section-2.1-2">The Use-As-Dictionary response header is a Structured Field
-<span>[<a href="#STRUCTURED-FIELDS" class="cite xref">STRUCTURED-FIELDS</a>]</span> sf-dictionary with values for "match", "match-query",
-"match-dest", "ttl", and "type".<a href="#section-2.1-2" class="pilcrow">¶</a></p>
+<span>[<a href="#STRUCTURED-FIELDS" class="cite xref">STRUCTURED-FIELDS</a>]</span> sf-dictionary with values for "match", "ttl", "type" and
+"hashes".<a href="#section-2.1-2" class="pilcrow">¶</a></p>
 <div id="match">
 <section id="section-2.1.1">
           <h4 id="name-match">
 <a href="#section-2.1.1" class="section-number selfRef">2.1.1. </a><a href="#name-match" class="section-name selfRef">match</a>
           </h4>
-<p id="section-2.1.1-1">The "match" value of the Use-As-Dictionary header is a sf-string value
-that provides the "pathname" of a URLPattern
-(https://urlpattern.spec.whatwg.org/#dom-urlpatterninit-pathname).<a href="#section-2.1.1-1" class="pilcrow">¶</a></p>
-<p id="section-2.1.1-2">The "match" is a <span>[<a href="#URL" class="cite xref">URL</a>]</span> path relative to the full request URL of the
-dictionary.  The request URL for the dictionary itself is used as the "baseURL"
-for constructing the URLPattern (https://urlpattern.spec.whatwg.org/) that
-is used for matching the dictionary to relevant requests when running
-<a href="#dictionary-url-matching" class="auto internal xref">Section 2.2.2</a>.<a href="#section-2.1.1-2" class="pilcrow">¶</a></p>
-<p id="section-2.1.1-3">The URLPattern used for request matching does not support regular expressions
-(https://urlpattern.spec.whatwg.org/#token-type-regexp) in the "match".<a href="#section-2.1.1-3" class="pilcrow">¶</a></p>
-<p id="section-2.1.1-4">The "match" value is required and MUST be included in the
-Use-As-Dictionary sf-dictionary for the dictionary to be considered valid.<a href="#section-2.1.1-4" class="pilcrow">¶</a></p>
-</section>
-</div>
-<div id="match-query">
-<section id="section-2.1.2">
-          <h4 id="name-match-query">
-<a href="#section-2.1.2" class="section-number selfRef">2.1.2. </a><a href="#name-match-query" class="section-name selfRef">match-query</a>
-          </h4>
-<p id="section-2.1.2-1">The "match-query" value of the Use-As-Dictionary header is a sf-string value
-that provides the "search" of a URLPattern
-(https://urlpattern.spec.whatwg.org/#dom-urlpatterninit-search).<a href="#section-2.1.2-1" class="pilcrow">¶</a></p>
-<p id="section-2.1.2-2">The "match-query" is the match pattern for the searchpart of the request
-<span>[<a href="#URL" class="cite xref">URL</a>]</span> and does not support regular expressions.<a href="#section-2.1.2-2" class="pilcrow">¶</a></p>
-<p id="section-2.1.2-3">The "match-query" value is optional and defaults to the asterisk wildcard
-token "*".<a href="#section-2.1.2-3" class="pilcrow">¶</a></p>
-</section>
-</div>
-<div id="match-dest">
-<section id="section-2.1.3">
-          <h4 id="name-match-dest">
-<a href="#section-2.1.3" class="section-number selfRef">2.1.3. </a><a href="#name-match-dest" class="section-name selfRef">match-dest</a>
-          </h4>
-<p id="section-2.1.3-1">The "match-dest" value of the Use-As-Dictionary header is a sf-string value
-that provides a request destination
-(https://fetch.spec.whatwg.org/#concept-request-destination).<a href="#section-2.1.3-1" class="pilcrow">¶</a></p>
-<p id="section-2.1.3-2">An empty string for "match-dest" MUST match all destinations.<a href="#section-2.1.3-2" class="pilcrow">¶</a></p>
-<p id="section-2.1.3-3">For clients that do not support request destinations or if the value of
-"match-dest" is a value that is not supported by the client then the client
-MUST treat it as an empty string and match all destinations.<a href="#section-2.1.3-3" class="pilcrow">¶</a></p>
-<p id="section-2.1.3-4">The "match-dest" value is optional and defaults to the empty string.<a href="#section-2.1.3-4" class="pilcrow">¶</a></p>
+<p id="section-2.1.1-1">The "match" value of the Use-As-Dictionary header is a sf-string value that
+provides an URL-matching pattern for requests where the dictionary can be used.<a href="#section-2.1.1-1" class="pilcrow">¶</a></p>
+<p id="section-2.1.1-2">The sf-string is parsed as a URL <span>[<a href="#URL" class="cite xref">URL</a>]</span>, and supports absolute URLs
+as well as relative URLs. When stored, any relative URLs MUST be expanded
+so that only absolute URL patterns are used for matching against requests.<a href="#section-2.1.1-2" class="pilcrow">¶</a></p>
+<p id="section-2.1.1-3">The match URL supports using * as a wildcard within the match string for
+pattern-matching multiple URLs. URLs with a natural * in them are not directly
+supported unless they can rely on the behavior of * matching an arbitrary
+string.<a href="#section-2.1.1-3" class="pilcrow">¶</a></p>
+<p id="section-2.1.1-4">The <span>[<a href="#Origin" class="cite xref">Origin</a>]</span> of the URL in the "match" pattern MUST be the same as the
+origin of the request that specifies the "Use-As-Dictionary" response and MUST
+not include a * wildcard.<a href="#section-2.1.1-4" class="pilcrow">¶</a></p>
+<p id="section-2.1.1-5">The "match" value is required and MUST be included in the Use-As-Dictionary
+sf-dictionary for the dictionary to be considered valid.<a href="#section-2.1.1-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="ttl">
-<section id="section-2.1.4">
+<section id="section-2.1.2">
           <h4 id="name-ttl">
-<a href="#section-2.1.4" class="section-number selfRef">2.1.4. </a><a href="#name-ttl" class="section-name selfRef">ttl</a>
+<a href="#section-2.1.2" class="section-number selfRef">2.1.2. </a><a href="#name-ttl" class="section-name selfRef">ttl</a>
           </h4>
-<p id="section-2.1.4-1">The "ttl" value of the Use-As-Dictionary header is a sf-integer value that
-provides the time in seconds that the dictionary is valid for (time to live).<a href="#section-2.1.4-1" class="pilcrow">¶</a></p>
-<p id="section-2.1.4-2">The "ttl" is independent of the cache lifetime of the resource being used for
+<p id="section-2.1.2-1">The "ttl" value of the Use-As-Dictionary header is a sf-integer value that
+provides the time in seconds that the dictionary is valid for (time to live).<a href="#section-2.1.2-1" class="pilcrow">¶</a></p>
+<p id="section-2.1.2-2">The "ttl" is independent of the cache lifetime of the resource being used for
 the dictionary. If the underlying resource is evicted from cache then it is
 also removed but this allows for setting an explicit time to live for use as a
 dictionary independent of the underlying resource in cache. Expired resources
@@ -1348,61 +1318,75 @@ can still be useful as dictionaries while they are in cache and can be used for
 fetching updates of the expired resource. It can also be useful to artificially
 limit the life of a dictionary in cases where the dictionary is updated
 frequently which can help limit the number of possible incoming dictionary
-variations.<a href="#section-2.1.4-2" class="pilcrow">¶</a></p>
-<p id="section-2.1.4-3">The "ttl" value is optional and defaults to 1209600 (14 days).<a href="#section-2.1.4-3" class="pilcrow">¶</a></p>
+variations.<a href="#section-2.1.2-2" class="pilcrow">¶</a></p>
+<p id="section-2.1.2-3">The "ttl" value is optional and defaults to 31536000 (1 year).<a href="#section-2.1.2-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="type">
-<section id="section-2.1.5">
+<section id="section-2.1.3">
           <h4 id="name-type">
-<a href="#section-2.1.5" class="section-number selfRef">2.1.5. </a><a href="#name-type" class="section-name selfRef">type</a>
+<a href="#section-2.1.3" class="section-number selfRef">2.1.3. </a><a href="#name-type" class="section-name selfRef">type</a>
           </h4>
-<p id="section-2.1.5-1">The "type" value of the Use-As-Dictionary header is a sf-string value that
-describes the file format of the supplied dictionary.<a href="#section-2.1.5-1" class="pilcrow">¶</a></p>
-<p id="section-2.1.5-2">"raw" is the only defined dictionary format which represents an unformatted
-blob of bytes suitable for any compression scheme to use.<a href="#section-2.1.5-2" class="pilcrow">¶</a></p>
-<p id="section-2.1.5-3">If a client receives a dictionary with a type that it does not understand, it
-MUST NOT use the dictionary.<a href="#section-2.1.5-3" class="pilcrow">¶</a></p>
-<p id="section-2.1.5-4">The "type" value is optional and defaults to "raw".<a href="#section-2.1.5-4" class="pilcrow">¶</a></p>
+<p id="section-2.1.3-1">The "type" value of the Use-As-Dictionary header is a sf-string value that
+describes the file format of the supplied dictionary.<a href="#section-2.1.3-1" class="pilcrow">¶</a></p>
+<p id="section-2.1.3-2">"raw" is the only defined dictionary format which represents an unformatted
+blob of bytes suitable for any compression scheme to use.<a href="#section-2.1.3-2" class="pilcrow">¶</a></p>
+<p id="section-2.1.3-3">If a client receives a dictionary with a type that it does not understand, it
+MUST NOT use the dictionary.<a href="#section-2.1.3-3" class="pilcrow">¶</a></p>
+<p id="section-2.1.3-4">The "type" value is optional and defaults to "raw".<a href="#section-2.1.3-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="hashes">
+<section id="section-2.1.4">
+          <h4 id="name-hashes">
+<a href="#section-2.1.4" class="section-number selfRef">2.1.4. </a><a href="#name-hashes" class="section-name selfRef">hashes</a>
+          </h4>
+<p id="section-2.1.4-1">The "hashes" value of the Use-As-Dictionary header is a inner-list value
+that provides a list of supported hash algorithms in order of server
+preference.<a href="#section-2.1.4-1" class="pilcrow">¶</a></p>
+<p id="section-2.1.4-2">The dictionaries are identified by the hash of their contents and this value
+allows for negotiation of the algorithm to use.<a href="#section-2.1.4-2" class="pilcrow">¶</a></p>
+<p id="section-2.1.4-3">The "hashes" value is optional and defaults to (sha-256).<a href="#section-2.1.4-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="examples">
-<section id="section-2.1.6">
+<section id="section-2.1.5">
           <h4 id="name-examples">
-<a href="#section-2.1.6" class="section-number selfRef">2.1.6. </a><a href="#name-examples" class="section-name selfRef">Examples</a>
+<a href="#section-2.1.5" class="section-number selfRef">2.1.5. </a><a href="#name-examples" class="section-name selfRef">Examples</a>
           </h4>
 <div id="path-prefix">
-<section id="section-2.1.6.1">
+<section id="section-2.1.5.1">
             <h5 id="name-path-prefix">
-<a href="#section-2.1.6.1" class="section-number selfRef">2.1.6.1. </a><a href="#name-path-prefix" class="section-name selfRef">Path Prefix</a>
+<a href="#section-2.1.5.1" class="section-number selfRef">2.1.5.1. </a><a href="#name-path-prefix" class="section-name selfRef">Path Prefix</a>
             </h5>
-<p id="section-2.1.6.1-1">A response that contained a response header:<a href="#section-2.1.6.1-1" class="pilcrow">¶</a></p>
-<div class="lang-http-message sourcecode" id="section-2.1.6.1-2">
+<p id="section-2.1.5.1-1">A response that contained a response header:<a href="#section-2.1.5.1-1" class="pilcrow">¶</a></p>
+<div class="lang-http-message sourcecode" id="section-2.1.5.1-2">
 <pre>
 NOTE: '\' line wrapping per RFC 8792
 
 Use-As-Dictionary: \
-  match="/product/*", match-dest="document", ttl=604800
-</pre><a href="#section-2.1.6.1-2" class="pilcrow">¶</a>
+  match="/product/*", ttl=604800, hashes=(sha-256 sha-512)
+</pre><a href="#section-2.1.5.1-2" class="pilcrow">¶</a>
 </div>
-<p id="section-2.1.6.1-3">Would specify matching any document request for a URL with a path prefix of
-/product/ on the same <span>[<a href="#Origin" class="cite xref">Origin</a>]</span> as the original request, and expiring as a
-dictionary in 7 days independent of the cache lifetime of the resource.<a href="#section-2.1.6.1-3" class="pilcrow">¶</a></p>
+<p id="section-2.1.5.1-3">Would specify matching any URL with a path prefix of /product/ on the same
+<span>[<a href="#Origin" class="cite xref">Origin</a>]</span> as the original request, expiring as a dictionary in 7 days
+independent of the cache lifetime of the resource, and advertise support for
+both sha-256 and sha-512 hash algorithms.<a href="#section-2.1.5.1-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="versioned-directories">
-<section id="section-2.1.6.2">
+<section id="section-2.1.5.2">
             <h5 id="name-versioned-directories">
-<a href="#section-2.1.6.2" class="section-number selfRef">2.1.6.2. </a><a href="#name-versioned-directories" class="section-name selfRef">Versioned Directories</a>
+<a href="#section-2.1.5.2" class="section-number selfRef">2.1.5.2. </a><a href="#name-versioned-directories" class="section-name selfRef">Versioned Directories</a>
             </h5>
-<p id="section-2.1.6.2-1">A response that contained a response header:<a href="#section-2.1.6.2-1" class="pilcrow">¶</a></p>
-<div class="lang-http-message sourcecode" id="section-2.1.6.2-2">
+<p id="section-2.1.5.2-1">A response that contained a response header:<a href="#section-2.1.5.2-1" class="pilcrow">¶</a></p>
+<div class="lang-http-message sourcecode" id="section-2.1.5.2-2">
 <pre>
 Use-As-Dictionary: match="/app/*/main.js"
-</pre><a href="#section-2.1.6.2-2" class="pilcrow">¶</a>
+</pre><a href="#section-2.1.5.2-2" class="pilcrow">¶</a>
 </div>
-<p id="section-2.1.6.2-3">Would match main.js in any directory under /app/ and expiring as a dictionary
-in one year.<a href="#section-2.1.6.2-3" class="pilcrow">¶</a></p>
+<p id="section-2.1.5.2-3">Would match main.js in any directory under /app/, expiring as a dictionary in
+one year and support using the sha-256 hash algorithm.<a href="#section-2.1.5.2-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1419,7 +1403,8 @@ appropriate dictionary, it can add a "Available-Dictionary" request header
 to the request to indicate to the server that it has a dictionary available to
 use for compression.<a href="#section-2.2-1" class="pilcrow">¶</a></p>
 <p id="section-2.2-2">The "Available-Dictionary" request header is a lowercase Base16-encoded
-<span>[<a href="#RFC4648" class="cite xref">RFC4648</a>]</span> <span>[<a href="#SHA-256" class="cite xref">SHA-256</a>]</span> hash of the contents of a single available dictionary.<a href="#section-2.2-2" class="pilcrow">¶</a></p>
+<span>[<a href="#RFC4648" class="cite xref">RFC4648</a>]</span> hash of the contents of a single available dictionary calculated
+using one of the algorithms advertised as being supported by the server.<a href="#section-2.2-2" class="pilcrow">¶</a></p>
 <p id="section-2.2-3">Its syntax is defined by the following <span>[<a href="#ABNF" class="cite xref">ABNF</a>]</span>:<a href="#section-2.2-3" class="pilcrow">¶</a></p>
 <div class="lang-abnf sourcecode" id="section-2.2-4">
 <pre>
@@ -1447,7 +1432,7 @@ Available-Dictionary: \
 <p id="section-2.2.1-1">To be considered as a match, the dictionary must not yet be expired as a
 dictionary. When iterating through dictionaries looking for a match, the
 expiration time of the dictionary is calculated by taking the last time the
-dictionary was fetched and adding the "ttl" seconds from the
+dictionary was written and adding the "ttl" seconds from the
 "Use-As-Dictionary" response. If the current time is beyond the expiration time
 of the dictionary, it MUST be ignored.<a href="#section-2.2.1-1" class="pilcrow">¶</a></p>
 </section>
@@ -1458,46 +1443,86 @@ of the dictionary, it MUST be ignored.<a href="#section-2.2.1-1" class="pilcrow"
 <a href="#section-2.2.2" class="section-number selfRef">2.2.2. </a><a href="#name-dictionary-url-matching" class="section-name selfRef">Dictionary URL matching</a>
           </h4>
 <p id="section-2.2.2-1">When a dictionary is stored as a result of a "Use-As-Dictionary" directive, it
-includes "match", "match-query" and "match-dest" strings that are used to
-match an outgoing request from a client to the available dictionaries.<a href="#section-2.2.2-1" class="pilcrow">¶</a></p>
-<p id="section-2.2.2-2">To see if an outbound request matches a given dictionary, the following
-algorithm will return TRUE for a successful match and FALSE for no-match:<a href="#section-2.2.2-2" class="pilcrow">¶</a></p>
+includes a "match" string with the URL pattern of request URLs that the
+dictionary can be used for.<a href="#section-2.2.2-1" class="pilcrow">¶</a></p>
+<p id="section-2.2.2-2">When comparing request URLs to the available dictionary match patterns, the
+comparison should account for the * wildcard when matching against request
+URLs. This can be accomplished with the following algorithm which returns TRUE
+for a successful match and FALSE for no-match:<a href="#section-2.2.2-2" class="pilcrow">¶</a></p>
 <ol start="1" type="1" class="normal type-1" id="section-2.2.2-3">
 <li id="section-2.2.2-3.1">
-              <p id="section-2.2.2-3.1.1">If the current client supports request destinations:<a href="#section-2.2.2-3.1.1" class="pilcrow">¶</a></p>
+              <p id="section-2.2.2-3.1.1">Let MATCH represent the absolute URL pattern from the "match" value for the
+given dictionary.<a href="#section-2.2.2-3.1.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-2.2.2-3.2">
+              <p id="section-2.2.2-3.2.1">LET URL represent the request URL being checked.<a href="#section-2.2.2-3.2.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-2.2.2-3.3">
+              <p id="section-2.2.2-3.3.1">If there are no * characters in MATCH:<a href="#section-2.2.2-3.3.1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-2.2.2-3.1.2.1">
-                  <p id="section-2.2.2-3.1.2.1.1">Let DEST be the value of "match-dest" for the given dictionary.<a href="#section-2.2.2-3.1.2.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-2.2.2-3.3.2.1">
+                  <p id="section-2.2.2-3.3.2.1.1">If the MATCH and URL strings are identical, return TRUE.<a href="#section-2.2.2-3.3.2.1.1" class="pilcrow">¶</a></p>
 </li>
-                <li class="normal" id="section-2.2.2-3.1.2.2">
-                  <p id="section-2.2.2-3.1.2.2.1">Let REQUEST_DEST be the value of the destination for the current
- request.<a href="#section-2.2.2-3.1.2.2.1" class="pilcrow">¶</a></p>
-</li>
-                <li class="normal" id="section-2.2.2-3.1.2.3">
-                  <p id="section-2.2.2-3.1.2.3.1">If DEST is not an empty string and If DEST and REQUEST_DEST are not the
- same value, return FALSE<a href="#section-2.2.2-3.1.2.3.1" class="pilcrow">¶</a></p>
+                <li class="normal" id="section-2.2.2-3.3.2.2">
+                  <p id="section-2.2.2-3.3.2.2.1">Else, return FALSE.<a href="#section-2.2.2-3.3.2.2.1" class="pilcrow">¶</a></p>
 </li>
               </ul>
 </li>
-            <li id="section-2.2.2-3.2">
-              <p id="section-2.2.2-3.2.1">Let PATH be the value of "match" for the given dictionary.<a href="#section-2.2.2-3.2.1" class="pilcrow">¶</a></p>
-</li>
-            <li id="section-2.2.2-3.3">
-              <p id="section-2.2.2-3.3.1">Let SEARCH be the value of "match-query" for the given dictionary.<a href="#section-2.2.2-3.3.1" class="pilcrow">¶</a></p>
-</li>
             <li id="section-2.2.2-3.4">
-              <p id="section-2.2.2-3.4.1">Let BASEURL be the request URL of the given dictionary.<a href="#section-2.2.2-3.4.1" class="pilcrow">¶</a></p>
+              <p id="section-2.2.2-3.4.1">If there is a single * character in MATCH and it is at the end of the
+string:<a href="#section-2.2.2-3.4.1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-2.2.2-3.4.2.1">
+                  <p id="section-2.2.2-3.4.2.1.1">If the MATCH string is identical to the start of the URL string, return
+ TRUE.<a href="#section-2.2.2-3.4.2.1.1" class="pilcrow">¶</a></p>
+</li>
+                <li class="normal" id="section-2.2.2-3.4.2.2">
+                  <p id="section-2.2.2-3.4.2.2.1">Else, return FALSE.<a href="#section-2.2.2-3.4.2.2.1" class="pilcrow">¶</a></p>
+</li>
+              </ul>
 </li>
             <li id="section-2.2.2-3.5">
-              <p id="section-2.2.2-3.5.1">Let PATTERN be a URLPattern constructed by setting pathname=PATH,
-search=SEARCH, baseURL=BASEURL (https://urlpattern.spec.whatwg.org/).<a href="#section-2.2.2-3.5.1" class="pilcrow">¶</a></p>
+              <p id="section-2.2.2-3.5.1">Split the MATCH string by the * character into an array of MATCHES
+(excluding the * deliminator from the individual entries).<a href="#section-2.2.2-3.5.1" class="pilcrow">¶</a></p>
 </li>
             <li id="section-2.2.2-3.6">
-              <p id="section-2.2.2-3.6.1">LET URL represent the request URL being checked.<a href="#section-2.2.2-3.6.1" class="pilcrow">¶</a></p>
+              <p id="section-2.2.2-3.6.1">If there is not a * character at the end of MATCH:<a href="#section-2.2.2-3.6.1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-2.2.2-3.6.2.1">
+                  <p id="section-2.2.2-3.6.2.1.1">Pop the last entry in MATCHES from the end of the array into PATTERN.<a href="#section-2.2.2-3.6.2.1.1" class="pilcrow">¶</a></p>
+</li>
+                <li class="normal" id="section-2.2.2-3.6.2.2">
+                  <p id="section-2.2.2-3.6.2.2.1">If PATTERN is identical to the end of the URL string, remove the end of
+ the URL string to the beginning of the match to PATTERN.<a href="#section-2.2.2-3.6.2.2.1" class="pilcrow">¶</a></p>
+</li>
+                <li class="normal" id="section-2.2.2-3.6.2.3">
+                  <p id="section-2.2.2-3.6.2.3.1">Else, return FALSE.<a href="#section-2.2.2-3.6.2.3.1" class="pilcrow">¶</a></p>
+</li>
+              </ul>
 </li>
             <li id="section-2.2.2-3.7">
-              <p id="section-2.2.2-3.7.1">Return the result of running the URLPattern "match" algorithm
-(https://urlpattern.spec.whatwg.org/#match)<a href="#section-2.2.2-3.7.1" class="pilcrow">¶</a></p>
+              <p id="section-2.2.2-3.7.1">Pop the first entry in MATCHES from the front of the array into PATTERN.<a href="#section-2.2.2-3.7.1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-2.2.2-3.7.2.1">
+                  <p id="section-2.2.2-3.7.2.1.1">If PATTERN is not identical to the start of the URL string, return FALSE.<a href="#section-2.2.2-3.7.2.1.1" class="pilcrow">¶</a></p>
+</li>
+              </ul>
+</li>
+            <li id="section-2.2.2-3.8">
+              <p id="section-2.2.2-3.8.1">Pop each entry off of the front of the MATCHES array into PATTERN. For
+each PATTERN, in order:<a href="#section-2.2.2-3.8.1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-2.2.2-3.8.2.1">
+                  <p id="section-2.2.2-3.8.2.1.1">Search for the first match of PATTERN in URL, starting from the position
+of the end of the previous match.<a href="#section-2.2.2-3.8.2.1.1" class="pilcrow">¶</a></p>
+</li>
+                <li class="normal" id="section-2.2.2-3.8.2.2">
+                  <p id="section-2.2.2-3.8.2.2.1">If no match is found, return FALSE.<a href="#section-2.2.2-3.8.2.2.1" class="pilcrow">¶</a></p>
+</li>
+              </ul>
+</li>
+            <li id="section-2.2.2-3.9">
+              <p id="section-2.2.2-3.9.1">Return TRUE.<a href="#section-2.2.2-3.9.1" class="pilcrow">¶</a></p>
 </li>
           </ol>
 </section>
@@ -1508,16 +1533,7 @@ search=SEARCH, baseURL=BASEURL (https://urlpattern.spec.whatwg.org/).<a href="#s
 <a href="#section-2.2.3" class="section-number selfRef">2.2.3. </a><a href="#name-multiple-matching-dictionar" class="section-name selfRef">Multiple matching dictionaries</a>
           </h4>
 <p id="section-2.2.3-1">When there are multiple dictionaries that match a given request URL, the client
-MUST pick a single dictionary using the following rules:
-1. For clients that support request destinations, a dictionary that specifies
-and matches a "match-dest" takes precedence over a match that does not use a
-destination.
-1. Given equivalent destination precedence, the dictionary with the longest
-"match" takes precedence.
-1. Given equivalent destination and path precedence, the dictionary with the
-longest "match-query" takes precedence.
-1. Given equivalent destination, path and search precedence, the most recently
-fetched dictionary takes precedence.<a href="#section-2.2.3-1" class="pilcrow">¶</a></p>
+MUST pick the dictionary with the longest match pattern string length.<a href="#section-2.2.3-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1696,15 +1712,6 @@ algorithms.<a href="#section-6-1" class="pilcrow">¶</a></p>
 <p id="section-6.1-1">The dictionary must be treated with the same security precautions as
 the content, because a change to the dictionary can result in a
 change to the decompressed content.<a href="#section-6.1-1" class="pilcrow">¶</a></p>
-<p id="section-6.1-2">The dictionary is validated using a SHA-256 hash of the content to make sure
-that the client and server are both using the same dictionary. The strength
-of the SHA-256 hash algorithm isn't explicitly needed to counter attacks
-since the dictionary is being served from the same origin as the content. That
-said, if a weakness is discovered in SHA-256 and it is determined that the
-dictionary negotiation should use a different hash algorithm, the
-"Use-As-Dictionary" response header can be extended to specify a different
-algorithm and the server would just ignore any "Available-Dictionary" requests
-that do not use the updated hash.<a href="#section-6.1-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="reading-content">
@@ -1738,9 +1745,9 @@ return an error.<a href="#section-6.3-1" class="pilcrow">¶</a></p>
 <a href="#section-6.3.1" class="section-number selfRef">6.3.1. </a><a href="#name-cross-origin-protection" class="section-name selfRef">Cross-origin protection</a>
           </h4>
 <p id="section-6.3.1-1">To make sure that a dictionary can only impact content from the same origin
-where the dictionary was served, the URLPattern used for matching a
-dictionary to requests is guaranteed to be for the same origin that the
-dictionary is served from.<a href="#section-6.3.1-1" class="pilcrow">¶</a></p>
+where the dictionary was served, the "match" pattern used for matching a
+dictionary to requests MUST be for the same origin that the dictionary
+is served from.<a href="#section-6.3.1-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="response-readability">
@@ -1961,10 +1968,6 @@ cookies are cleared.<a href="#section-7-2" class="pilcrow">¶</a></p>
 <dt id="RFC8878">[RFC8878]</dt>
         <dd>
 <span class="refAuthor">Collet, Y.</span> and <span class="refAuthor">M. Kucherawy, Ed.</span>, <span class="refTitle">"Zstandard Compression and the 'application/zstd' Media Type"</span>, <span class="seriesInfo">RFC 8878</span>, <span class="seriesInfo">DOI 10.17487/RFC8878</span>, <time datetime="2021-02" class="refDate">February 2021</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8878">https://www.rfc-editor.org/rfc/rfc8878</a>&gt;</span>. </dd>
-<dd class="break"></dd>
-<dt id="SHA-256">[SHA-256]</dt>
-        <dd>
-<span class="refAuthor">Eastlake 3rd, D.</span> and <span class="refAuthor">T. Hansen</span>, <span class="refTitle">"US Secure Hash Algorithms (SHA and SHA-based HMAC and HKDF)"</span>, <span class="seriesInfo">RFC 6234</span>, <span class="seriesInfo">DOI 10.17487/RFC6234</span>, <time datetime="2011-05" class="refDate">May 2011</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc6234">https://www.rfc-editor.org/rfc/rfc6234</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="STRUCTURED-FIELDS">[STRUCTURED-FIELDS]</dt>
         <dd>

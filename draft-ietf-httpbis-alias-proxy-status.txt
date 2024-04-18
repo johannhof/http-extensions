@@ -4,8 +4,8 @@
 
 HTTP                                                            T. Pauly
 Internet-Draft                                               Apple, Inc.
-Intended status: Standards Track                        20 November 2023
-Expires: 23 May 2024
+Intended status: Standards Track                           18 April 2024
+Expires: 20 October 2024
 
 
             HTTP Proxy-Status Parameter for Next-Hop Aliases
@@ -15,7 +15,7 @@ Abstract
 
    This document defines the next-hop-aliases HTTP Proxy-Status
    Parameter.  This parameter carries the list of aliases and canonical
-   names an intermediary received during DNS resolution as part of
+   names an intermediary received during DNS resolution as part
    establishing a connection to the next hop.
 
 About This Document
@@ -49,11 +49,11 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 23 May 2024.
+   This Internet-Draft will expire on 20 October 2024.
 
 Copyright Notice
 
-   Copyright (c) 2023 IETF Trust and the persons identified as the
+   Copyright (c) 2024 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -209,14 +209,9 @@ Table of Contents
    Upon parsing this name, "dot%5C.label" MUST be treated as a single
    label.
 
-   Similarly the "\" character in a label MUST be escaped as "\\" and
-   then percent-encoded.  Other uses of "\" MUST NOT appear in the label
-   after percent-decoding.  For example, if there is a DNS name
-   "backslash\name.example.com", it would first be escaped as
-   "backslash\\name.example.com", and then percent-encoded as follows:
-
-   Proxy-Status: proxy.example.net; next-hop="2001:db8::1";
-       next-hop-aliases="backslash%5C%5Cname.example.com,service1.example.com"
+   Similarly the "\" character in a label MUST be escaped as "\\".
+   Other uses of "\" MUST NOT appear in the label after percent-
+   decoding.
 
 3.  Implementation Considerations
 
@@ -225,10 +220,10 @@ Table of Contents
    in CNAME records.
 
    Implementations ought to note that the full chain of names might not
-   be available in common DNS resolution APIs, such as getaddrinfo.
-   getaddrinfo does have an option for AI_CANONNAME (Section 6.1 of
-   [RFC3493]), but this will only return the last name in the chain (the
-   canonical name), not the alias names.
+   available in common DNS resolution APIs, such as getaddrinfo.
+   getaddrinfo does have an option for AI_CANONNAME, but this will only
+   return the last name in the chain (the canonical name), not the alias
+   names.
 
    An implementation MAY include incomplete information in the next-hop-
    aliases parameter to accommodate cases where it is unable to include
@@ -322,11 +317,6 @@ Table of Contents
    [RFC1035]  Mockapetris, P., "Domain names - implementation and
               specification", STD 13, RFC 1035, DOI 10.17487/RFC1035,
               November 1987, <https://www.rfc-editor.org/rfc/rfc1035>.
-
-   [RFC3493]  Gilligan, R., Thomson, S., Bound, J., McCann, J., and W.
-              Stevens, "Basic Socket Interface Extensions for IPv6",
-              RFC 3493, DOI 10.17487/RFC3493, February 2003,
-              <https://www.rfc-editor.org/rfc/rfc3493>.
 
 Author's Address
 

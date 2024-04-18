@@ -6,7 +6,7 @@ HTTP                                                       M. Nottingham
 Internet-Draft                                                Cloudflare
 Obsoletes: 8941 (if approved)                                 P.-H. Kamp
 Intended status: Standards Track               The Varnish Cache Project
-Expires: 23 May 2024                                    20 November 2023
+Expires: 20 October 2024                                   18 April 2024
 
 
                     Structured Field Values for HTTP
@@ -53,11 +53,11 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 23 May 2024.
+   This Internet-Draft will expire on 20 October 2024.
 
 Copyright Notice
 
-   Copyright (c) 2023 IETF Trust and the persons identified as the
+   Copyright (c) 2024 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -656,11 +656,6 @@ Table of Contents
 
    Parsers MUST support Tokens with at least 512 characters.
 
-   Note that Tokens are defined largely for compatibility with the data
-   model of existing HTTP fields, and may require additional steps to
-   use in some implementations.  As a result, new fields are encouraged
-   to use Strings.
-
 3.3.5.  Byte Sequences
 
    Byte Sequences can be conveyed in Structured Fields.
@@ -692,16 +687,12 @@ Table of Contents
    Date values can be conveyed in Structured Fields.
 
    Dates have a data model that is similar to Integers, representing a
-   (possibly negative) delta in seconds from 1970-01-01T00:00:00Z,
-   excluding leap seconds.
+   (possibly negative) delta in seconds from January 1, 1970 00:00:00
+   UTC, excluding leap seconds.
 
    For example:
 
    Example-Date: @1659578233
-
-   Parsers MUST support Dates whose values include all days in years 1
-   to 9999 (i.e., -62,135,596,800 to 253,402,214,400 delta seconds from
-   1970-01-01T00:00:00Z).
 
 3.3.8.  Display Strings
 
@@ -1094,8 +1085,8 @@ Table of Contents
    1.  If input_sequence is not a sequence of Unicode codepoints, fail
        serialization.
 
-   2.  Let byte_array be the result of applying UTF-8 encoding
-       (Section 3 of [UTF8]) to input_sequence.
+   2.  Let byte_array be the result of applying UTF-8 encoding [UTF8] to
+       input_sequence.
 
    3.  Let encoded_string be a string containing "%" followed by DQUOTE.
 
@@ -1675,8 +1666,8 @@ Table of Contents
        4.  If char is DQUOTE:
 
            1.  Let unicode_sequence be the result of decoding byte_array
-               as a UTF-8 string (Section 3 of [UTF8]).  Fail parsing if
-               decoding fails.
+               as a UTF-8 string [UTF8].  Fail parsing if decoding
+               fails.
 
            2.  Return unicode_sequence.
 
@@ -1747,12 +1738,11 @@ Table of Contents
    this will cause parsing to fail, but it is not possible to reliably
    fail in all such circumstances.
 
-   The Display String type can convey any possible Unicode code point
-   without sanitization; for example, they might contain unassigned code
-   points, control points (including NUL), or noncharacters.  Therefore,
-   applications consuming Display Strings need to consider strategies
-   such as filtering or escaping untrusted content before displaying it.
-   See also [UNICODE-SECURITY] and [I-D.draft-bray-unichars].
+   The Display String type conveys a Unicode string without any form of
+   sanitization.  Applications using these values need to perform their
+   own checks on their content; for example, they might contain escape
+   sequences, or NUL.  Mitigation strategies include escaping untrusted
+   content before displaying it.
 
 7.  References
 
@@ -1790,13 +1780,6 @@ Table of Contents
               DOI 10.17487/RFC9113, June 2022,
               <https://www.rfc-editor.org/rfc/rfc9113>.
 
-   [I-D.draft-bray-unichars]
-              Bray, T. and P. E. Hoffman, "Unicode Character Repertoire
-              Subsets", Work in Progress, Internet-Draft, draft-bray-
-              unichars-07, 12 October 2023,
-              <https://datatracker.ietf.org/doc/html/draft-bray-
-              unichars-07>.
-
    [IEEE754]  IEEE, "IEEE Standard for Floating-Point Arithmetic",
               IEEE 754-2019, DOI 10.1109/IEEESTD.2019.8766229,
               ISBN 978-1-5044-5924-2, July 2019,
@@ -1815,11 +1798,6 @@ Table of Contents
               Interchange Format", STD 90, RFC 8259,
               DOI 10.17487/RFC8259, December 2017,
               <https://www.rfc-editor.org/rfc/rfc8259>.
-
-   [UNICODE-SECURITY]
-              Davis, M. and M. Suignard, "Unicode Security
-              Considerations", Unicode Technical Report #16, 19
-              September 2014, <http://www.unicode.org/reports/tr36/>.
 
    [UTF8]     Yergeau, F., "UTF-8, a transformation format of ISO
               10646", STD 63, RFC 3629, November 2003,
@@ -1938,8 +1916,7 @@ Appendix C.  ABNF
    sf-binary        = ":" base64 ":"
    sf-boolean       = "?" ( "0" / "1" )
    sf-date          = "@" sf-integer
-   sf-displaystring = "%" DQUOTE *( unescaped / "\" / pct-encoded )
-                      DQUOTE
+   sf-displaystring = "%" DQUOTE *( unescaped / "\" / pct-encoded ) DQUOTE
 
    base64       = *( ALPHA / DIGIT / "+" / "/" ) *"="
 

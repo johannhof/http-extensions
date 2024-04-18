@@ -5,9 +5,9 @@
 HTTP                                                          J. Reschke
 Internet-Draft                                                greenbytes
 Intended status: Standards Track                             A. Malhotra
-Expires: 23 May 2024                                                    
+Expires: 20 October 2024                                                
                                                               J.M. Snell
-                                                        20 November 2023
+                                                           18 April 2024
 
 
                          The HTTP QUERY Method
@@ -47,11 +47,11 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 23 May 2024.
+   This Internet-Draft will expire on 20 October 2024.
 
 Copyright Notice
 
-   Copyright (c) 2023 IETF Trust and the persons identified as the
+   Copyright (c) 2024 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -79,7 +79,6 @@ Table of Contents
      A.1.  Since draft-ietf-httpbis-safe-method-w-body-00
      A.2.  Since draft-ietf-httpbis-safe-method-w-body-01
      A.3.  Since draft-ietf-httpbis-safe-method-w-body-02
-     A.4.  Since draft-ietf-httpbis-safe-method-w-body-02
    Authors' Addresses
 
 1.  Introduction
@@ -206,7 +205,7 @@ Table of Contents
 
 3.  The "Accept-Query" Header Field
 
-   The "Accept-Query" response header field MAY be used by a resource to
+   The "Accept-Query" response header field MAY be used by a server to
    directly signal support for the QUERY method while identifying the
    specific query format media type(s) that may be used.
 
@@ -218,12 +217,6 @@ Table of Contents
 
    The order of types listed by the Accept-Query header field is not
    significant.
-
-   Accept-Query's value applies to every URI on the server that shares
-   the same path; in other words, the query component is ignored.  If
-   requests to the same resource return different Accept-Query values,
-   the most recently received fresh (per Section 4.2 of [HTTP-CACHING])
-   value is used.
 
 4.  Examples
 
@@ -370,11 +363,6 @@ A.3.  Since draft-ietf-httpbis-safe-method-w-body-02
 
    *  Updated references (https://github.com/httpwg/http-extensions/
       issues/2157)
-
-A.4.  Since draft-ietf-httpbis-safe-method-w-body-02
-
-   *  In Section 3, clarify scope (https://github.com/httpwg/http-
-      extensions/issues/1913)
 
 Authors' Addresses
 

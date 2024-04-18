@@ -9,26 +9,26 @@
 <meta content="
        This document defines the  next-hop-aliases  HTTP Proxy-Status Parameter. This parameter carries
 the list of aliases and canonical names an intermediary received during DNS resolution as part
-of establishing a connection to the next hop. 
+establishing a connection to the next hop. 
     " name="description">
-<meta content="xml2rfc 3.18.2" name="generator">
+<meta content="xml2rfc 3.21.0" name="generator">
 <meta content="proxy status" name="keyword">
 <meta content="draft-ietf-httpbis-alias-proxy-status-latest" name="ietf.draft">
 <!-- Generator version information:
-  xml2rfc 3.18.2
-    Python 3.11.6
-    ConfigArgParse 1.5.3
+  xml2rfc 3.21.0
+    Python 3.11.9
+    ConfigArgParse 1.7
     google-i18n-address 3.1.0
     intervaltree 3.1.0
     Jinja2 3.1.2
     lxml 4.9.3
-    platformdirs 4.0.0
+    platformdirs 4.2.0
     pycountry 22.3.5
-    PyYAML 6.0
+    PyYAML 6.0.1
     requests 2.31.0
-    setuptools 67.7.2
+    setuptools 68.2.2
     six 1.16.0
-    wcwidth 0.2.10
+    wcwidth 0.2.13
 -->
 <link href="draft-ietf-httpbis-alias-proxy-status.xml" rel="alternate" type="application/rfc+xml">
 <link href="#copyright" rel="license">
@@ -1027,11 +1027,11 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <thead><tr>
 <td class="left">Internet-Draft</td>
 <td class="center">DNS Aliases Proxy-Status</td>
-<td class="right">November 2023</td>
+<td class="right">April 2024</td>
 </tr></thead>
 <tfoot><tr>
 <td class="left">Pauly</td>
-<td class="center">Expires 23 May 2024</td>
+<td class="center">Expires 20 October 2024</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1044,12 +1044,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-ietf-httpbis-alias-proxy-status-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2023-11-20" class="published">20 November 2023</time>
+<time datetime="2024-04-18" class="published">18 April 2024</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2024-05-23">23 May 2024</time></dd>
+<dd class="expires"><time datetime="2024-10-20">20 October 2024</time></dd>
 <dt class="label-authors">Author:</dt>
 <dd class="authors">
 <div class="author">
@@ -1064,7 +1064,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
       <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
 <p id="section-abstract-1">This document defines the <code>next-hop-aliases</code> HTTP Proxy-Status Parameter. This parameter carries
 the list of aliases and canonical names an intermediary received during DNS resolution as part
-of establishing a connection to the next hop.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+establishing a connection to the next hop.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
 </section>
 <section class="note rfcEditorRemove" id="section-note.1">
       <h2 id="name-about-this-document">
@@ -1100,7 +1100,7 @@ of establishing a connection to the next hop.<a href="#section-abstract-1" class
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 23 May 2024.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 20 October 2024.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1109,7 +1109,7 @@ of establishing a connection to the next hop.<a href="#section-abstract-1" class
 <a href="#name-copyright-notice" class="section-name selfRef">Copyright Notice</a>
         </h2>
 <p id="section-boilerplate.2-1">
-            Copyright (c) 2023 IETF Trust and the persons identified as the
+            Copyright (c) 2024 IETF Trust and the persons identified as the
             document authors. All rights reserved.<a href="#section-boilerplate.2-1" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.2-2">
             This document is subject to BCP 78 and the IETF Trust's Legal
@@ -1298,16 +1298,7 @@ Proxy-Status: proxy.example.net; next-hop="2001:db8::1";
 </pre><a href="#section-2.1-5" class="pilcrow">¶</a>
 </div>
 <p id="section-2.1-6">Upon parsing this name, "dot%5C.label" MUST be treated as a single label.<a href="#section-2.1-6" class="pilcrow">¶</a></p>
-<p id="section-2.1-7">Similarly the "\" character in a label MUST be escaped as "\\" and then percent-encoded.
-Other uses of "\" MUST NOT appear in the label after percent-decoding. For example,
-if there is a DNS name "backslash\name.example.com", it would first be escaped as
-"backslash\\name.example.com", and then percent-encoded as follows:<a href="#section-2.1-7" class="pilcrow">¶</a></p>
-<div class="lang-http-message sourcecode" id="section-2.1-8">
-<pre>
-Proxy-Status: proxy.example.net; next-hop="2001:db8::1";
-    next-hop-aliases="backslash%5C%5Cname.example.com,service1.example.com"
-</pre><a href="#section-2.1-8" class="pilcrow">¶</a>
-</div>
+<p id="section-2.1-7">Similarly the "\" character in a label MUST be escaped as "\\".  Other uses of "\" MUST NOT appear in the label after percent-decoding.<a href="#section-2.1-7" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1319,10 +1310,10 @@ Proxy-Status: proxy.example.net; next-hop="2001:db8::1";
       </h2>
 <p id="section-3-1">In order to include the <code>next-hop-aliases</code> parameter, a proxy needs to have access to the chain
 of alias names and canonical names received in CNAME records.<a href="#section-3-1" class="pilcrow">¶</a></p>
-<p id="section-3-2">Implementations ought to note that the full chain of names might not be available in common DNS
-resolution APIs, such as <code>getaddrinfo</code>. <code>getaddrinfo</code> does have an option for <code>AI_CANONNAME</code>
-(<span><a href="https://rfc-editor.org/rfc/rfc3493#section-6.1" class="relref">Section 6.1</a> of [<a href="#RFC3493" class="cite xref">RFC3493</a>]</span>), but this will only return the last name in the chain
-(the canonical name), not the alias names.<a href="#section-3-2" class="pilcrow">¶</a></p>
+<p id="section-3-2">Implementations ought to note that the full chain of names might not available in common DNS
+resolution APIs, such as <code>getaddrinfo</code>. <code>getaddrinfo</code> does have an option for <code>AI_CANONNAME</code>,
+but this will only return the last name in the chain (the canonical name), not the alias
+names.<a href="#section-3-2" class="pilcrow">¶</a></p>
 <p id="section-3-3">An implementation MAY include incomplete information in the <code>next-hop-aliases</code> parameter to accommodate cases where it is unable to include the full chain, such as only including the canonical name if the implementation can only use <code>getaddrinfo</code> as described above.<a href="#section-3-3" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -1429,12 +1420,8 @@ proxied connection to the next hop.<a href="#section-5-2.4.1" class="pilcrow">¶
 <span class="refAuthor">Barth, A.</span>, <span class="refTitle">"HTTP State Management Mechanism"</span>, <span class="seriesInfo">RFC 6265</span>, <span class="seriesInfo">DOI 10.17487/RFC6265</span>, <time datetime="2011-04" class="refDate">April 2011</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc6265">https://www.rfc-editor.org/rfc/rfc6265</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC1035">[RFC1035]</dt>
-        <dd>
-<span class="refAuthor">Mockapetris, P.</span>, <span class="refTitle">"Domain names - implementation and specification"</span>, <span class="seriesInfo">STD 13</span>, <span class="seriesInfo">RFC 1035</span>, <span class="seriesInfo">DOI 10.17487/RFC1035</span>, <time datetime="1987-11" class="refDate">November 1987</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc1035">https://www.rfc-editor.org/rfc/rfc1035</a>&gt;</span>. </dd>
-<dd class="break"></dd>
-<dt id="RFC3493">[RFC3493]</dt>
       <dd>
-<span class="refAuthor">Gilligan, R.</span>, <span class="refAuthor">Thomson, S.</span>, <span class="refAuthor">Bound, J.</span>, <span class="refAuthor">McCann, J.</span>, and <span class="refAuthor">W. Stevens</span>, <span class="refTitle">"Basic Socket Interface Extensions for IPv6"</span>, <span class="seriesInfo">RFC 3493</span>, <span class="seriesInfo">DOI 10.17487/RFC3493</span>, <time datetime="2003-02" class="refDate">February 2003</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc3493">https://www.rfc-editor.org/rfc/rfc3493</a>&gt;</span>. </dd>
+<span class="refAuthor">Mockapetris, P.</span>, <span class="refTitle">"Domain names - implementation and specification"</span>, <span class="seriesInfo">STD 13</span>, <span class="seriesInfo">RFC 1035</span>, <span class="seriesInfo">DOI 10.17487/RFC1035</span>, <time datetime="1987-11" class="refDate">November 1987</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc1035">https://www.rfc-editor.org/rfc/rfc1035</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 </dl>
 </section>
