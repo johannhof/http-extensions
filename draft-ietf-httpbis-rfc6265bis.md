@@ -263,7 +263,7 @@ field because the %x2C (",") character is used by Set-Cookie in a way that
 conflicts with such folding.
 
 User agents MAY ignore Set-Cookie header fields based on response status codes or
-the user agent's cookie policy (see {{ignoring-cookies}}).
+the user agent's cookie policy (see {{set-cookie}}).
 
 ## Examples
 
@@ -1622,7 +1622,7 @@ user agents for the foreseeable future.
 ## Cookie Policy {#cookie-policy}
 
 User agents MAY enforce a cookie policy consisting of restrictions on how
-cookies may be used or ignored (see {{ignoring-cookies}}).
+cookies may be used or ignored (see {{set-cookie}}).
 
 A cookie policy may govern which domains or parties, as in first and third parties
 (see {{third-party-cookies}}), for which the user agent will allow cookie access.
