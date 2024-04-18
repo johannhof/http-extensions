@@ -1698,21 +1698,22 @@ inadvertently create cookies that cannot be read by other servers.<a href="#sect
       <h2 id="name-cookie-representation">
 <a href="#section-4" class="section-number selfRef">4. </a><a href="#name-cookie-representation" class="section-name selfRef">Cookie representation</a>
       </h2>
-<p id="section-4-1">A cookie is a struct that represents a piece of state to be transmitted between a client and a
-server. To disambiguate from the Cookie response header it can also be referred to as a cookie
-record.<a href="#section-4-1" class="pilcrow">¶</a></p>
-<p id="section-4-2">A cookie's name is a byte sequence. It always needs to be set.<a href="#section-4-2" class="pilcrow">¶</a></p>
-<p id="section-4-3">A cookie's value is a byte sequence. It always needs to be set.<a href="#section-4-3" class="pilcrow">¶</a></p>
-<p id="section-4-4">A cookie's secure is a boolean. It is initially false.<a href="#section-4-4" class="pilcrow">¶</a></p>
-<p id="section-4-5">A cookie's host is a domain, IP address, null, or failure. It is initially null. Note: Once a cookie is in the user agent's cookie store its host is a domain or IP address.<a href="#section-4-5" class="pilcrow">¶</a></p>
-<p id="section-4-6">A cookie's host-only is a boolean. It is initially false.<a href="#section-4-6" class="pilcrow">¶</a></p>
-<p id="section-4-7">A cookie's path is a URL path.<a href="#section-4-7" class="pilcrow">¶</a></p>
-<p id="section-4-8">A cookie's same-site is "strict", "lax", "unset", or "none". It is initially "unset".<a href="#section-4-8" class="pilcrow">¶</a></p>
-<p id="section-4-9">A cookie's http-only is a boolean. It is initially false.<a href="#section-4-9" class="pilcrow">¶</a></p>
-<p id="section-4-10">A cookie's creation-time is a time. It is initially the current time.<a href="#section-4-10" class="pilcrow">¶</a></p>
-<p id="section-4-11">A cookie's expiry-time is null or a time. It is initially null. Note: A previous version of this
-document referred to null with a distinct "persistent-flag" being false.<a href="#section-4-11" class="pilcrow">¶</a></p>
-<p id="section-4-12">A cookie's last-access-time is null or a time. It is initially null.<a href="#section-4-12" class="pilcrow">¶</a></p>
+<p id="section-4-1">A <strong>cookie</strong> is a struct that represents a piece of state to be transmitted between a client and a
+server. To disambiguate from the Cookie response header field it can also be referred to as a
+<strong>cookie record</strong>.<a href="#section-4-1" class="pilcrow">¶</a></p>
+<p id="section-4-2">A cookie's <strong>name</strong> is a byte sequence. It always needs to be set.<a href="#section-4-2" class="pilcrow">¶</a></p>
+<p id="section-4-3">A cookie's <strong>value</strong> is a byte sequence. It always needs to be set.<a href="#section-4-3" class="pilcrow">¶</a></p>
+<p id="section-4-4">A cookie's <strong>secure</strong> is a boolean. It is initially false.<a href="#section-4-4" class="pilcrow">¶</a></p>
+<p id="section-4-5">A cookie's <strong>host</strong> is a domain, IP address, null, or failure. It is initially null. Note: Once a
+cookie is in the user agent's cookie store its host is a domain or IP address.<a href="#section-4-5" class="pilcrow">¶</a></p>
+<p id="section-4-6">A cookie's <strong>host-only</strong> is a boolean. It is initially false.<a href="#section-4-6" class="pilcrow">¶</a></p>
+<p id="section-4-7">A cookie's <strong>path</strong> is a URL path.<a href="#section-4-7" class="pilcrow">¶</a></p>
+<p id="section-4-8">A cookie's <strong>same-site</strong> is "strict", "lax", "unset", or "none". It is initially "unset".<a href="#section-4-8" class="pilcrow">¶</a></p>
+<p id="section-4-9">A cookie's <strong>http-only</strong> is a boolean. It is initially false.<a href="#section-4-9" class="pilcrow">¶</a></p>
+<p id="section-4-10">A cookie's <strong>creation-time</strong> is a time. It is initially the current time.<a href="#section-4-10" class="pilcrow">¶</a></p>
+<p id="section-4-11">A cookie's <strong>expiry-time</strong> is null or a time. It is initially null. Note: A prior version of this
+specification referred to null with a distinct "persistent-flag" field being false.<a href="#section-4-11" class="pilcrow">¶</a></p>
+<p id="section-4-12">A cookie's <strong>last-access-time</strong> is null or a time. It is initially null.<a href="#section-4-12" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="sane-profile">
@@ -2407,8 +2408,8 @@ guaranteed to be free of CTL characters, so this algorithm handles them
 explicitly. Horizontal tab (0x09) is excluded from the CTL characters that
 lead to failure, as it is considered whitespace, which is
 handled separately.<a href="#section-6.3.2-2" class="pilcrow">¶</a></p>
-<p id="section-6.3.2-3">To <strong>Parse a Cookie</strong> given a byte sequence <em>input</em>, a boolean <em>isSecure</em>, a host
-<em>host</em>, URL path <em>path</em>, run these steps. They return a new cookie or failure:<a href="#section-6.3.2-3" class="pilcrow">¶</a></p>
+<p id="section-6.3.2-3">To <strong>Parse a Cookie</strong> given a byte sequence <em>input</em>, boolean <em>isSecure</em>, host <em>host</em>,
+URL path <em>path</em>, run these steps. They return a new cookie or failure:<a href="#section-6.3.2-3" class="pilcrow">¶</a></p>
 <ol start="1" type="1" class="normal type-1" id="section-6.3.2-4">
 <li id="section-6.3.2-4.1">
               <p id="section-6.3.2-4.1.1">If <em>input</em> contains a byte in the range 0x00 to 0x08, inclusive,
@@ -2650,8 +2651,8 @@ split on 0x2F (/).<a href="#section-6.3.2-4.14.2.16.2.1.1" class="pilcrow">¶</a
           <h4 id="name-store-a-cookie">
 <a href="#section-6.3.3" class="section-number selfRef">6.3.3. </a><a href="#name-store-a-cookie" class="section-name selfRef">Store a Cookie</a>
           </h4>
-<p id="section-6.3.3-1">To <strong>Store a Cookie</strong> <em>cookie</em>, given a boolean <em>isSecure</em>, a domain or IP address <em>host</em>,
-a boolean <em>httpOnlyAllowed</em>, a boolean <em>allowCookieForPublicSuffix</em>, and a boolean <em>sameSiteStrictOrLaxAllowed</em>:<a href="#section-6.3.3-1" class="pilcrow">¶</a></p>
+<p id="section-6.3.3-1">To <strong>Store a Cookie</strong> <em>cookie</em>, given a boolean <em>isSecure</em>, domain or IP address <em>host</em>,
+boolean <em>httpOnlyAllowed</em>, boolean <em>allowCookieForPublicSuffix</em>, and boolean <em>sameSiteStrictOrLaxAllowed</em>:<a href="#section-6.3.3-1" class="pilcrow">¶</a></p>
 <ol start="1" type="1" class="normal type-1" id="section-6.3.3-2">
 <li id="section-6.3.3-2.1">
               <p id="section-6.3.3-2.1.1">Assert: <em>cookie</em>'s name's length + <em>cookie</em>'s value's length is not 0 or greater than 4096.<a href="#section-6.3.3-2.1.1" class="pilcrow">¶</a></p>
@@ -2749,94 +2750,69 @@ then return.<a href="#section-6.3.3-2.10.2.2.3" class="pilcrow">¶</a></p>
 then return.<a href="#section-6.3.3-2.11.1" class="pilcrow">¶</a></p>
 </li>
           </ol>
-<p id="section-6.3.3-3">XXX: Move these to browser specs to set <em>sameSiteStrictOrLaxAllowed</em> appropriately<a href="#section-6.3.3-3" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-6.3.3-4">
-<pre>
-1.  If the cookie was received from a "non-HTTP" API, and the API was called
-    from a navigable's active document whose "site for cookies" is
-    not same-site with the top-level origin, then abort these steps and
-    ignore the newly created cookie entirely.
-
-2.  If the cookie was received from a "same-site" request (as defined in
-    same-site-requests), skip the remaining substeps and continue
-    processing the cookie.
-
-3.  If the cookie was received from a request which is navigating a
-    top-level traversable {{HTML}} (e.g. if the request's "reserved
-    client" is either `null` or an environment whose "target browsing
-    context"'s navigable is a top-level traversable), skip the remaining
-    substeps and continue processing the cookie.
-
-    Note: Top-level navigations can create a cookie with any `SameSite`
-    value, even if the new cookie wouldn't have been sent along with
-    the request had it already existed prior to the navigation.
-
-4.  Abort these steps and ignore the newly created cookie entirely.
-</pre><a href="#section-6.3.3-4" class="pilcrow">¶</a>
-</div>
-<ol start="1" type="1" class="normal type-1" id="section-6.3.3-5">
-<li id="section-6.3.3-5.1">
-              <p id="section-6.3.3-5.1.1">If <em>cookie</em>'s same-site is "none" and <em>cookie</em>'s secure-only is false,
-then return.<a href="#section-6.3.3-5.1.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-6.3.3-3">
+<li id="section-6.3.3-3.1">
+              <p id="section-6.3.3-3.1.1">If <em>cookie</em>'s same-site is "none" and <em>cookie</em>'s secure-only is false,
+then return.<a href="#section-6.3.3-3.1.1" class="pilcrow">¶</a></p>
 </li>
-            <li id="section-6.3.3-5.2">
-              <p id="section-6.3.3-5.2.1">If <em>cookie</em>'s name, byte-lowercased, starts with "<em>_secure-" and _cookie</em>'s secure-only is false,
-then return.<a href="#section-6.3.3-5.2.1" class="pilcrow">¶</a></p>
-<p id="section-6.3.3-5.2.2">
-NOTE: The check here and those below are with a byte-lowercased value in order to protect servers that process these values in a case-insensitive manner.<a href="#section-6.3.3-5.2.2" class="pilcrow">¶</a></p>
+            <li id="section-6.3.3-3.2">
+              <p id="section-6.3.3-3.2.1">If <em>cookie</em>'s name, byte-lowercased, starts with "<em>_secure-" and _cookie</em>'s secure-only is false,
+then return.<a href="#section-6.3.3-3.2.1" class="pilcrow">¶</a></p>
+<p id="section-6.3.3-3.2.2">
+NOTE: The check here and those below are with a byte-lowercased value in order to protect servers that process these values in a case-insensitive manner.<a href="#section-6.3.3-3.2.2" class="pilcrow">¶</a></p>
 </li>
-            <li id="section-6.3.3-5.3">
-              <p id="section-6.3.3-5.3.1">If <em>cookie</em>'s name, byte-lowercased, starts with "__host-" and not all of the following are true:<a href="#section-6.3.3-5.3.1" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-6.3.3-5.3.2">
-<li id="section-6.3.3-5.3.2.1">
-                  <p id="section-6.3.3-5.3.2.1.1"><em>cookie</em>'s secure-only is true;<a href="#section-6.3.3-5.3.2.1.1" class="pilcrow">¶</a></p>
+            <li id="section-6.3.3-3.3">
+              <p id="section-6.3.3-3.3.1">If <em>cookie</em>'s name, byte-lowercased, starts with "__host-" and not all of the following are true:<a href="#section-6.3.3-3.3.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-6.3.3-3.3.2">
+<li id="section-6.3.3-3.3.2.1">
+                  <p id="section-6.3.3-3.3.2.1.1"><em>cookie</em>'s secure-only is true;<a href="#section-6.3.3-3.3.2.1.1" class="pilcrow">¶</a></p>
 </li>
-                <li id="section-6.3.3-5.3.2.2">
-                  <p id="section-6.3.3-5.3.2.2.1"><em>cookie</em>'s host-only is true; and<a href="#section-6.3.3-5.3.2.2.1" class="pilcrow">¶</a></p>
+                <li id="section-6.3.3-3.3.2.2">
+                  <p id="section-6.3.3-3.3.2.2.1"><em>cookie</em>'s host-only is true; and<a href="#section-6.3.3-3.3.2.2.1" class="pilcrow">¶</a></p>
 </li>
-                <li id="section-6.3.3-5.3.2.3">
-                  <p id="section-6.3.3-5.3.2.3.1"><em>cookie</em>'s path's size is 1 and <em>cookie</em>'s path[0] is the empty string,<a href="#section-6.3.3-5.3.2.3.1" class="pilcrow">¶</a></p>
+                <li id="section-6.3.3-3.3.2.3">
+                  <p id="section-6.3.3-3.3.2.3.1"><em>cookie</em>'s path's size is 1 and <em>cookie</em>'s path[0] is the empty string,<a href="#section-6.3.3-3.3.2.3.1" class="pilcrow">¶</a></p>
 </li>
               </ol>
-<p id="section-6.3.3-5.3.3">
-then return.<a href="#section-6.3.3-5.3.3" class="pilcrow">¶</a></p>
+<p id="section-6.3.3-3.3.3">
+then return.<a href="#section-6.3.3-3.3.3" class="pilcrow">¶</a></p>
 </li>
-            <li id="section-6.3.3-5.4">
-              <p id="section-6.3.3-5.4.1">If <em>cookie</em>'s name is the empty byte sequence and one of the following is true:<a href="#section-6.3.3-5.4.1" class="pilcrow">¶</a></p>
+            <li id="section-6.3.3-3.4">
+              <p id="section-6.3.3-3.4.1">If <em>cookie</em>'s name is the empty byte sequence and one of the following is true:<a href="#section-6.3.3-3.4.1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-6.3.3-5.4.2.1">
-                  <p id="section-6.3.3-5.4.2.1.1"><em>cookie</em>'s value, byte-lowercased, starts with "__secure-", or<a href="#section-6.3.3-5.4.2.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-6.3.3-3.4.2.1">
+                  <p id="section-6.3.3-3.4.2.1.1"><em>cookie</em>'s value, byte-lowercased, starts with "__secure-", or<a href="#section-6.3.3-3.4.2.1.1" class="pilcrow">¶</a></p>
 </li>
-                <li class="normal" id="section-6.3.3-5.4.2.2">
-                  <p id="section-6.3.3-5.4.2.2.1"><em>cookie</em>'s value, byte-lowercased, starts with "__host-"<a href="#section-6.3.3-5.4.2.2.1" class="pilcrow">¶</a></p>
+                <li class="normal" id="section-6.3.3-3.4.2.2">
+                  <p id="section-6.3.3-3.4.2.2.1"><em>cookie</em>'s value, byte-lowercased, starts with "__host-"<a href="#section-6.3.3-3.4.2.2.1" class="pilcrow">¶</a></p>
 </li>
               </ul>
-<p id="section-6.3.3-5.4.3">
-then return.<a href="#section-6.3.3-5.4.3" class="pilcrow">¶</a></p>
+<p id="section-6.3.3-3.4.3">
+then return.<a href="#section-6.3.3-3.4.3" class="pilcrow">¶</a></p>
 </li>
-            <li id="section-6.3.3-5.5">
-              <p id="section-6.3.3-5.5.1">If the user agent's cookie store contains a Cookie <em>oldCookie</em> with the same name, host,
-host-only, and path as the newly-created <em>cookie</em>:<a href="#section-6.3.3-5.5.1" class="pilcrow">¶</a></p>
-<p id="section-6.3.3-5.5.2">
-NOTE: This algorithm maintains the invariant that there is at most one such cookie.<a href="#section-6.3.3-5.5.2" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-6.3.3-5.5.3">
-<li id="section-6.3.3-5.5.3.1">
-                  <p id="section-6.3.3-5.5.3.1.1">If <em>httpOnlyAllowed</em> is false and <em>oldCookie</em>'s http-only is true,
-then return.<a href="#section-6.3.3-5.5.3.1.1" class="pilcrow">¶</a></p>
+            <li id="section-6.3.3-3.5">
+              <p id="section-6.3.3-3.5.1">If the user agent's cookie store contains a cookie <em>oldCookie</em> whose name is <em>cookie</em>'s name,
+host host equals <em>cookie</em>'s host, host-only is <em>cookie</em>'s host-only, and path is <em>cookie</em>'s path:<a href="#section-6.3.3-3.5.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-6.3.3-3.5.2">
+<li id="section-6.3.3-3.5.2.1">
+                  <p id="section-6.3.3-3.5.2.1.1">If <em>httpOnlyAllowed</em> is false and <em>oldCookie</em>'s http-only is true,
+then return.<a href="#section-6.3.3-3.5.2.1.1" class="pilcrow">¶</a></p>
 </li>
-                <li id="section-6.3.3-5.5.3.2">
-                  <p id="section-6.3.3-5.5.3.2.1">Update <em>cookie</em>'s creation-time to <em>oldCookie</em>'s creation-time.<a href="#section-6.3.3-5.5.3.2.1" class="pilcrow">¶</a></p>
+                <li id="section-6.3.3-3.5.2.2">
+                  <p id="section-6.3.3-3.5.2.2.1">Update <em>cookie</em>'s creation-time to <em>oldCookie</em>'s creation-time.<a href="#section-6.3.3-3.5.2.2.1" class="pilcrow">¶</a></p>
 </li>
-                <li id="section-6.3.3-5.5.3.3">
-                  <p id="section-6.3.3-5.5.3.3.1">Remove <em>oldCookie</em> from the user agent's cookie store.<a href="#section-6.3.3-5.5.3.3.1" class="pilcrow">¶</a></p>
+                <li id="section-6.3.3-3.5.2.3">
+                  <p id="section-6.3.3-3.5.2.3.1">Remove <em>oldCookie</em> from the user agent's cookie store.<a href="#section-6.3.3-3.5.2.3.1" class="pilcrow">¶</a></p>
 </li>
               </ol>
+<p id="section-6.3.3-3.5.3">
+NOTE: This algorithm maintains the invariant that there is at most one such cookie.<a href="#section-6.3.3-3.5.3" class="pilcrow">¶</a></p>
 </li>
-            <li id="section-6.3.3-5.6">
-              <p id="section-6.3.3-5.6.1">Insert <em>cookie</em> into the user agent's cookie store.<a href="#section-6.3.3-5.6.1" class="pilcrow">¶</a></p>
+            <li id="section-6.3.3-3.6">
+              <p id="section-6.3.3-3.6.1">Insert <em>cookie</em> into the user agent's cookie store.<a href="#section-6.3.3-3.6.1" class="pilcrow">¶</a></p>
 </li>
-            <li id="section-6.3.3-5.7">
-              <p id="section-6.3.3-5.7.1">Remove Excess Cookies from the user agent's cookie store.<a href="#section-6.3.3-5.7.1" class="pilcrow">¶</a></p>
+            <li id="section-6.3.3-3.7">
+              <p id="section-6.3.3-3.7.1">Remove Excess Cookies from the user agent's cookie store.<a href="#section-6.3.3-3.7.1" class="pilcrow">¶</a></p>
 </li>
           </ol>
 </section>
@@ -2847,7 +2823,7 @@ then return.<a href="#section-6.3.3-5.5.3.1.1" class="pilcrow">¶</a></p>
 <a href="#section-6.3.4" class="section-number selfRef">6.3.4. </a><a href="#name-retrieve-cookies" class="section-name selfRef">Retrieve Cookies</a>
           </h4>
 <p id="section-6.3.4-1">To <strong>Retrieve Cookies</strong> given a boolean <em>isSecure</em>, host <em>host</em>, URL path <em>path</em>,
-boolean <em>httpOnlyAllowed</em>, and a string <em>sameSite</em>:<a href="#section-6.3.4-1" class="pilcrow">¶</a></p>
+boolean <em>httpOnlyAllowed</em>, and string <em>sameSite</em>:<a href="#section-6.3.4-1" class="pilcrow">¶</a></p>
 <ol start="1" type="1" class="normal type-1" id="section-6.3.4-2">
 <li id="section-6.3.4-2.1">
               <p id="section-6.3.4-2.1.1">Assert: <em>sameSite</em> is "strict-or-less", "lax-or-less", "unset-or-less", or "none".<a href="#section-6.3.4-2.1.1" class="pilcrow">¶</a></p>
