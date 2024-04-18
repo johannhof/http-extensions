@@ -162,10 +162,10 @@ different ports.
 This document specifies the syntax and semantics of these header fields as they are
 actually used on the Internet. In particular, this document does not create
 new syntax or semantics beyond those in use today. The recommendations for
-cookie generation provided in {{sane-profile}} represent a preferred subset of current
+cookie generation provided in {{server-requirements}} represent a preferred subset of current
 server behavior, and even the more liberal cookie processing algorithm provided
-in {{ua-requirements}} does not recommend all of the syntactic and semantic variations in
-use today. Where some existing software differs from the recommended protocol
+in {{ua-requirements}} does not encompass all of the syntactic and semantic variations in
+use today. Where some existing software differs from the requirements
 in significant ways, the document contains a note explaining the difference.
 
 This document obsoletes {{RFC6265}}.
@@ -351,7 +351,7 @@ A cookie's **last-access-time** is null or a time. It is initially null.
 
 # Which Requirements to Implement
 
-The upcoming two sections, {{sane-profile}} and {{ua-requirements}}, discuss
+The upcoming two sections, {{server-requirements}} and {{ua-requirements}}, discuss
 the set of requirements for two distinct types of implementations. This section
 is meant to help guide implementers in determining which set of requirements
 best fits their goals. Choosing the wrong set of requirements could result in a
@@ -359,34 +359,29 @@ lack of compatibility with other cookie implementations.
 
 It's important to note that being compatible means different things
 depending on the implementer's goals. These differences have built up over time
-due to both intentional and unintentional spec changes, spec interpretations,
+due to both intentional and unintentional specification changes, specification interpretations,
 and historical implementation differences.
 
-This section roughly divides implementers of the cookie spec into two types,
+This section roughly divides implementers of this specification into two types,
 producers and consumers. These are not official terms and are only used here to
 help readers develop an intuitive understanding of the use cases.
 
 ### Cookie Producing Implementations
 
-An implementer should choose {{sane-profile}} whenever cookies are created and
+An implementer should choose {{server-requirements}} whenever cookies are created and
 will be sent to a user agent, such as a web browser. These implementations are
-frequently referred to as Servers by the spec but that term includes anything
+frequently referred to as servers by the specification but that term includes anything
 which primarily produces cookies. Some potential examples:
 
 * Server applications hosting a website or API
-
 * Programming languages or software frameworks that support cookies
-
 * Integrated third-party web applications, such as a business management suite
 
 All these benefit from not only supporting as many user agents as possible but
 also supporting other servers. This is useful if a cookie is produced by a
 software framework and is later sent back to a server application which needs
-to read it. {{sane-profile}} advises best practices that help maximize this
+to read it. {{server-requirements}} advises best practices that help maximize this
 sense of compatibility.
-
-See {{languages-frameworks}} for more details on programming languages and software
-frameworks.
 
 ### Cookie Consuming Implementations
 
@@ -395,9 +390,7 @@ received from another source. These implementations are referred to as user
 agents. Some examples:
 
 * Web browsers
-
 * Tools that support stateful HTTP
-
 * Programming languages or software frameworks that support cookies
 
 Because user agents don't know which servers a user will access, and whether
@@ -406,26 +399,25 @@ implement a more lenient set of requirements and to accept some things that
 servers are warned against producing. {{ua-requirements}} advises best
 practices that help maximize this sense of compatibility.
 
-See {{languages-frameworks}} for more details on programming languages and software
-frameworks.
 
-#### Programming Languages & Software Frameworks {#languages-frameworks}
+### Programming Languages & Software Frameworks {#languages-frameworks}
 
 A programming language or software framework with support for cookies could
 reasonably be used to create an application that acts as a cookie producer,
 cookie consumer, or both. Because a developer may want to maximize their
 compatibility as either a producer or consumer, these languages or frameworks
-should strongly consider supporting both sets of requirements, {{sane-profile}}
+should strongly consider supporting both sets of requirements, {{server-requirements}}
 and {{ua-requirements}}, behind a compatibility mode toggle. This toggle should
-default to {{sane-profile}}'s requirements.
+default to {{server-requirements}}'s requirements.
 
 Doing so will reduce the chances that a developer's application can
 inadvertently create cookies that cannot be read by other servers.
 
-# Server Requirements {#sane-profile}
 
-This section describes the syntax and semantics of a well-behaved profile of the
-Cookie and Set-Cookie header fields.
+# Server Requirements {#server-requirements}
+
+This section describes the conforming syntax and semantics of the
+HTTP Cookie and Set-Cookie header fields.
 
 ## Set-Cookie {#sane-set-cookie}
 
@@ -447,9 +439,8 @@ conflicts with such folding.
 ### Syntax {#abnf-syntax}
 
 Informally, the Set-Cookie response header field contains a cookie, which begins with a
-name-value-pair, followed by zero or more attribute-value pairs. Servers
-SHOULD NOT send Set-Cookie header fields that fail to conform to the following
-grammar:
+name-value-pair, followed by zero or more attribute-value pairs. User agents
+SHOULD send Set-Cookie header fields that conform to the following grammar:
 
 ~~~ abnf
 set-cookie        = set-cookie-string
@@ -489,8 +480,8 @@ Note that some of the grammatical terms above reference documents that use
 different grammatical notations than this document (which uses ABNF from
 {{RFC5234}}).
 
-Per the grammar above, servers SHOULD NOT produce nameless cookies (i.e.: an
-empty cookie-name) as such cookies may be unpredictably serialized by UAs when
+Per the grammar above, servers SHOULD NOT produce nameless cookies (i.e., an
+empty cookie-name) as such cookies may be unpredictably serialized by user agents when
 sent back to the server.
 
 The semantics of the cookie-value are not defined by this document.
@@ -534,6 +525,7 @@ values. Implementation bugs in the libraries supporting time_t processing on
 some systems might cause such user agents to process dates after the year 2038
 incorrectly.
 
+
 ### Semantics (Non-Normative) {#sane-set-cookie-semantics}
 
 This section describes simplified semantics of the Set-Cookie header field. These
@@ -556,6 +548,7 @@ to the origin server (and not, for example, to any subdomains), and it expires
 at the end of the current session (as defined by the user agent). User agents
 ignore unrecognized cookie attributes (but not the entire cookie).
 
+
 #### The Expires Attribute {#attribute-expires}
 
 The Expires attribute indicates the maximum lifetime of the cookie,
@@ -568,6 +561,7 @@ The limit SHOULD NOT be greater than 400 days (34560000 seconds) in the future.
 The RECOMMENDED limit is 400 days in the future, but the user agent MAY adjust
 the limit (see {{cookie-policy}}).
 Expires attributes that are greater than the limit MUST be reduced to the limit.
+
 
 #### The Max-Age Attribute {#attribute-max-age}
 
@@ -590,6 +584,7 @@ attribute has precedence and controls the expiration date of the cookie. If a
 cookie has neither the Max-Age nor the Expires attribute, the user agent
 will retain the cookie until "the current session is over" (as defined by the
 user agent).
+
 
 #### The Domain Attribute {#attribute-domain}
 
@@ -614,6 +609,7 @@ of "foo.site.example" from foo.site.example, but the user agent will not accept
 a cookie with a Domain attribute of "bar.site.example" or of
 "baz.foo.site.example".
 
+
 #### The Path Attribute {#attribute-path}
 
 The scope of each cookie is limited to a set of paths, controlled by the
@@ -630,13 +626,15 @@ Although seemingly useful for isolating cookies between different paths within
 a given host, the Path attribute cannot be relied upon for security (see
 {{security-considerations}}).
 
+
 #### The Secure Attribute {#attribute-secure}
 
 The Secure attribute limits the scope of the cookie to "secure" channels
-(where "secure" is defined by the user agent). When a cookie has the Secure
+(where "secure" is outside the scope of this document). E.g., when a cookie has the Secure
 attribute, the user agent will include the cookie in an HTTP request only if
 the request is transmitted over a secure channel (typically HTTP over Transport
 Layer Security (TLS) {{RFC2818}}).
+
 
 #### The HttpOnly Attribute {#attribute-httponly}
 
@@ -644,29 +642,16 @@ The HttpOnly attribute limits the scope of the cookie to HTTP requests. In
 particular, the attribute instructs the user agent to omit the cookie when
 providing access to cookies via non-HTTP APIs.
 
-Note that the HttpOnly attribute is independent of the Secure attribute: a
-cookie can have both the HttpOnly and the Secure attribute.
 
 #### The SameSite Attribute {#attribute-samesite}
 
-The "SameSite" attribute limits the scope of the cookie such that it will only
-be attached to requests if those requests are same-site. For example, requests for
-`https://site.example/sekrit-image` will attach same-site cookies if and only if
-initiated from a context whose "site for cookies" is an origin with a scheme and
-registered domain of "https" and "site.example" respectively.
+The SameSite attribute limits the scope of the cookie upon creation and delivery
+with respect to whether the cookie is considered to be "same-site" within a larger context
+(where "same-site" is outside the scope of this document). The SameSite attribute is particularly
+relevant for web browsers and web applications accessible through them.
 
-If the "SameSite" attribute's value is "Strict", the cookie will only be sent
-along with "same-site" requests. If the value is "Lax", the cookie will be sent
-with same-site requests, and with "cross-site" top-level navigations.
-If the value is "None", the cookie will be sent
-with same-site and cross-site requests. If the "SameSite" attribute's value is
-something other than these three known keywords, the attribute's value will be
-subject to a default enforcement mode that is equivalent to "Lax".
+The SameSite attribute supports Strict, Lax, and None as values.
 
-The "SameSite" attribute affects cookie creation as well as delivery. Cookies
-which assert "SameSite=Lax" or "SameSite=Strict" cannot be set in responses to
-cross-site subresource requests, or cross-site nested navigations. They can be
-set along with any top-level navigation, cross-site or otherwise.
 
 ### Cookie Name Prefixes {#server-name-prefixes}
 
@@ -677,8 +662,9 @@ order to provide such confidence in a backwards-compatible way, two common sets
 of requirements can be inferred from the first few characters of the cookie's
 name.
 
-To maximize compatibility with user agents servers SHOULD use prefixes as
+To maximize compatibility with user agents, servers SHOULD use prefixes as
 described below.
+
 
 #### The "__Secure-" Prefix
 
@@ -699,6 +685,7 @@ Whereas the following `Set-Cookie` header field would be accepted if set from a 
 Set-Cookie: __Secure-SID=12345; Domain=site.example; Secure
 ~~~
 
+
 #### The "__Host-" Prefix
 
 If a cookie's name begins with a case-sensitive match for the string
@@ -707,13 +694,13 @@ If a cookie's name begins with a case-sensitive match for the string
 
 This combination yields a cookie that hews as closely as a cookie can to
 treating the origin as a security boundary. The lack of a `Domain` attribute
-ensures that the cookie's `host-only-flag` is true, locking the cookie to a
+ensures that cookie's host-only is true, locking the cookie to a
 particular host, rather than allowing it to span subdomains. Setting the `Path`
 to `/` means that the cookie is effective for the entire host, and won't be
 overridden for specific paths. The `Secure` attribute ensures that the cookie
 is unaltered by non-secure origins, and won't span protocols.
 
-Ports are the only piece of the origin model that `__Host-` cookies continue
+Ports are the only piece of the same-origin policy that `__Host-` cookies continue
 to ignore.
 
 For example, the following cookies would always be rejected:
@@ -732,6 +719,7 @@ While the following would be accepted if set from a secure origin (e.g.
 ~~~ example
 Set-Cookie: __Host-SID=12345; Secure; Path=/
 ~~~
+
 
 ## Cookie {#sane-cookie}
 
@@ -768,11 +756,12 @@ contains two cookies with the same name (e.g., that were set with different
 Path or Domain attributes), servers SHOULD NOT rely upon the order in which
 these cookies appear in the header field.
 
+
 # User Agent Requirements {#ua-requirements}
 
 This section specifies the Cookie and Set-Cookie header fields in sufficient
 detail that a user agent can interoperate with existing servers (even those
-that do not conform to the well-behaved profile described in {{sane-profile}}).
+that do not conform to the well-behaved profile described in {{server-requirements}}).
 
 A user agent could enforce more restrictions than those specified herein (e.g.,
 restrictions specified by its cookie policy, described in {{cookie-policy}}).
@@ -1013,7 +1002,7 @@ in {{sane-set-cookie}} forbids whitespace in these positions. In addition, the
 algorithm below accommodates some characters that are not cookie-octets
 according to the grammar in {{sane-set-cookie}}. User agents use this algorithm
 so as to interoperate with servers that do not follow the recommendations in
-{{sane-profile}}.
+{{server-requirements}}.
 
 NOTE: As the input can originate from a non-HTTP API, it is not
 guaranteed to be free of CTL characters, so this algorithm handles them
