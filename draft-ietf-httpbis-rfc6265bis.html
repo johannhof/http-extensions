@@ -1189,6 +1189,9 @@ header fields are widely used on the Internet. This document obsoletes RFC
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.1.2.1">
                     <p id="section-toc.1-1.4.2.1.2.1.1"><a href="#section-4.1.1" class="auto internal xref">4.1.1</a>.  <a href="#name-cookie-consuming-implementa" class="internal xref">Cookie Consuming Implementations</a></p>
 </li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.1.2.2">
+                    <p id="section-toc.1-1.4.2.1.2.2.1"><a href="#section-4.1.2" class="auto internal xref">4.1.2</a>.  <a href="#name-programming-languages-softw" class="internal xref">Programming Languages &amp; Software Frameworks</a></p>
+</li>
                 </ul>
 </li>
             </ul>
@@ -1408,10 +1411,10 @@ different ports.<a href="#section-1-3" class="pilcrow">¶</a></p>
 <p id="section-1-4">This document specifies the syntax and semantics of these header fields as they are
 actually used on the Internet. In particular, this document does not create
 new syntax or semantics beyond those in use today. The recommendations for
-cookie generation provided in <a href="#sane-profile" class="auto internal xref">Section 5</a> represent a preferred subset of current
+cookie generation provided in <a href="#server-requirements" class="auto internal xref">Section 5</a> represent a preferred subset of current
 server behavior, and even the more liberal cookie processing algorithm provided
-in <a href="#ua-requirements" class="auto internal xref">Section 6</a> does not recommend all of the syntactic and semantic variations in
-use today. Where some existing software differs from the recommended protocol
+in <a href="#ua-requirements" class="auto internal xref">Section 6</a> does not encompass all of the syntactic and semantic variations in
+use today. Where some existing software differs from the requirements
 in significant ways, the document contains a note explaining the difference.<a href="#section-1-4" class="pilcrow">¶</a></p>
 <p id="section-1-5">This document obsoletes <span>[<a href="#RFC6265" class="cite xref">RFC6265</a>]</span>.<a href="#section-1-5" class="pilcrow">¶</a></p>
 <div id="examples">
@@ -1596,16 +1599,16 @@ specification referred to null with a distinct "persistent-flag" field being fal
       <h2 id="name-which-requirements-to-imple">
 <a href="#section-4" class="section-number selfRef">4. </a><a href="#name-which-requirements-to-imple" class="section-name selfRef">Which Requirements to Implement</a>
       </h2>
-<p id="section-4-1">The upcoming two sections, <a href="#sane-profile" class="auto internal xref">Section 5</a> and <a href="#ua-requirements" class="auto internal xref">Section 6</a>, discuss
+<p id="section-4-1">The upcoming two sections, <a href="#server-requirements" class="auto internal xref">Section 5</a> and <a href="#ua-requirements" class="auto internal xref">Section 6</a>, discuss
 the set of requirements for two distinct types of implementations. This section
 is meant to help guide implementers in determining which set of requirements
 best fits their goals. Choosing the wrong set of requirements could result in a
 lack of compatibility with other cookie implementations.<a href="#section-4-1" class="pilcrow">¶</a></p>
 <p id="section-4-2">It's important to note that being compatible means different things
 depending on the implementer's goals. These differences have built up over time
-due to both intentional and unintentional spec changes, spec interpretations,
+due to both intentional and unintentional specification changes, specification interpretations,
 and historical implementation differences.<a href="#section-4-2" class="pilcrow">¶</a></p>
-<p id="section-4-3">This section roughly divides implementers of the cookie spec into two types,
+<p id="section-4-3">This section roughly divides implementers of this specification into two types,
 producers and consumers. These are not official terms and are only used here to
 help readers develop an intuitive understanding of the use cases.<a href="#section-4-3" class="pilcrow">¶</a></p>
 <div id="cookie-producing-implementations">
@@ -1613,9 +1616,9 @@ help readers develop an intuitive understanding of the use cases.<a href="#secti
         <h3 id="name-cookie-producing-implementa">
 <a href="#section-4.1" class="section-number selfRef">4.1. </a><a href="#name-cookie-producing-implementa" class="section-name selfRef">Cookie Producing Implementations</a>
         </h3>
-<p id="section-4.1-1">An implementer should choose <a href="#sane-profile" class="auto internal xref">Section 5</a> whenever cookies are created and
+<p id="section-4.1-1">An implementer should choose <a href="#server-requirements" class="auto internal xref">Section 5</a> whenever cookies are created and
 will be sent to a user agent, such as a web browser. These implementations are
-frequently referred to as Servers by the spec but that term includes anything
+frequently referred to as servers by the specification but that term includes anything
 which primarily produces cookies. Some potential examples:<a href="#section-4.1-1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-4.1-2.1">
@@ -1631,10 +1634,8 @@ which primarily produces cookies. Some potential examples:<a href="#section-4.1-
 <p id="section-4.1-3">All these benefit from not only supporting as many user agents as possible but
 also supporting other servers. This is useful if a cookie is produced by a
 software framework and is later sent back to a server application which needs
-to read it. <a href="#sane-profile" class="auto internal xref">Section 5</a> advises best practices that help maximize this
+to read it. <a href="#server-requirements" class="auto internal xref">Section 5</a> advises best practices that help maximize this
 sense of compatibility.<a href="#section-4.1-3" class="pilcrow">¶</a></p>
-<p id="section-4.1-4">See <a href="#languages-frameworks" class="auto internal xref">Section 4.1.1.1</a> for more details on programming languages and software
-frameworks.<a href="#section-4.1-4" class="pilcrow">¶</a></p>
 <div id="cookie-consuming-implementations">
 <section id="section-4.1.1">
           <h4 id="name-cookie-consuming-implementa">
@@ -1659,37 +1660,35 @@ or not that server is following best practices, users agents are advised to
 implement a more lenient set of requirements and to accept some things that
 servers are warned against producing. <a href="#ua-requirements" class="auto internal xref">Section 6</a> advises best
 practices that help maximize this sense of compatibility.<a href="#section-4.1.1-3" class="pilcrow">¶</a></p>
-<p id="section-4.1.1-4">See <a href="#languages-frameworks" class="auto internal xref">Section 4.1.1.1</a> for more details on programming languages and software
-frameworks.<a href="#section-4.1.1-4" class="pilcrow">¶</a></p>
+</section>
+</div>
 <div id="languages-frameworks">
-<section id="section-4.1.1.1">
-            <h5 id="name-programming-languages-softw">
-<a href="#section-4.1.1.1" class="section-number selfRef">4.1.1.1. </a><a href="#name-programming-languages-softw" class="section-name selfRef">Programming Languages &amp; Software Frameworks</a>
-            </h5>
-<p id="section-4.1.1.1-1">A programming language or software framework with support for cookies could
+<section id="section-4.1.2">
+          <h4 id="name-programming-languages-softw">
+<a href="#section-4.1.2" class="section-number selfRef">4.1.2. </a><a href="#name-programming-languages-softw" class="section-name selfRef">Programming Languages &amp; Software Frameworks</a>
+          </h4>
+<p id="section-4.1.2-1">A programming language or software framework with support for cookies could
 reasonably be used to create an application that acts as a cookie producer,
 cookie consumer, or both. Because a developer may want to maximize their
 compatibility as either a producer or consumer, these languages or frameworks
-should strongly consider supporting both sets of requirements, <a href="#sane-profile" class="auto internal xref">Section 5</a>
+should strongly consider supporting both sets of requirements, <a href="#server-requirements" class="auto internal xref">Section 5</a>
 and <a href="#ua-requirements" class="auto internal xref">Section 6</a>, behind a compatibility mode toggle. This toggle should
-default to <a href="#sane-profile" class="auto internal xref">Section 5</a>'s requirements.<a href="#section-4.1.1.1-1" class="pilcrow">¶</a></p>
-<p id="section-4.1.1.1-2">Doing so will reduce the chances that a developer's application can
-inadvertently create cookies that cannot be read by other servers.<a href="#section-4.1.1.1-2" class="pilcrow">¶</a></p>
+default to <a href="#server-requirements" class="auto internal xref">Section 5</a>'s requirements.<a href="#section-4.1.2-1" class="pilcrow">¶</a></p>
+<p id="section-4.1.2-2">Doing so will reduce the chances that a developer's application can
+inadvertently create cookies that cannot be read by other servers.<a href="#section-4.1.2-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
 </div>
 </section>
 </div>
-</section>
-</div>
-<div id="sane-profile">
+<div id="server-requirements">
 <section id="section-5">
       <h2 id="name-server-requirements">
 <a href="#section-5" class="section-number selfRef">5. </a><a href="#name-server-requirements" class="section-name selfRef">Server Requirements</a>
       </h2>
-<p id="section-5-1">This section describes the syntax and semantics of a well-behaved profile of the
-Cookie and Set-Cookie header fields.<a href="#section-5-1" class="pilcrow">¶</a></p>
+<p id="section-5-1">This section describes the conforming syntax and semantics of the
+HTTP Cookie and Set-Cookie header fields.<a href="#section-5-1" class="pilcrow">¶</a></p>
 <div id="sane-set-cookie">
 <section id="section-5.1">
         <h3 id="name-set-cookie">
@@ -1712,9 +1711,8 @@ conflicts with such folding.<a href="#section-5.1-3" class="pilcrow">¶</a></p>
 <a href="#section-5.1.1" class="section-number selfRef">5.1.1. </a><a href="#name-syntax" class="section-name selfRef">Syntax</a>
           </h4>
 <p id="section-5.1.1-1">Informally, the Set-Cookie response header field contains a cookie, which begins with a
-name-value-pair, followed by zero or more attribute-value pairs. Servers
-SHOULD NOT send Set-Cookie header fields that fail to conform to the following
-grammar:<a href="#section-5.1.1-1" class="pilcrow">¶</a></p>
+name-value-pair, followed by zero or more attribute-value pairs. User agents
+SHOULD send Set-Cookie header fields that conform to the following grammar:<a href="#section-5.1.1-1" class="pilcrow">¶</a></p>
 <div class="lang-abnf sourcecode" id="section-5.1.1-2">
 <pre>
 set-cookie        = set-cookie-string
@@ -1753,8 +1751,8 @@ av-octet          = %x20-3A / %x3C-7E
 <p id="section-5.1.1-3">Note that some of the grammatical terms above reference documents that use
 different grammatical notations than this document (which uses ABNF from
 <span>[<a href="#RFC5234" class="cite xref">RFC5234</a>]</span>).<a href="#section-5.1.1-3" class="pilcrow">¶</a></p>
-<p id="section-5.1.1-4">Per the grammar above, servers SHOULD NOT produce nameless cookies (i.e.: an
-empty cookie-name) as such cookies may be unpredictably serialized by UAs when
+<p id="section-5.1.1-4">Per the grammar above, servers SHOULD NOT produce nameless cookies (i.e., an
+empty cookie-name) as such cookies may be unpredictably serialized by user agents when
 sent back to the server.<a href="#section-5.1.1-4" class="pilcrow">¶</a></p>
 <p id="section-5.1.1-5">The semantics of the cookie-value are not defined by this document.<a href="#section-5.1.1-5" class="pilcrow">¶</a></p>
 <p id="section-5.1.1-6">To maximize compatibility with user agents, servers that wish to store arbitrary
@@ -1898,7 +1896,7 @@ a given host, the Path attribute cannot be relied upon for security (see
 <a href="#section-5.1.2.5" class="section-number selfRef">5.1.2.5. </a><a href="#name-the-secure-attribute" class="section-name selfRef">The Secure Attribute</a>
             </h5>
 <p id="section-5.1.2.5-1">The Secure attribute limits the scope of the cookie to "secure" channels
-(where "secure" is defined by the user agent). When a cookie has the Secure
+(where "secure" is outside the scope of this document). E.g., when a cookie has the Secure
 attribute, the user agent will include the cookie in an HTTP request only if
 the request is transmitted over a secure channel (typically HTTP over Transport
 Layer Security (TLS) <span>[<a href="#RFC2818" class="cite xref">RFC2818</a>]</span>).<a href="#section-5.1.2.5-1" class="pilcrow">¶</a></p>
@@ -1912,8 +1910,6 @@ Layer Security (TLS) <span>[<a href="#RFC2818" class="cite xref">RFC2818</a>]</s
 <p id="section-5.1.2.6-1">The HttpOnly attribute limits the scope of the cookie to HTTP requests. In
 particular, the attribute instructs the user agent to omit the cookie when
 providing access to cookies via non-HTTP APIs.<a href="#section-5.1.2.6-1" class="pilcrow">¶</a></p>
-<p id="section-5.1.2.6-2">Note that the HttpOnly attribute is independent of the Secure attribute: a
-cookie can have both the HttpOnly and the Secure attribute.<a href="#section-5.1.2.6-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="attribute-samesite">
@@ -1921,22 +1917,11 @@ cookie can have both the HttpOnly and the Secure attribute.<a href="#section-5.1
             <h5 id="name-the-samesite-attribute">
 <a href="#section-5.1.2.7" class="section-number selfRef">5.1.2.7. </a><a href="#name-the-samesite-attribute" class="section-name selfRef">The SameSite Attribute</a>
             </h5>
-<p id="section-5.1.2.7-1">The "SameSite" attribute limits the scope of the cookie such that it will only
-be attached to requests if those requests are same-site. For example, requests for
-<code>https://site.example/sekrit-image</code> will attach same-site cookies if and only if
-initiated from a context whose "site for cookies" is an origin with a scheme and
-registered domain of "https" and "site.example" respectively.<a href="#section-5.1.2.7-1" class="pilcrow">¶</a></p>
-<p id="section-5.1.2.7-2">If the "SameSite" attribute's value is "Strict", the cookie will only be sent
-along with "same-site" requests. If the value is "Lax", the cookie will be sent
-with same-site requests, and with "cross-site" top-level navigations.
-If the value is "None", the cookie will be sent
-with same-site and cross-site requests. If the "SameSite" attribute's value is
-something other than these three known keywords, the attribute's value will be
-subject to a default enforcement mode that is equivalent to "Lax".<a href="#section-5.1.2.7-2" class="pilcrow">¶</a></p>
-<p id="section-5.1.2.7-3">The "SameSite" attribute affects cookie creation as well as delivery. Cookies
-which assert "SameSite=Lax" or "SameSite=Strict" cannot be set in responses to
-cross-site subresource requests, or cross-site nested navigations. They can be
-set along with any top-level navigation, cross-site or otherwise.<a href="#section-5.1.2.7-3" class="pilcrow">¶</a></p>
+<p id="section-5.1.2.7-1">The SameSite attribute limits the scope of the cookie upon creation and delivery
+with respect to whether the cookie is considered to be "same-site" within a larger context
+(where "same-site" is outside the scope of this document). The SameSite attribute is particularly
+relevant for web browsers and web applications accessible through them.<a href="#section-5.1.2.7-1" class="pilcrow">¶</a></p>
+<p id="section-5.1.2.7-2">The SameSite attribute supports Strict, Lax, and None as values.<a href="#section-5.1.2.7-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1952,7 +1937,7 @@ confidence that a given cookie was set with a particular set of attributes. In
 order to provide such confidence in a backwards-compatible way, two common sets
 of requirements can be inferred from the first few characters of the cookie's
 name.<a href="#section-5.1.3-1" class="pilcrow">¶</a></p>
-<p id="section-5.1.3-2">To maximize compatibility with user agents servers SHOULD use prefixes as
+<p id="section-5.1.3-2">To maximize compatibility with user agents, servers SHOULD use prefixes as
 described below.<a href="#section-5.1.3-2" class="pilcrow">¶</a></p>
 <div id="the-secure-prefix">
 <section id="section-5.1.3.1">
@@ -1987,12 +1972,12 @@ Set-Cookie: __Secure-SID=12345; Domain=site.example; Secure
 <code>Path</code> attribute with a value of <code>/</code>, and no <code>Domain</code> attribute.<a href="#section-5.1.3.2-1" class="pilcrow">¶</a></p>
 <p id="section-5.1.3.2-2">This combination yields a cookie that hews as closely as a cookie can to
 treating the origin as a security boundary. The lack of a <code>Domain</code> attribute
-ensures that the cookie's <code>host-only-flag</code> is true, locking the cookie to a
+ensures that cookie's host-only is true, locking the cookie to a
 particular host, rather than allowing it to span subdomains. Setting the <code>Path</code>
 to <code>/</code> means that the cookie is effective for the entire host, and won't be
 overridden for specific paths. The <code>Secure</code> attribute ensures that the cookie
 is unaltered by non-secure origins, and won't span protocols.<a href="#section-5.1.3.2-2" class="pilcrow">¶</a></p>
-<p id="section-5.1.3.2-3">Ports are the only piece of the origin model that <code>__Host-</code> cookies continue
+<p id="section-5.1.3.2-3">Ports are the only piece of the same-origin policy that <code>__Host-</code> cookies continue
 to ignore.<a href="#section-5.1.3.2-3" class="pilcrow">¶</a></p>
 <p id="section-5.1.3.2-4">For example, the following cookies would always be rejected:<a href="#section-5.1.3.2-4" class="pilcrow">¶</a></p>
 <div class="lang-example sourcecode" id="section-5.1.3.2-5">
@@ -2072,7 +2057,7 @@ these cookies appear in the header field.<a href="#section-5.2.2-4" class="pilcr
       </h2>
 <p id="section-6-1">This section specifies the Cookie and Set-Cookie header fields in sufficient
 detail that a user agent can interoperate with existing servers (even those
-that do not conform to the well-behaved profile described in <a href="#sane-profile" class="auto internal xref">Section 5</a>).<a href="#section-6-1" class="pilcrow">¶</a></p>
+that do not conform to the well-behaved profile described in <a href="#server-requirements" class="auto internal xref">Section 5</a>).<a href="#section-6-1" class="pilcrow">¶</a></p>
 <p id="section-6-2">A user agent could enforce more restrictions than those specified herein (e.g.,
 restrictions specified by its cookie policy, described in <a href="#cookie-policy" class="auto internal xref">Section 8.2</a>).
 However, such additional restrictions may reduce the likelihood that a user
@@ -2378,7 +2363,7 @@ in <a href="#sane-set-cookie" class="auto internal xref">Section 5.1</a> forbids
 algorithm below accommodates some characters that are not cookie-octets
 according to the grammar in <a href="#sane-set-cookie" class="auto internal xref">Section 5.1</a>. User agents use this algorithm
 so as to interoperate with servers that do not follow the recommendations in
-<a href="#sane-profile" class="auto internal xref">Section 5</a>.<a href="#section-6.3.2-1" class="pilcrow">¶</a></p>
+<a href="#server-requirements" class="auto internal xref">Section 5</a>.<a href="#section-6.3.2-1" class="pilcrow">¶</a></p>
 <p id="section-6.3.2-2">NOTE: As the input can originate from a non-HTTP API, it is not
 guaranteed to be free of CTL characters, so this algorithm handles them
 explicitly. Horizontal tab (0x09) is excluded from the CTL characters that

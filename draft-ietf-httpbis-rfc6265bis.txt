@@ -91,6 +91,7 @@ Table of Contents
    4.  Which Requirements to Implement
      4.1.  Cookie Producing Implementations
        4.1.1.  Cookie Consuming Implementations
+       4.1.2.  Programming Languages & Software Frameworks
    5.  Server Requirements
      5.1.  Set-Cookie
        5.1.1.  Syntax
@@ -176,10 +177,10 @@ Table of Contents
    use today.  The recommendations for cookie generation provided in
    Section 5 represent a preferred subset of current server behavior,
    and even the more liberal cookie processing algorithm provided in
-   Section 6 does not recommend all of the syntactic and semantic
+   Section 6 does not encompass all of the syntactic and semantic
    variations in use today.  Where some existing software differs from
-   the recommended protocol in significant ways, the document contains a
-   note explaining the difference.
+   the requirements in significant ways, the document contains a note
+   explaining the difference.
 
    This document obsoletes [RFC6265].
 
@@ -371,21 +372,22 @@ Table of Contents
 
    It's important to note that being compatible means different things
    depending on the implementer's goals.  These differences have built
-   up over time due to both intentional and unintentional spec changes,
-   spec interpretations, and historical implementation differences.
+   up over time due to both intentional and unintentional specification
+   changes, specification interpretations, and historical implementation
+   differences.
 
-   This section roughly divides implementers of the cookie spec into two
-   types, producers and consumers.  These are not official terms and are
-   only used here to help readers develop an intuitive understanding of
-   the use cases.
+   This section roughly divides implementers of this specification into
+   two types, producers and consumers.  These are not official terms and
+   are only used here to help readers develop an intuitive understanding
+   of the use cases.
 
 4.1.  Cookie Producing Implementations
 
    An implementer should choose Section 5 whenever cookies are created
    and will be sent to a user agent, such as a web browser.  These
-   implementations are frequently referred to as Servers by the spec but
-   that term includes anything which primarily produces cookies.  Some
-   potential examples:
+   implementations are frequently referred to as servers by the
+   specification but that term includes anything which primarily
+   produces cookies.  Some potential examples:
 
    *  Server applications hosting a website or API
 
@@ -399,9 +401,6 @@ Table of Contents
    cookie is produced by a software framework and is later sent back to
    a server application which needs to read it.  Section 5 advises best
    practices that help maximize this sense of compatibility.
-
-   See Section 4.1.1.1 for more details on programming languages and
-   software frameworks.
 
 4.1.1.  Cookie Consuming Implementations
 
@@ -422,10 +421,7 @@ Table of Contents
    Section 6 advises best practices that help maximize this sense of
    compatibility.
 
-   See Section 4.1.1.1 for more details on programming languages and
-   software frameworks.
-
-4.1.1.1.  Programming Languages & Software Frameworks
+4.1.2.  Programming Languages & Software Frameworks
 
    A programming language or software framework with support for cookies
    could reasonably be used to create an application that acts as a
@@ -441,8 +437,8 @@ Table of Contents
 
 5.  Server Requirements
 
-   This section describes the syntax and semantics of a well-behaved
-   profile of the Cookie and Set-Cookie header fields.
+   This section describes the conforming syntax and semantics of the
+   HTTP Cookie and Set-Cookie header fields.
 
 5.1.  Set-Cookie
 
@@ -466,8 +462,8 @@ Table of Contents
 
    Informally, the Set-Cookie response header field contains a cookie,
    which begins with a name-value-pair, followed by zero or more
-   attribute-value pairs.  Servers SHOULD NOT send Set-Cookie header
-   fields that fail to conform to the following grammar:
+   attribute-value pairs.  User agents SHOULD send Set-Cookie header
+   fields that conform to the following grammar:
 
    set-cookie        = set-cookie-string
    set-cookie-string = BWS cookie-pair *( BWS ";" OWS cookie-av )
@@ -506,8 +502,8 @@ Table of Contents
    uses ABNF from [RFC5234]).
 
    Per the grammar above, servers SHOULD NOT produce nameless cookies
-   (i.e.: an empty cookie-name) as such cookies may be unpredictably
-   serialized by UAs when sent back to the server.
+   (i.e., an empty cookie-name) as such cookies may be unpredictably
+   serialized by user agents when sent back to the server.
 
    The semantics of the cookie-value are not defined by this document.
 
@@ -659,11 +655,11 @@ Table of Contents
 5.1.2.5.  The Secure Attribute
 
    The Secure attribute limits the scope of the cookie to "secure"
-   channels (where "secure" is defined by the user agent).  When a
-   cookie has the Secure attribute, the user agent will include the
-   cookie in an HTTP request only if the request is transmitted over a
-   secure channel (typically HTTP over Transport Layer Security (TLS)
-   [RFC2818]).
+   channels (where "secure" is outside the scope of this document).
+   E.g., when a cookie has the Secure attribute, the user agent will
+   include the cookie in an HTTP request only if the request is
+   transmitted over a secure channel (typically HTTP over Transport
+   Layer Security (TLS) [RFC2818]).
 
 5.1.2.6.  The HttpOnly Attribute
 
@@ -671,33 +667,16 @@ Table of Contents
    requests.  In particular, the attribute instructs the user agent to
    omit the cookie when providing access to cookies via non-HTTP APIs.
 
-   Note that the HttpOnly attribute is independent of the Secure
-   attribute: a cookie can have both the HttpOnly and the Secure
-   attribute.
-
 5.1.2.7.  The SameSite Attribute
 
-   The "SameSite" attribute limits the scope of the cookie such that it
-   will only be attached to requests if those requests are same-site.
-   For example, requests for https://site.example/sekrit-image will
-   attach same-site cookies if and only if initiated from a context
-   whose "site for cookies" is an origin with a scheme and registered
-   domain of "https" and "site.example" respectively.
+   The SameSite attribute limits the scope of the cookie upon creation
+   and delivery with respect to whether the cookie is considered to be
+   "same-site" within a larger context (where "same-site" is outside the
+   scope of this document).  The SameSite attribute is particularly
+   relevant for web browsers and web applications accessible through
+   them.
 
-   If the "SameSite" attribute's value is "Strict", the cookie will only
-   be sent along with "same-site" requests.  If the value is "Lax", the
-   cookie will be sent with same-site requests, and with "cross-site"
-   top-level navigations.  If the value is "None", the cookie will be
-   sent with same-site and cross-site requests.  If the "SameSite"
-   attribute's value is something other than these three known keywords,
-   the attribute's value will be subject to a default enforcement mode
-   that is equivalent to "Lax".
-
-   The "SameSite" attribute affects cookie creation as well as delivery.
-   Cookies which assert "SameSite=Lax" or "SameSite=Strict" cannot be
-   set in responses to cross-site subresource requests, or cross-site
-   nested navigations.  They can be set along with any top-level
-   navigation, cross-site or otherwise.
+   The SameSite attribute supports Strict, Lax, and None as values.
 
 5.1.3.  Cookie Name Prefixes
 
@@ -709,7 +688,7 @@ Table of Contents
    requirements can be inferred from the first few characters of the
    cookie's name.
 
-   To maximize compatibility with user agents servers SHOULD use
+   To maximize compatibility with user agents, servers SHOULD use
    prefixes as described below.
 
 5.1.3.1.  The "__Secure-" Prefix
@@ -737,15 +716,15 @@ Table of Contents
 
    This combination yields a cookie that hews as closely as a cookie can
    to treating the origin as a security boundary.  The lack of a Domain
-   attribute ensures that the cookie's host-only-flag is true, locking
-   the cookie to a particular host, rather than allowing it to span
-   subdomains.  Setting the Path to / means that the cookie is effective
-   for the entire host, and won't be overridden for specific paths.  The
-   Secure attribute ensures that the cookie is unaltered by non-secure
-   origins, and won't span protocols.
+   attribute ensures that cookie's host-only is true, locking the cookie
+   to a particular host, rather than allowing it to span subdomains.
+   Setting the Path to / means that the cookie is effective for the
+   entire host, and won't be overridden for specific paths.  The Secure
+   attribute ensures that the cookie is unaltered by non-secure origins,
+   and won't span protocols.
 
-   Ports are the only piece of the origin model that __Host- cookies
-   continue to ignore.
+   Ports are the only piece of the same-origin policy that __Host-
+   cookies continue to ignore.
 
    For example, the following cookies would always be rejected:
 
