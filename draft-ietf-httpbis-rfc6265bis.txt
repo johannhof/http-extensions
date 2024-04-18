@@ -83,15 +83,14 @@ Copyright Notice
 Table of Contents
 
    1.  Introduction
+     1.1.  Examples
    2.  Conventions
      2.1.  Terminology
      2.2.  Syntax Notation
-   3.  Overview
-     3.1.  Examples
-     3.2.  Which Requirements to Implement
-       3.2.1.  Cookie Producing Implementations
-       3.2.2.  Cookie Consuming Implementations
-   4.  Cookie representation
+   3.  Cookie representation
+   4.  Which Requirements to Implement
+     4.1.  Cookie Producing Implementations
+       4.1.1.  Cookie Consuming Implementations
    5.  Server Requirements
      5.1.  Set-Cookie
        5.1.1.  Syntax
@@ -156,11 +155,11 @@ Table of Contents
    return the name/value pairs in the Cookie header field.
 
    Although simple on their surface, cookies have a number of
-   complexities.  For example, the server indicates a scope for each
-   cookie when sending it to the user agent.  The scope indicates the
-   maximum amount of time in which the user agent should return the
-   cookie, the servers to which the user agent should return the cookie,
-   and the URI schemes for which the cookie is applicable.
+   complexities.  For example, the server can scope the maximum amount
+   of time during which the user agent should return the cookie, the
+   servers to which the user agent should return the cookie, and whether
+   the cookie can be accessed through a non-HTTP API, such as JavaScript
+   in a web browser.
 
    For historical reasons, cookies contain a number of security and
    privacy infelicities.  For example, a server can indicate that a
@@ -170,18 +169,6 @@ Table of Contents
    across all the ports on that host, even though the usual "same-origin
    policy" used by web browsers isolates content retrieved via different
    ports.
-
-   There are two audiences for this specification: developers of cookie-
-   generating servers and developers of cookie-consuming user agents.
-
-   To maximize interoperability with user agents, servers SHOULD limit
-   themselves to the well-behaved profile defined in Section 5 when
-   generating cookies.
-
-   User agents MUST implement the more liberal processing rules defined
-   in Section 6, in order to maximize interoperability with existing
-   servers that do not conform to the well-behaved profile defined in
-   Section 5.
 
    This document specifies the syntax and semantics of these header
    fields as they are actually used on the Internet.  In particular,
@@ -196,102 +183,7 @@ Table of Contents
 
    This document obsoletes [RFC6265].
 
-2.  Conventions
-
-2.1.  Terminology
-
-   This specification depends on Infra.  TODO: INFRA
-
-   Some terms used in this specification are defined in the following
-   standards and specifications:
-
-   *  HTTP [HTTPSEM]
-
-   *  URL TODO: URL
-
-   The terms "user agent", "client", "server", "proxy", and "origin
-   server" have the same meaning as in the HTTP/1.1 specification
-   ([HTTPSEM], Section 3).
-
-   The request-host is the name of the host, as known by the user agent,
-   to which the user agent is sending an HTTP request or from which it
-   is receiving an HTTP response (i.e., the name of the host to which it
-   sent the corresponding HTTP request).
-
-   The term request-uri refers to "target URI" as defined in Section 7.1
-   of [HTTPSEM].
-
-   Two sequences of octets are said to case-insensitively match each
-   other if and only if they are equivalent under the i;ascii-casemap
-   collation defined in [RFC4790].
-
-   The term string means a sequence of non-NUL octets.
-
-   The terms "active browsing context", "active document", "ancestor
-   navigables", "container document", "content navigable", "dedicated
-   worker", "Document", "inclusive ancestor navigables", "navigable",
-   "opaque origin", "sandboxed origin browsing context flag", "shared
-   worker", "the worker's Documents", "top-level traversable", and
-   "WorkerGlobalScope" are defined in [HTML].
-
-   The term "request", as well as a request's "client", "current url",
-   "method", "target browsing context", and "url list", are defined in
-   [FETCH].
-
-   The term "non-HTTP APIs" refers to non-HTTP mechanisms used to set
-   and retrieve cookies, such as a web browser API that exposes cookies
-   to scripts.
-
-   The term "top-level navigation" refers to a navigation of a top-level
-   traversable.
-
-2.2.  Syntax Notation
-
-   This specification uses the Augmented Backus-Naur Form (ABNF)
-   notation of [RFC5234].
-
-   The following core rules are included by reference, as defined in
-   [RFC5234], Appendix B.1: ALPHA (letters), CR (carriage return), CRLF
-   (CR LF), CTLs (controls), DIGIT (decimal 0-9), DQUOTE (double quote),
-   HEXDIG (hexadecimal 0-9/A-F/a-f), LF (line feed), NUL (null octet),
-   OCTET (any 8-bit sequence of data except NUL), SP (space), HTAB
-   (horizontal tab), CHAR (any [USASCII] character), VCHAR (any visible
-   [USASCII] character), and WSP (whitespace).
-
-   The OWS (optional whitespace) and BWS (bad whitespace) rules are
-   defined in Section 5.6.3 of [HTTPSEM].
-
-3.  Overview
-
-   This section outlines a way for an origin server to send state
-   information to a user agent and for the user agent to return the
-   state information to the origin server.
-
-   To store state, the origin server includes a Set-Cookie header field
-   in an HTTP response.  In subsequent requests, the user agent returns
-   a Cookie request header field to the origin server.  The Cookie
-   header field contains cookies the user agent received in previous
-   Set-Cookie header fields.  The origin server is free to ignore the
-   Cookie header field or use its contents for an application-defined
-   purpose.
-
-   Origin servers MAY send a Set-Cookie response header field with any
-   response.  An origin server can include multiple Set-Cookie header
-   fields in a single response.  The presence of a Cookie or a Set-
-   Cookie header field does not preclude HTTP caches from storing and
-   reusing a response.
-
-   Origin servers SHOULD NOT fold multiple Set-Cookie header fields into
-   a single header field.  The usual mechanism for folding HTTP headers
-   fields (i.e., as defined in Section 5.3 of [HTTPSEM]) might change
-   the semantics of the Set-Cookie header field because the %x2C (",")
-   character is used by Set-Cookie in a way that conflicts with such
-   folding.
-
-   User agents MAY ignore Set-Cookie header fields based on response
-   status codes or the user agent's cookie policy (see Section 6.4.1).
-
-3.1.  Examples
+1.1.  Examples
 
    Using the Set-Cookie header field, a server can send the user agent a
    short string in an HTTP response that the user agent will return in
@@ -367,86 +259,72 @@ Table of Contents
 
    Cookie: SID=31d4d96e407aad42
 
-3.2.  Which Requirements to Implement
+2.  Conventions
 
-   The upcoming two sections, Section 5 and Section 6, discuss the set
-   of requirements for two distinct types of implementations.  This
-   section is meant to help guide implementers in determining which set
-   of requirements best fits their goals.  Choosing the wrong set of
-   requirements could result in a lack of compatibility with other
-   cookie implementations.
+2.1.  Terminology
 
-   It's important to note that being compatible means different things
-   depending on the implementer's goals.  These differences have built
-   up over time due to both intentional and unintentional spec changes,
-   spec interpretations, and historical implementation differences.
+   This specification depends on Infra.  TODO: INFRA
 
-   This section roughly divides implementers of the cookie spec into two
-   types, producers and consumers.  These are not official terms and are
-   only used here to help readers develop an intuitive understanding of
-   the use cases.
+   Some terms used in this specification are defined in the following
+   standards and specifications:
 
-3.2.1.  Cookie Producing Implementations
+   *  HTTP [HTTPSEM]
 
-   An implementer should choose Section 5 whenever cookies are created
-   and will be sent to a user agent, such as a web browser.  These
-   implementations are frequently referred to as Servers by the spec but
-   that term includes anything which primarily produces cookies.  Some
-   potential examples:
+   *  URL TODO: URL
 
-   *  Server applications hosting a website or API
+   The terms "user agent", "client", "server", "proxy", and "origin
+   server" have the same meaning as in the HTTP/1.1 specification
+   ([HTTPSEM], Section 3).
 
-   *  Programming languages or software frameworks that support cookies
+   The request-host is the name of the host, as known by the user agent,
+   to which the user agent is sending an HTTP request or from which it
+   is receiving an HTTP response (i.e., the name of the host to which it
+   sent the corresponding HTTP request).
 
-   *  Integrated third-party web applications, such as a business
-      management suite
+   The term request-uri refers to "target URI" as defined in Section 7.1
+   of [HTTPSEM].
 
-   All these benefit from not only supporting as many user agents as
-   possible but also supporting other servers.  This is useful if a
-   cookie is produced by a software framework and is later sent back to
-   a server application which needs to read it.  Section 5 advises best
-   practices that help maximize this sense of compatibility.
+   Two sequences of octets are said to case-insensitively match each
+   other if and only if they are equivalent under the i;ascii-casemap
+   collation defined in [RFC4790].
 
-   See Section 3.2.2.1 for more details on programming languages and
-   software frameworks.
+   The term string means a sequence of non-NUL octets.
 
-3.2.2.  Cookie Consuming Implementations
+   The terms "active browsing context", "active document", "ancestor
+   navigables", "container document", "content navigable", "dedicated
+   worker", "Document", "inclusive ancestor navigables", "navigable",
+   "opaque origin", "sandboxed origin browsing context flag", "shared
+   worker", "the worker's Documents", "top-level traversable", and
+   "WorkerGlobalScope" are defined in [HTML].
 
-   An implementer should choose Section 6 whenever cookies are primarily
-   received from another source.  These implementations are referred to
-   as user agents.  Some examples:
+   The term "request", as well as a request's "client", "current url",
+   "method", "target browsing context", and "url list", are defined in
+   [FETCH].
 
-   *  Web browsers
+   The term "non-HTTP APIs" refers to non-HTTP mechanisms used to set
+   and retrieve cookies, such as a web browser API that exposes cookies
+   to scripts.
 
-   *  Tools that support stateful HTTP
+   The term "top-level navigation" refers to a navigation of a top-level
+   traversable.
 
-   *  Programming languages or software frameworks that support cookies
+2.2.  Syntax Notation
 
-   Because user agents don't know which servers a user will access, and
-   whether or not that server is following best practices, users agents
-   are advised to implement a more lenient set of requirements and to
-   accept some things that servers are warned against producing.
-   Section 6 advises best practices that help maximize this sense of
-   compatibility.
+   This specification uses the Augmented Backus-Naur Form (ABNF)
+   notation of [RFC5234].
 
-   See Section 3.2.2.1 for more details on programming languages and
-   software frameworks.
+   The following core rules are included by reference, as defined in
+   [RFC5234], Appendix B.1: ALPHA (letters), CR (carriage return), CRLF
+   (CR LF), CTLs (controls), DIGIT (decimal 0-9), DQUOTE (double quote),
+   HEXDIG (hexadecimal 0-9/A-F/a-f), LF (line feed), NUL (null octet),
+   OCTET (any 8-bit sequence of data except NUL), SP (space), HTAB
+   (horizontal tab), CHAR (any [USASCII] character), VCHAR (any visible
+   [USASCII] character), and WSP (whitespace).
 
-3.2.2.1.  Programming Languages & Software Frameworks
+   The OWS (optional whitespace) and BWS (bad whitespace) rules are
+   defined in Section 5.6.3 of [HTTPSEM].
 
-   A programming language or software framework with support for cookies
-   could reasonably be used to create an application that acts as a
-   cookie producer, cookie consumer, or both.  Because a developer may
-   want to maximize their compatibility as either a producer or
-   consumer, these languages or frameworks should strongly consider
-   supporting both sets of requirements, Section 5 and Section 6, behind
-   a compatibility mode toggle.  This toggle should default to
-   Section 5's requirements.
-
-   Doing so will reduce the chances that a developer's application can
-   inadvertently create cookies that cannot be read by other servers.
-
-4.  Cookie representation
+3.  Cookie representation
 
    A *cookie* is a struct that represents a piece of state to be
    transmitted between a client and a server.  To disambiguate from the
@@ -482,6 +360,85 @@ Table of Contents
    A cookie's *last-access-time* is null or a time.  It is initially
    null.
 
+4.  Which Requirements to Implement
+
+   The upcoming two sections, Section 5 and Section 6, discuss the set
+   of requirements for two distinct types of implementations.  This
+   section is meant to help guide implementers in determining which set
+   of requirements best fits their goals.  Choosing the wrong set of
+   requirements could result in a lack of compatibility with other
+   cookie implementations.
+
+   It's important to note that being compatible means different things
+   depending on the implementer's goals.  These differences have built
+   up over time due to both intentional and unintentional spec changes,
+   spec interpretations, and historical implementation differences.
+
+   This section roughly divides implementers of the cookie spec into two
+   types, producers and consumers.  These are not official terms and are
+   only used here to help readers develop an intuitive understanding of
+   the use cases.
+
+4.1.  Cookie Producing Implementations
+
+   An implementer should choose Section 5 whenever cookies are created
+   and will be sent to a user agent, such as a web browser.  These
+   implementations are frequently referred to as Servers by the spec but
+   that term includes anything which primarily produces cookies.  Some
+   potential examples:
+
+   *  Server applications hosting a website or API
+
+   *  Programming languages or software frameworks that support cookies
+
+   *  Integrated third-party web applications, such as a business
+      management suite
+
+   All these benefit from not only supporting as many user agents as
+   possible but also supporting other servers.  This is useful if a
+   cookie is produced by a software framework and is later sent back to
+   a server application which needs to read it.  Section 5 advises best
+   practices that help maximize this sense of compatibility.
+
+   See Section 4.1.1.1 for more details on programming languages and
+   software frameworks.
+
+4.1.1.  Cookie Consuming Implementations
+
+   An implementer should choose Section 6 whenever cookies are primarily
+   received from another source.  These implementations are referred to
+   as user agents.  Some examples:
+
+   *  Web browsers
+
+   *  Tools that support stateful HTTP
+
+   *  Programming languages or software frameworks that support cookies
+
+   Because user agents don't know which servers a user will access, and
+   whether or not that server is following best practices, users agents
+   are advised to implement a more lenient set of requirements and to
+   accept some things that servers are warned against producing.
+   Section 6 advises best practices that help maximize this sense of
+   compatibility.
+
+   See Section 4.1.1.1 for more details on programming languages and
+   software frameworks.
+
+4.1.1.1.  Programming Languages & Software Frameworks
+
+   A programming language or software framework with support for cookies
+   could reasonably be used to create an application that acts as a
+   cookie producer, cookie consumer, or both.  Because a developer may
+   want to maximize their compatibility as either a producer or
+   consumer, these languages or frameworks should strongly consider
+   supporting both sets of requirements, Section 5 and Section 6, behind
+   a compatibility mode toggle.  This toggle should default to
+   Section 5's requirements.
+
+   Doing so will reduce the chances that a developer's application can
+   inadvertently create cookies that cannot be read by other servers.
+
 5.  Server Requirements
 
    This section describes the syntax and semantics of a well-behaved
@@ -491,6 +448,19 @@ Table of Contents
 
    The Set-Cookie HTTP response header field is used to send cookies
    from the server to the user agent.
+
+   Origin servers MAY send a Set-Cookie response header field with any
+   response.  An origin server can include multiple Set-Cookie header
+   fields in a single response.  The presence of a Cookie or a Set-
+   Cookie header field does not preclude HTTP caches from storing and
+   reusing a response.
+
+   Origin servers SHOULD NOT fold multiple Set-Cookie header fields into
+   a single header field.  The usual mechanism for folding HTTP headers
+   fields (i.e., as defined in Section 5.3 of [HTTPSEM]) might change
+   the semantics of the Set-Cookie header field because the %x2C (",")
+   character is used by Set-Cookie in a way that conflicts with such
+   folding.
 
 5.1.1.  Syntax
 
