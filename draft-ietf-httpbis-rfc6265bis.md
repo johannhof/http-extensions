@@ -689,16 +689,15 @@ cookie can have both the HttpOnly and the Secure attribute.
 #### The SameSite Attribute {#attribute-samesite}
 
 The "SameSite" attribute limits the scope of the cookie such that it will only
-be attached to requests if those requests are same-site, as defined by the
-algorithm in {{same-site-requests}}. For example, requests for
+be attached to requests if those requests are same-site. For example, requests for
 `https://site.example/sekrit-image` will attach same-site cookies if and only if
 initiated from a context whose "site for cookies" is an origin with a scheme and
 registered domain of "https" and "site.example" respectively.
 
 If the "SameSite" attribute's value is "Strict", the cookie will only be sent
 along with "same-site" requests. If the value is "Lax", the cookie will be sent
-with same-site requests, and with "cross-site" top-level navigations, as
-described in {{strict-lax}}. If the value is "None", the cookie will be sent
+with same-site requests, and with "cross-site" top-level navigations.
+If the value is "None", the cookie will be sent
 with same-site and cross-site requests. If the "SameSite" attribute's value is
 something other than these three known keywords, the attribute's value will be
 subject to a default enforcement mode that is equivalent to "Lax".
