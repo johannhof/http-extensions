@@ -146,10 +146,10 @@ information to determine whether to return the name/value pairs in the Cookie
 header field.
 
 Although simple on their surface, cookies have a number of complexities. For
-example, the server indicates a scope for each cookie when sending it to the
-user agent. The scope indicates the maximum amount of time in which the user
+example, the server can scope the maximum amount of time during which the user
 agent should return the cookie, the servers to which the user agent should
-return the cookie, and the URI schemes for which the cookie is applicable.
+return the cookie, and whether the cookie can be accessed through a non-HTTP
+API, such as JavaScript in a web browser.
 
 For historical reasons, cookies contain a number of security and privacy
 infelicities. For example, a server can indicate that a given cookie is
@@ -158,15 +158,6 @@ integrity in the presence of an active network attacker. Similarly, cookies
 for a given host are shared across all the ports on that host, even though the
 usual "same-origin policy" used by web browsers isolates content retrieved via
 different ports.
-
-There are two audiences for this specification: developers of cookie-generating
-servers and developers of cookie-consuming user agents.
-
-To maximize interoperability with user agents, servers SHOULD limit themselves
-to the well-behaved profile defined in {{sane-profile}} when generating cookies.
-
-User agents MUST implement the more liberal processing rules defined in {{ua-requirements}}, in order to maximize interoperability with existing servers that do not
-conform to the well-behaved profile defined in {{sane-profile}}.
 
 This document specifies the syntax and semantics of these header fields as they are
 actually used on the Internet. In particular, this document does not create
@@ -179,91 +170,6 @@ in significant ways, the document contains a note explaining the difference.
 
 This document obsoletes {{RFC6265}}.
 
-# Conventions
-
-## Terminology
-
-This specification depends on Infra. TODO: INFRA
-
-Some terms used in this specification are defined in the following standards and specifications:
-
-* HTTP {{HTTPSEM}}
-* URL TODO: URL
-
-The terms "user agent", "client", "server", "proxy", and "origin server" have
-the same meaning as in the HTTP/1.1 specification ({{HTTPSEM}}, Section 3).
-
-The request-host is the name of the host, as known by the user agent, to which
-the user agent is sending an HTTP request or from which it is receiving an HTTP
-response (i.e., the name of the host to which it sent the corresponding HTTP
-request).
-
-The term request-uri refers to "target URI" as defined in Section 7.1 of
-{{HTTPSEM}}.
-
-Two sequences of octets are said to case-insensitively match each other if and
-only if they are equivalent under the i;ascii-casemap collation defined in
-{{RFC4790}}.
-
-The term string means a sequence of non-NUL octets.
-
-The terms "active browsing context", "active document", "ancestor navigables",
-"container document", "content navigable", "dedicated worker", "Document",
-"inclusive ancestor navigables", "navigable", "opaque origin", "sandboxed
-origin browsing context flag", "shared worker", "the worker's Documents",
-"top-level traversable", and "WorkerGlobalScope" are defined in {{HTML}}.
-
-The term "request", as well as a request's "client", "current url", "method",
-"target browsing context", and "url list", are defined in {{FETCH}}.
-
-The term "non-HTTP APIs" refers to non-HTTP mechanisms used to set and retrieve
-cookies, such as a web browser API that exposes cookies to scripts.
-
-The term "top-level navigation" refers to a navigation of a top-level
-traversable.
-
-## Syntax Notation
-
-This specification uses the Augmented Backus-Naur Form (ABNF) notation of
-{{RFC5234}}.
-
-The following core rules are included by reference, as defined in {{RFC5234}},
-Appendix B.1: ALPHA (letters), CR (carriage return), CRLF (CR LF), CTLs
-(controls), DIGIT (decimal 0-9), DQUOTE (double quote), HEXDIG
-(hexadecimal 0-9/A-F/a-f), LF (line feed), NUL (null octet), OCTET (any
-8-bit sequence of data except NUL), SP (space), HTAB (horizontal tab),
-CHAR (any {{USASCII}} character), VCHAR (any visible {{USASCII}} character),
-and WSP (whitespace).
-
-The OWS (optional whitespace) and BWS (bad whitespace) rules are defined in
-Section 5.6.3 of {{!HTTPSEM=I-D.ietf-httpbis-semantics}}.
-
-
-# Overview
-
-This section outlines a way for an origin server to send state information to a
-user agent and for the user agent to return the state information to the origin
-server.
-
-To store state, the origin server includes a Set-Cookie header field in an HTTP
-response. In subsequent requests, the user agent returns a Cookie request
-header field to the origin server. The Cookie header field contains cookies the user agent
-received in previous Set-Cookie header fields. The origin server is free to ignore
-the Cookie header field or use its contents for an application-defined purpose.
-
-Origin servers MAY send a Set-Cookie response header field with any response. An
-origin server can include multiple Set-Cookie header fields in a single response.
-The presence of a Cookie or a Set-Cookie header field does not preclude HTTP
-caches from storing and reusing a response.
-
-Origin servers SHOULD NOT fold multiple Set-Cookie header fields into a single
-header field. The usual mechanism for folding HTTP headers fields (i.e., as
-defined in Section 5.3 of {{HTTPSEM}}) might change the semantics of the Set-Cookie header
-field because the %x2C (",") character is used by Set-Cookie in a way that
-conflicts with such folding.
-
-User agents MAY ignore Set-Cookie header fields based on response status codes or
-the user agent's cookie policy (see {{set-cookie}}).
 
 ## Examples
 
@@ -347,7 +253,103 @@ Set-Cookie: lang=; Expires=Sun, 06 Nov 1994 08:49:37 GMT
 Cookie: SID=31d4d96e407aad42
 ~~~
 
-## Which Requirements to Implement
+
+# Conventions
+
+## Terminology
+
+This specification depends on Infra. TODO: INFRA
+
+Some terms used in this specification are defined in the following standards and specifications:
+
+* HTTP {{HTTPSEM}}
+* URL TODO: URL
+
+The terms "user agent", "client", "server", "proxy", and "origin server" have
+the same meaning as in the HTTP/1.1 specification ({{HTTPSEM}}, Section 3).
+
+The request-host is the name of the host, as known by the user agent, to which
+the user agent is sending an HTTP request or from which it is receiving an HTTP
+response (i.e., the name of the host to which it sent the corresponding HTTP
+request).
+
+The term request-uri refers to "target URI" as defined in Section 7.1 of
+{{HTTPSEM}}.
+
+Two sequences of octets are said to case-insensitively match each other if and
+only if they are equivalent under the i;ascii-casemap collation defined in
+{{RFC4790}}.
+
+The term string means a sequence of non-NUL octets.
+
+The terms "active browsing context", "active document", "ancestor navigables",
+"container document", "content navigable", "dedicated worker", "Document",
+"inclusive ancestor navigables", "navigable", "opaque origin", "sandboxed
+origin browsing context flag", "shared worker", "the worker's Documents",
+"top-level traversable", and "WorkerGlobalScope" are defined in {{HTML}}.
+
+The term "request", as well as a request's "client", "current url", "method",
+"target browsing context", and "url list", are defined in {{FETCH}}.
+
+The term "non-HTTP APIs" refers to non-HTTP mechanisms used to set and retrieve
+cookies, such as a web browser API that exposes cookies to scripts.
+
+The term "top-level navigation" refers to a navigation of a top-level
+traversable.
+
+## Syntax Notation
+
+This specification uses the Augmented Backus-Naur Form (ABNF) notation of
+{{RFC5234}}.
+
+The following core rules are included by reference, as defined in {{RFC5234}},
+Appendix B.1: ALPHA (letters), CR (carriage return), CRLF (CR LF), CTLs
+(controls), DIGIT (decimal 0-9), DQUOTE (double quote), HEXDIG
+(hexadecimal 0-9/A-F/a-f), LF (line feed), NUL (null octet), OCTET (any
+8-bit sequence of data except NUL), SP (space), HTAB (horizontal tab),
+CHAR (any {{USASCII}} character), VCHAR (any visible {{USASCII}} character),
+and WSP (whitespace).
+
+The OWS (optional whitespace) and BWS (bad whitespace) rules are defined in
+Section 5.6.3 of {{!HTTPSEM=I-D.ietf-httpbis-semantics}}.
+
+
+# Cookie representation {#cookie-representation}
+
+A **cookie** is a struct that represents a piece of state to be transmitted between a client and a
+server. To disambiguate from the Cookie response header field it can also be referred to as a
+**cookie record**.
+
+A cookie's **name** is a byte sequence. It always needs to be set.
+
+A cookie's **value** is a byte sequence. It always needs to be set.
+
+A cookie's **secure** is a boolean. It is initially false.
+
+A cookie's **host** is a domain, IP address, null, or failure. It is initially null. Note: Once a
+cookie is in the user agent's cookie store its host is a domain or IP address.
+
+A cookie's **host-only** is a boolean. It is initially false.
+
+A cookie's **path** is a URL path.
+
+A cookie's **same-site** is "strict", "lax", "unset", or "none". It is initially "unset".
+
+A cookie's **http-only** is a boolean. It is initially false.
+
+<!--
+A cookie's **partition** is null or a partition-key. It is initially null.
+-->
+
+A cookie's **creation-time** is a time. It is initially the current time.
+
+A cookie's **expiry-time** is null or a time. It is initially null. Note: A prior version of this
+specification referred to null with a distinct "persistent-flag" field being false.
+
+A cookie's **last-access-time** is null or a time. It is initially null.
+
+
+# Which Requirements to Implement
 
 The upcoming two sections, {{sane-profile}} and {{ua-requirements}}, discuss
 the set of requirements for two distinct types of implementations. This section
@@ -420,41 +422,6 @@ default to {{sane-profile}}'s requirements.
 Doing so will reduce the chances that a developer's application can
 inadvertently create cookies that cannot be read by other servers.
 
-# Cookie representation {#cookie-representation}
-
-A **cookie** is a struct that represents a piece of state to be transmitted between a client and a
-server. To disambiguate from the Cookie response header field it can also be referred to as a
-**cookie record**.
-
-A cookie's **name** is a byte sequence. It always needs to be set.
-
-A cookie's **value** is a byte sequence. It always needs to be set.
-
-A cookie's **secure** is a boolean. It is initially false.
-
-A cookie's **host** is a domain, IP address, null, or failure. It is initially null. Note: Once a
-cookie is in the user agent's cookie store its host is a domain or IP address.
-
-A cookie's **host-only** is a boolean. It is initially false.
-
-A cookie's **path** is a URL path.
-
-A cookie's **same-site** is "strict", "lax", "unset", or "none". It is initially "unset".
-
-A cookie's **http-only** is a boolean. It is initially false.
-
-<!--
-A cookie's **partition** is null or a partition-key. It is initially null.
--->
-
-A cookie's **creation-time** is a time. It is initially the current time.
-
-A cookie's **expiry-time** is null or a time. It is initially null. Note: A prior version of this
-specification referred to null with a distinct "persistent-flag" field being false.
-
-A cookie's **last-access-time** is null or a time. It is initially null.
-
-
 # Server Requirements {#sane-profile}
 
 This section describes the syntax and semantics of a well-behaved profile of the
@@ -464,6 +431,18 @@ Cookie and Set-Cookie header fields.
 
 The Set-Cookie HTTP response header field is used to send cookies from the server to
 the user agent.
+
+Origin servers MAY send a Set-Cookie response header field with any response. An
+origin server can include multiple Set-Cookie header fields in a single response.
+The presence of a Cookie or a Set-Cookie header field does not preclude HTTP
+caches from storing and reusing a response.
+
+Origin servers SHOULD NOT fold multiple Set-Cookie header fields into a single
+header field. The usual mechanism for folding HTTP headers fields (i.e., as
+defined in Section 5.3 of {{HTTPSEM}}) might change the semantics of the Set-Cookie header
+field because the %x2C (",") character is used by Set-Cookie in a way that
+conflicts with such folding.
+
 
 ### Syntax {#abnf-syntax}
 
