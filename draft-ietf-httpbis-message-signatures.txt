@@ -5,10 +5,10 @@
 HTTP                                                     A. Backman, Ed.
 Internet-Draft                                                    Amazon
 Intended status: Standards Track                          J. Richer, Ed.
-Expires: 20 October 2024                             Bespoke Engineering
+Expires: 21 October 2024                             Bespoke Engineering
                                                                M. Sporny
                                                           Digital Bazaar
-                                                           18 April 2024
+                                                           19 April 2024
 
 
                         HTTP Message Signatures
@@ -56,7 +56,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 20 October 2024.
+   This Internet-Draft will expire on 21 October 2024.
 
 Copyright Notice
 

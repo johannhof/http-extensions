@@ -6,7 +6,7 @@ HTTP                                                     J. Hofmann, Ed.
 Internet-Draft                                                    Google
 Obsoletes: 6265 (if approved)                       A. van Kesteren, Ed.
 Intended status: Standards Track                                   Apple
-Expires: 20 October 2024                                   18 April 2024
+Expires: 21 October 2024                                   19 April 2024
 
 
                 Cookies: HTTP State Management Mechanism
@@ -52,7 +52,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 20 October 2024.
+   This Internet-Draft will expire on 21 October 2024.
 
 Copyright Notice
 
@@ -793,39 +793,45 @@ Table of Contents
 
 6.1.2.  Cookie store eviction
 
-   XXX: How does this relate to the "Limits" section?
+   To *Remove Expired Cookies*:
 
-   At any time, the user agent MAY "remove excess cookies" from the
-   cookie store if the number of cookies sharing a domain field exceeds
-   some implementation-defined upper bound (such as 50 cookies).
+   XXX: How do correctly specify the time here?
 
-   At any time, the user agent MAY "remove excess cookies" from the
-   cookie store if the cookie store exceeds some predetermined upper
-   bound (such as 3000 cookies).
+   1.  Remove all cookies from the cookie store whose expiry-time is
+       earlier than the current time.
 
-   XXX: Finish these steps
+   To *Remove Excess Cookies for a Host* from the cookie store given
+   host _host_:
 
-   To *Remove Expired Cookies* from the cookie store, the user agent
-   MUST evict cookies in the following priority order:
+   1.  Let _insecureCookies_ be the subset of all cookies in the cookie
+       store whose host is _host_ and whose secure is false.
 
-   1.  Expired cookies.
+   2.  Sort _insecureCookies_ by earliest last-access-time first.
 
-   To *Remove Excess Cookies for a Domain* from the cookie store, the
-   user agent MUST evict cookies in the following priority order:
+   3.  Let _secureCookies_ be the subset of all cookies in the cookie
+       store whose host is _host_ and whose secure is true.
 
-   1.  Cookies whose secure is false, and which share a domain field
-       with more than a predetermined number of other cookies.
+   4.  Sort _secureCookies_ by earliest last-access-time first.
 
-   To *Remove Global Excess Cookies* from the cookie store, the user
-   agent MUST evict cookies in the following priority order:
+   5.  While the size of _insecureCookies_ + the size of _secureCookies_
+       exceeds an implementation-defined number (such as 50):
 
-   1.  Cookies that share a domain field with more than a predetermined
-       number of other cookies.
+   6.  If the size of _insecureCookies_ is not 0, remove the first item
+       of _insecureCookies_ and delete the cookie from the cookie store.
 
-   2.  All cookies.
+   7.  Otherwise, remove the first item of _secureCookies_ and delete
+       the cookie from the cookie store.
 
-   If two cookies have the same removal priority, the user agent MUST
-   evict the cookie with the earliest last-access-time first.
+   To *Remove Global Excess Cookies* from the cookie store:
+
+   1.  Let _allCookies_ be the result of sorting the cookie store by
+       earliest last-access-time first.
+
+   2.  While the size of _allCookies_ exceeds an implementation-defined
+       number (such as 3000):
+
+   3.  Remove the first item of _allCookies_ and delete the cookie from
+       the cookie store.
 
 6.2.  Subcomponent Algorithms
 
@@ -1317,7 +1323,12 @@ Table of Contents
 
    6.  Insert _cookie_ into the user agent's cookie store.
 
-   7.  Remove Excess Cookies from the user agent's cookie store.
+   7.  Remove Expired Cookies from the user agent's cookie store.
+
+   8.  Remove Excess Cookies for Host _cookie_'s host from the user
+       agent's cookie store.
+
+   9.  Remove Global Excess Cookies from the user agent's cookie store.
 
 6.3.4.  Retrieve Cookies
 
