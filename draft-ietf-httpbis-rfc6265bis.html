@@ -2076,46 +2076,56 @@ agent MUST remove from the cookie store all cookies whose expiry-time is null.<a
 <a href="#section-6.1.2" class="section-number selfRef">6.1.2. </a><a href="#name-cookie-store-eviction" class="section-name selfRef">Cookie store eviction</a>
           </h4>
 <p id="section-6.1.2-1">To <strong>Remove Expired Cookies</strong>:<a href="#section-6.1.2-1" class="pilcrow">¶</a></p>
-<p id="section-6.1.2-2">XXX: How do correctly specify the time here?<a href="#section-6.1.2-2" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-6.1.2-3">
-<li id="section-6.1.2-3.1">
-              <p id="section-6.1.2-3.1.1">Remove all cookies from the cookie store whose expiry-time is earlier than the current time.<a href="#section-6.1.2-3.1.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-6.1.2-2">
+<li id="section-6.1.2-2.1">
+              <p id="section-6.1.2-2.1.1">Remove all expired cookies from the cookie store.<a href="#section-6.1.2-2.1.1" class="pilcrow">¶</a></p>
 </li>
           </ol>
-<p id="section-6.1.2-4">To <strong>Remove Excess Cookies for a Host</strong> from the cookie store given host <em>host</em>:<a href="#section-6.1.2-4" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-6.1.2-5">
-<li id="section-6.1.2-5.1">
-              <p id="section-6.1.2-5.1.1">Let <em>insecureCookies</em> be the subset of all cookies in the cookie store whose host is <em>host</em> and whose secure is false.<a href="#section-6.1.2-5.1.1" class="pilcrow">¶</a></p>
+<p id="section-6.1.2-3">To <strong>Remove Excess Cookies for a Host</strong> given a host <em>host</em>:<a href="#section-6.1.2-3" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-6.1.2-4">
+<li id="section-6.1.2-4.1">
+              <p id="section-6.1.2-4.1.1">Let <em>insecureCookies</em> be all cookies in the user agent's cookie store whose host host-equals <em>host</em> and whose secure is false.<a href="#section-6.1.2-4.1.1" class="pilcrow">¶</a></p>
 </li>
-            <li id="section-6.1.2-5.2">
-              <p id="section-6.1.2-5.2.1">Sort <em>insecureCookies</em> by earliest last-access-time first.<a href="#section-6.1.2-5.2.1" class="pilcrow">¶</a></p>
+            <li id="section-6.1.2-4.2">
+              <p id="section-6.1.2-4.2.1">Sort <em>insecureCookies</em> by earliest last-access-time first.<a href="#section-6.1.2-4.2.1" class="pilcrow">¶</a></p>
 </li>
-            <li id="section-6.1.2-5.3">
-              <p id="section-6.1.2-5.3.1">Let <em>secureCookies</em> be the subset of all cookies in the cookie store whose host is <em>host</em> and whose secure is true.<a href="#section-6.1.2-5.3.1" class="pilcrow">¶</a></p>
+            <li id="section-6.1.2-4.3">
+              <p id="section-6.1.2-4.3.1">Let <em>secureCookies</em> be all cookies in the user agent's cookie store whose host host-equals <em>host</em> and whose secure is true.<a href="#section-6.1.2-4.3.1" class="pilcrow">¶</a></p>
 </li>
-            <li id="section-6.1.2-5.4">
-              <p id="section-6.1.2-5.4.1">Sort <em>secureCookies</em> by earliest last-access-time first.<a href="#section-6.1.2-5.4.1" class="pilcrow">¶</a></p>
-</li>
-            <li id="section-6.1.2-5.5">
-              <p id="section-6.1.2-5.5.1">While the size of <em>insecureCookies</em> + the size of <em>secureCookies</em> exceeds an implementation-defined number (such as 50):<a href="#section-6.1.2-5.5.1" class="pilcrow">¶</a></p>
-</li>
-            <li id="section-6.1.2-5.6">
-              <p id="section-6.1.2-5.6.1">If the size of <em>insecureCookies</em> is not 0, remove the first item of <em>insecureCookies</em> and delete the cookie from the cookie store.<a href="#section-6.1.2-5.6.1" class="pilcrow">¶</a></p>
-</li>
-            <li id="section-6.1.2-5.7">
-              <p id="section-6.1.2-5.7.1">Otherwise, remove the first item of <em>secureCookies</em> and delete the cookie from the cookie store.<a href="#section-6.1.2-5.7.1" class="pilcrow">¶</a></p>
+            <li id="section-6.1.2-4.4">
+              <p id="section-6.1.2-4.4.1">Sort <em>secureCookies</em> by earliest last-access-time first.<a href="#section-6.1.2-4.4.1" class="pilcrow">¶</a></p>
 </li>
           </ol>
-<p id="section-6.1.2-6">To <strong>Remove Global Excess Cookies</strong> from the cookie store:<a href="#section-6.1.2-6" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-6.1.2-7">
-<li id="section-6.1.2-7.1">
-              <p id="section-6.1.2-7.1.1">Let <em>allCookies</em> be the result of sorting the cookie store by earliest last-access-time first.<a href="#section-6.1.2-7.1.1" class="pilcrow">¶</a></p>
+<p id="section-6.1.2-5">XXX: Make 50 a constant.<a href="#section-6.1.2-5" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-6.1.2-6">
+<li id="section-6.1.2-6.1">
+              <p id="section-6.1.2-6.1.1">While the size of <em>insecureCookies</em> + the size of <em>secureCookies</em> exceeds an implementation-defined number (such as 50):<a href="#section-6.1.2-6.1.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-6.1.2-6.1.2">
+<li id="section-6.1.2-6.1.2.1">
+                  <p id="section-6.1.2-6.1.2.1.1">If the size of <em>insecureCookies</em> is not 0, remove the first item of <em>insecureCookies</em> and
+ delete the corresponding cookie from the cookie store.<a href="#section-6.1.2-6.1.2.1.1" class="pilcrow">¶</a></p>
 </li>
-            <li id="section-6.1.2-7.2">
-              <p id="section-6.1.2-7.2.1">While the size of <em>allCookies</em> exceeds an implementation-defined number (such as 3000):<a href="#section-6.1.2-7.2.1" class="pilcrow">¶</a></p>
+                <li id="section-6.1.2-6.1.2.2">
+                  <p id="section-6.1.2-6.1.2.2.1">Otherwise, remove the first item of <em>secureCookies</em> and delete the corresponding cookie from the cookie store.<a href="#section-6.1.2-6.1.2.2.1" class="pilcrow">¶</a></p>
 </li>
-            <li id="section-6.1.2-7.3">
-              <p id="section-6.1.2-7.3.1">Remove the first item of <em>allCookies</em> and delete the cookie from the cookie store.<a href="#section-6.1.2-7.3.1" class="pilcrow">¶</a></p>
+              </ol>
+</li>
+          </ol>
+<p id="section-6.1.2-7">To <strong>Remove Global Excess Cookies</strong>:<a href="#section-6.1.2-7" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-6.1.2-8">
+<li id="section-6.1.2-8.1">
+              <p id="section-6.1.2-8.1.1">Let <em>allCookies</em> be the result of sorting the cookie store by earliest last-access-time first.<a href="#section-6.1.2-8.1.1" class="pilcrow">¶</a></p>
+</li>
+          </ol>
+<p id="section-6.1.2-9">XXX: Make 3000 a constant.<a href="#section-6.1.2-9" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-6.1.2-10">
+<li id="section-6.1.2-10.1">
+              <p id="section-6.1.2-10.1.1">While the size of <em>allCookies</em> exceeds an implementation-defined number (such as 3000):<a href="#section-6.1.2-10.1.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-6.1.2-10.1.2">
+<li id="section-6.1.2-10.1.2.1">
+                  <p id="section-6.1.2-10.1.2.1.1">Remove the first item of <em>allCookies</em> and delete the corresponding cookie from the cookie store.<a href="#section-6.1.2-10.1.2.1.1" class="pilcrow">¶</a></p>
+</li>
+              </ol>
 </li>
           </ol>
 </section>
