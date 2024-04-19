@@ -39,26 +39,7 @@ normative:
   RFC1034:
   RFC1123:
   RFC2119:
-  RFC4790:
   RFC5234:
-  RFC5890:
-  RFC6454:
-  RFC8126:
-  USASCII:
-    title: "Coded Character Set -- 7-bit American Standard Code for Information Interchange"
-    seriesinfo:
-      ANSI: X3.4
-    date: 1986
-    author:
-      organization: American National Standards Institute
-  FETCH:
-    target: https://fetch.spec.whatwg.org/
-    title: Fetch
-    author:
-    -
-      ins: A. van Kesteren
-      name: Anne van Kesteren
-      organization: Apple
   HTML:
     target: https://html.spec.whatwg.org/
     title: HTML
@@ -83,7 +64,26 @@ normative:
       ins: D. Denicola
       name: Domenic Denicola
       organization: Google, Inc.
-
+  INFRA:
+    target: https://infra.spec.whatwg.org
+    title: Infra
+    author:
+    -
+      ins: A. van Kesteren
+      name: Anne van Kesteren
+      organization: Apple
+    -
+      ins: D. Denicola
+      name: Domenic Denicola
+      organization: Google, Inc.
+  URL:
+    target: https://url.spec.whatwg.org
+    title: URL
+    author:
+    -
+      ins: A. van Kesteren
+      name: Anne van Kesteren
+      organization: Apple
 
 informative:
   RFC2818:
@@ -110,19 +110,9 @@ informative:
       DOI: 10.1145/1455770.1455782
       ISBN: 978-1-59593-810-7
       ACM: "CCS '08: Proceedings of the 15th ACM conference on Computer and communications security (pages 75-88)"
-  prerendering:
-    target: https://www.chromium.org/developers/design-documents/prerender
-    title: Chrome Prerendering
-    author:
-    -
-      ins: C. Bentzel
-      name: Chris Bentzel
   I-D.ietf-httpbis-cookie-alone:
   I-D.ietf-httpbis-cookie-prefixes:
   I-D.ietf-httpbis-cookie-same-site:
-  PSL:
-    target: https://publicsuffix.org/list/
-    title: "Public Suffix List"
 
 --- abstract
 
@@ -253,17 +243,17 @@ Cookie: SID=31d4d96e407aad42
 
 ## Terminology
 
-This specification depends on Infra. XXX: INFRA
+This specification depends on Infra. {{INFRA}}
 
 Some terms used in this specification are defined in the following standards and specifications:
 
 * HTTP {{HTTPSEM}}
-* URL XXX: URL
+* URL {{URL}}
 
 A **non-HTTP API** is a non-HTTP mechanisms used to set and retrieve
 cookies, such as a web browser API that exposes cookies to JavaScript.
 
-## Syntax Notation
+## ABNF
 
 This specification uses the Augmented Backus-Naur Form (ABNF) notation of
 {{RFC5234}}.
@@ -273,7 +263,7 @@ Appendix B.1: ALPHA (letters), CR (carriage return), CRLF (CR LF), CTLs
 (controls), DIGIT (decimal 0-9), DQUOTE (double quote), HEXDIG
 (hexadecimal 0-9/A-F/a-f), LF (line feed), NUL (null octet), OCTET (any
 8-bit sequence of data except NUL), SP (space), HTAB (horizontal tab),
-CHAR (any {{USASCII}} character), VCHAR (any visible {{USASCII}} character),
+CHAR (any ASCII byte), VCHAR (any visible ASCII byte),
 and WSP (whitespace).
 
 The OWS (optional whitespace) and BWS (bad whitespace) rules are defined in
@@ -1190,30 +1180,6 @@ boolean _httpOnlyAllowed_, boolean _allowNonHostOnlyCookieForPublicSuffix_, and 
 
 1. If _cookie_'s same-site is not "`none`" and _sameSiteStrictOrLaxAllowed_ is false,
    then return.
-<!--
-XXX: Move these to browser specs to set _sameSiteStrictOrLaxAllowed_ appropriately
-
-    1.  If the cookie was received from a "non-HTTP" API, and the API was called
-        from a navigable's active document whose "site for cookies" is
-        not same-site with the top-level origin, then abort these steps and
-        ignore the newly created cookie entirely.
-
-    2.  If the cookie was received from a "same-site" request (as defined in
-        same-site-requests), skip the remaining substeps and continue
-        processing the cookie.
-
-    3.  If the cookie was received from a request which is navigating a
-        top-level traversable {{HTML}} (e.g. if the request's "reserved
-        client" is either `null` or an environment whose "target browsing
-        context"'s navigable is a top-level traversable), skip the remaining
-        substeps and continue processing the cookie.
-
-        Note: Top-level navigations can create a cookie with any `SameSite`
-        value, even if the new cookie wouldn't have been sent along with
-        the request had it already existed prior to the navigation.
-
-    4.  Abort these steps and ignore the newly created cookie entirely.
--->
 
 1. If _cookie_'s same-site is "`none`" and _cookie_'s secure-only is false,
    then return.
@@ -1308,19 +1274,6 @@ boolean _httpOnlyAllowed_, and string _sameSite_:
        * cookie's same-site is "`unset`" and _sameSite_ is one of "`strict-or-less`", "`lax-or-less`", or "`unset-or-less`"; or
 
        * cookie's same-site is "`none`".
-<!--
-XXX This needs to be moved into Fetch or HTML. They need to set _sameSite_ correctly.
-
-   If the cookie's same-site-flag is not "None" and the retrieval's same-site
-     status is "cross-site", then exclude the cookie unless all of the
-     following conditions are met:
-
-     * The retrieval's type is "HTTP".
-     * The same-site-flag is "Lax" or "Default".
-     * The HTTP request associated with the retrieval uses a "safe" method.
-     * The target browsing context of the HTTP request associated with the
-       retrieval is the active browsing context or a top-level traversable.
--->
 
 1. Sort _cookies_ in the following order:
 
