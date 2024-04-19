@@ -705,7 +705,7 @@ A user agent has an associated **total cookies limit**, which is an integer. It 
 A user agent has an associated **cookie age limit**, which is a number of days. It SHOULD be 400 days or less (see {{cookie-policy}}).
 
 
-### Cookies
+### Cookie Struct
 
 A **cookie** is a struct that represents a piece of state to be transmitted between a client and a
 server.
@@ -738,7 +738,8 @@ specification referred to null with a distinct "persistent-flag" field being fal
 
 A cookie's **last-access-time** is a time. It is initially the current time.
 
-<hr>
+
+#### Cookie Struct Miscellaneous
 
 A cookie is **expired** if its expiry-time is non-null and its expiry-time is in the past.
 
