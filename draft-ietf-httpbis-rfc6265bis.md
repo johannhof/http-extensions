@@ -694,6 +694,12 @@ agent will be able to interoperate with existing servers.
 
 A user agent has an associated **cookie store**, which is a list of cookies. It is initially « ».
 
+A user agent has an associated **total cookies-per-host limit**, which is an integer. It SHOULD be 50 or more.
+
+A user agent has an associated **total cookies limit**, which is an integer. It SHOULD be 3000 or more.
+
+A user agent has an associated **cookie age limit**, which is a number of days. It SHOULD be 400 days or less (see {{cookie-policy}}).
+
 
 ## Cookies
 
@@ -754,9 +760,7 @@ To **Remove Excess Cookies for a Host** given a host _host_:
 
 1. Sort _secureCookies_ by earliest last-access-time first.
 
-XXX: Make 50 a constant.
-
-1. While _insecureCookies_'s size + _secureCookies_'s size is greater than an implementation-defined number (such as 50):
+1. While _insecureCookies_'s size + _secureCookies_'s size is greater than the user agent's total cookies-per-host limit:
 
     1. If _insecureCookies_ is not empty, remove the first item of _insecureCookies_ and
     delete the corresponding cookie from the user agent's cookie store.
@@ -769,9 +773,7 @@ To **Remove Global Excess Cookies**:
 
 1. Let _allCookies_ be the result of sorting the user agent's cookie store by earliest last-access-time first.
 
-XXX: Make 3000 a constant.
-
-1. While _allCookies_'s size is greater than an implementation-defined number (such as 3000):
+1. While _allCookies_'s size is greater than the user agent's total cookies limit:
 
     1. Remove the first item of _allCookies_ and delete the corresponding cookie from the user agent's cookie store.
 
@@ -994,9 +996,6 @@ URL path _path_, run these steps. They return a new cookie or failure:
 
    Note: A `Path` attribute can override this.
 
-1. Let _cookieAgeLimit_ be the maximum age of the cookie (which SHOULD
-   be 400 days in the future or sooner (see {{cookie-policy}})).
-
 1. While _attributesInput_ is not an empty byte sequence:
 
     1. Let _maxAgeSeen_ be false.
@@ -1035,8 +1034,8 @@ URL path _path_, run these steps. They return a new cookie or failure:
 
         1. If _attributeValue_ is failure, then continue.
 
-        1. If _expiryTime_ is greater than the current time and date + _cookieAgeLimit_, then set
-           _expiryTime_ to _cookieAgeLimit_.
+        1. If _expiryTime_ is greater than the current time and date + the user agent's cookie age limit,
+           then set _expiryTime_ to the user agent's cookie age limit.
 
         1. If _expiryTime_ is earlier than the earliest date the user agent can
            represent, the user agent MAY replace _expiryTime_ with the earliest
@@ -1055,7 +1054,7 @@ URL path _path_, run these steps. They return a new cookie or failure:
 
         1. Let _deltaSeconds_ be _attributeValue_, converted to a base 10 integer.
 
-        1. Set _deltaSeconds_ to the smaller of _deltaSeconds_ and _cookieAgeLimit_, in seconds.
+        1. Set _deltaSeconds_ to the smaller of _deltaSeconds_ and the user agent's cookie age limit, in seconds.
 
         1. If _deltaSeconds_ is less than or equal to 0, let _expiryTime_ be
            the earliest representable date and time. Otherwise, let _expiryTime_
@@ -1431,22 +1430,6 @@ This provides the flexibility browsers need to detail their requirements in cons
 
 ## Limits
 
-Practical user agent implementations have limits on the number and size of
-cookies that they can store. General-use user agents SHOULD provide each of the
-following minimum capabilities:
-
-*   At least 50 cookies per domain.
-
-*   At least 3000 cookies total.
-
-User agents MAY limit the maximum number of cookies they store, and may evict
-any cookie at any time (whether at the request of the user or due to
-implementation limitations).
-
-Note that a limit on the maximum number of cookies also limits the total size of
-the stored cookies, due to the length limits which MUST be enforced in
-{{set-cookie}}.
-
 Servers SHOULD use as few and as small cookies as possible to avoid reaching
 these implementation limits and to minimize network bandwidth due to the
 `Cookie` header field being included in every request.
@@ -1535,11 +1518,6 @@ A cookie policy may govern which domains or parties, as in first and third parti
 The policy can also define limits on cookie size, cookie expiry (see
 {{attribute-expires}} and {{attribute-max-age}}), and the number of cookies per
 domain or in total.
-
-The recomended cookie expiry upper limit is 400 days. User agents may set
-a lower limit to enforce shorter data retention timelines, or set the limit higher
-to support longer retention when appropriate (e.g., server-to-server
-communication over HTTPS).
 
 The goal of a restrictive cookie policy is often to improve security or privacy.
 User agents often allow users to change the cookie policy (see {{user-controls}}).
