@@ -680,8 +680,8 @@ these cookies appear in the header field.
 
 # User Agent Requirements {#ua-requirements}
 
-This section specifies the `Cookie` and `Set-Cookie` header fields in sufficient
-detail that a user agent can interoperate with existing servers (even those
+This section specifies the processing models associated with the `Cookie` and `Set-Cookie` header fields
+in sufficient detail that a user agent can interoperate with existing servers (even those
 that do not conform to the well-behaved profile described in {{server-requirements}}).
 
 A user agent could enforce more restrictions than those specified herein (e.g.,
@@ -690,7 +690,11 @@ However, such additional restrictions may reduce the likelihood that a user
 agent will be able to interoperate with existing servers.
 
 
-## Cookie Store
+## Cookie Concepts
+
+To facilitate the algorithms that follow, a number of pre-requisite concepts need to be introduced.
+
+### Cookie Store And Limits
 
 A user agent has an associated **cookie store**, which is a list of cookies. It is initially « ».
 
@@ -701,7 +705,7 @@ A user agent has an associated **total cookies limit**, which is an integer. It 
 A user agent has an associated **cookie age limit**, which is a number of days. It SHOULD be 400 days or less (see {{cookie-policy}}).
 
 
-## Cookies
+### Cookies
 
 A **cookie** is a struct that represents a piece of state to be transmitted between a client and a
 server.
@@ -734,10 +738,12 @@ specification referred to null with a distinct "persistent-flag" field being fal
 
 A cookie's **last-access-time** is a time. It is initially the current time.
 
-
-## Cookie Expiry {#cookie-expiry}
+<hr>
 
 A cookie is **expired** if its expiry-time is non-null and its expiry-time is in the past.
+
+
+## Cookie Store Eviction {#cookie-store-eviction}
 
 The user agent SHOULD evict all expired cookies from its cookie store if, at any
 time, an expired cookie exists in the cookie store.
@@ -745,8 +751,6 @@ time, an expired cookie exists in the cookie store.
 When "the current session is over" (as defined by the user agent), the user
 agent MUST remove from the cookie store all cookies whose expiry-time is null.
 
-
-## Cookie Store Eviction {#cookie-store-eviction}
 
 ### Remove Excess Cookies for a Host
 
