@@ -911,28 +911,6 @@ They return a boolean.
 
 5.  Return whether the concatenation of _serializedRequestPath_ followed by U+002F (/) starts with _serializedCookiePath_.
 
-<!-- It could be interesting to move Path Matching to the URL Standard. Service workers also needs
-     something like it if memory serves. Ideally it would even operate on URL path segments
-     directly. -->
-
-
-<!--
-XXX '5.2. "Same-site" and "cross-site" Requests'
-
-https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis#name-same-site-and-cross-site-re
-
-This section has been removed as it needs to move to Fetch/HTML/Service Workers.
--->
-
-<!--
-XXX 5.4. Cookie Name Prefixes
-
-https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis#section-5.4
-
-This section has been reduced to a note in the Store a Cookie section as it contained
-duplicate requirements and was not deemed to add a lot of value anymore.
--->
-
 
 ## Main Algorithms
 
@@ -1103,17 +1081,6 @@ Note: Attributes with an unrecognized _attributeName_ are ignored.
 Note: This intentionally overrides earlier cookie attributes so that generally the last specified
 cookie attribute "wins".
 
-<!--
-XXX 5.5.7.1. "Strict" and "Lax" enforcement
-
-https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis#section-5.5.7.1
-
-XXX 5.5.7.2. "Lax-Allowing-Unsafe" enforcement
-
-https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis#section-5.5.7.2
-
-Both of these sections need to integrated directly into HTML/Fetch/Service Workers.
--->
 
 ### Store a Cookie {#store-a-cookie}
 
