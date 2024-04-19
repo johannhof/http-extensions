@@ -87,7 +87,6 @@ normative:
 
 informative:
   RFC2818:
-  RFC3986:
   RFC6265:
   RFC4648:
   RFC3864:
@@ -110,9 +109,6 @@ informative:
       DOI: 10.1145/1455770.1455782
       ISBN: 978-1-59593-810-7
       ACM: "CCS '08: Proceedings of the 15th ACM conference on Computer and communications security (pages 75-88)"
-  I-D.ietf-httpbis-cookie-alone:
-  I-D.ietf-httpbis-cookie-prefixes:
-  I-D.ietf-httpbis-cookie-same-site:
 
 --- abstract
 
