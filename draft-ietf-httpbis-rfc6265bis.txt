@@ -100,27 +100,27 @@ Table of Contents
        4.2.1.  Syntax
        4.2.2.  Semantics
    5.  User Agent Requirements
-     5.1.  Cookie Store
-     5.2.  Cookies
-     5.3.  Cookie Expiry
-     5.4.  Cookie Store Eviction
-       5.4.1.  Remove Excess Cookies for a Host
-       5.4.2.  Remove Global Excess Cookies
-     5.5.  Subcomponent Algorithms
-       5.5.1.  Parse a Date
-       5.5.2.  Domain Matching
-       5.5.3.  Cookie Default Path
-       5.5.4.  Path Matching
-     5.6.  Main Algorithms
-       5.6.1.  Parse and Store a Cookie
-       5.6.2.  Parse a Cookie
-       5.6.3.  Store a Cookie
-       5.6.4.  Retrieve Cookies
-       5.6.5.  Serialize Cookies
-     5.7.  Requirements Specific to Non-Browser User Agents
-       5.7.1.  The Set-Cookie Header Field
-       5.7.2.  The Cookie Header Field
-     5.8.  Requirements Specific to Browser User Agents
+     5.1.  Cookie Concepts
+       5.1.1.  Cookie Store And Limits
+       5.1.2.  Cookie Struct
+     5.2.  Cookie Store Eviction
+       5.2.1.  Remove Excess Cookies for a Host
+       5.2.2.  Remove Global Excess Cookies
+     5.3.  Subcomponent Algorithms
+       5.3.1.  Parse a Date
+       5.3.2.  Domain Matching
+       5.3.3.  Cookie Default Path
+       5.3.4.  Path Matching
+     5.4.  Main Algorithms
+       5.4.1.  Parse and Store a Cookie
+       5.4.2.  Parse a Cookie
+       5.4.3.  Store a Cookie
+       5.4.4.  Retrieve Cookies
+       5.4.5.  Serialize Cookies
+     5.5.  Requirements Specific to Non-Browser User Agents
+       5.5.1.  The Set-Cookie Header Field
+       5.5.2.  The Cookie Header Field
+     5.6.  Requirements Specific to Browser User Agents
    6.  Implementation Considerations
      6.1.  Limits
      6.2.  Application Programming Interfaces
@@ -458,7 +458,7 @@ Table of Contents
    etc.
 
    Servers SHOULD NOT include more than one Set-Cookie header field in
-   the same response with the same cookie-name.  (See Section 5.7.1 for
+   the same response with the same cookie-name.  (See Section 5.5.1 for
    how user agents handle this case.)
 
    If a server sends multiple responses containing Set-Cookie header
@@ -554,7 +554,7 @@ Table of Contents
    The scope of each cookie is limited to a set of paths, controlled by
    the Path attribute.  If the server omits the Path attribute, the user
    agent will use the "directory" of the request-uri's path component as
-   the default value.  (See Section 5.5.3 for more details.)
+   the default value.  (See Section 5.3.3 for more details.)
 
    The user agent will include the cookie in an HTTP request only if the
    path portion of the request-uri matches (or is a subdirectory of) the
@@ -690,10 +690,10 @@ Table of Contents
 
 5.  User Agent Requirements
 
-   This section specifies the Cookie and Set-Cookie header fields in
-   sufficient detail that a user agent can interoperate with existing
-   servers (even those that do not conform to the well-behaved profile
-   described in Section 4).
+   This section specifies the processing models associated with the
+   Cookie and Set-Cookie header fields in sufficient detail that a user
+   agent can interoperate with existing servers (even those that do not
+   conform to the well-behaved profile described in Section 4).
 
    A user agent could enforce more restrictions than those specified
    herein (e.g., restrictions specified by its cookie policy, described
@@ -701,7 +701,12 @@ Table of Contents
    the likelihood that a user agent will be able to interoperate with
    existing servers.
 
-5.1.  Cookie Store
+5.1.  Cookie Concepts
+
+   To facilitate the algorithms that follow, a number of pre-requisite
+   concepts need to be introduced.
+
+5.1.1.  Cookie Store And Limits
 
    A user agent has an associated *cookie store*, which is a list of
    cookies.  It is initially « ».
@@ -715,7 +720,7 @@ Table of Contents
    A user agent has an associated *cookie age limit*, which is a number
    of days.  It SHOULD be 400 days or less (see Section 7.2).
 
-5.2.  Cookies
+5.1.2.  Cookie Struct
 
    A *cookie* is a struct that represents a piece of state to be
    transmitted between a client and a server.
@@ -749,10 +754,12 @@ Table of Contents
    A cookie's *last-access-time* is a time.  It is initially the current
    time.
 
-5.3.  Cookie Expiry
+5.1.2.1.  Cookie Struct Miscellaneous
 
    A cookie is *expired* if its expiry-time is non-null and its expiry-
    time is in the past.
+
+5.2.  Cookie Store Eviction
 
    The user agent SHOULD evict all expired cookies from its cookie store
    if, at any time, an expired cookie exists in the cookie store.
@@ -761,9 +768,7 @@ Table of Contents
    the user agent MUST remove from the cookie store all cookies whose
    expiry-time is null.
 
-5.4.  Cookie Store Eviction
-
-5.4.1.  Remove Excess Cookies for a Host
+5.2.1.  Remove Excess Cookies for a Host
 
    To *Remove Excess Cookies for a Host* given a host _host_:
 
@@ -790,7 +795,7 @@ Table of Contents
            delete the corresponding cookie from the user agent's cookie
            store.
 
-5.4.2.  Remove Global Excess Cookies
+5.2.2.  Remove Global Excess Cookies
 
    To *Remove Global Excess Cookies*:
 
@@ -803,12 +808,12 @@ Table of Contents
        1.  Remove the first item of _allCookies_ and delete the
            corresponding cookie from the user agent's cookie store.
 
-5.5.  Subcomponent Algorithms
+5.3.  Subcomponent Algorithms
 
    This section defines some algorithms used by user agents to process
    specific subcomponents of the Cookie and Set-Cookie header fields.
 
-5.5.1.  Parse a Date
+5.3.1.  Parse a Date
 
    To *Parse a Date* given a byte sequence _input_, run these steps.
    They return a date and time or failure.
@@ -894,7 +899,7 @@ Table of Contents
 
    7.  Return the parsed-cookie-date as the result of this algorithm.
 
-5.5.2.  Domain Matching
+5.3.2.  Domain Matching
 
    A host _host_ *Domain-Matches* a string _domainAttributeValue_ if at
    least one of the following is true:
@@ -908,7 +913,7 @@ Table of Contents
       -  _host_ ends with the concatenation of U+002E (.) and
          _domainAttributeValue_.
 
-5.5.3.  Cookie Default Path
+5.3.3.  Cookie Default Path
 
    To determine the *Cookie Default Path*, given a URL path _path_, run
    these steps.  They return a URL path.
@@ -922,7 +927,7 @@ Table of Contents
 
    4.  Return _path_.
 
-5.5.4.  Path Matching
+5.3.4.  Path Matching
 
    To determine if a URL path _requestPath_ *Path-Matches* a URL path
    _cookiePath_, run these steps.  They return a boolean.
@@ -942,9 +947,9 @@ Table of Contents
    5.  Return whether the concatenation of _serializedRequestPath_
        followed by U+002F (/) starts with _serializedCookiePath_.
 
-5.6.  Main Algorithms
+5.4.  Main Algorithms
 
-5.6.1.  Parse and Store a Cookie
+5.4.1.  Parse and Store a Cookie
 
    To *Parse and Store a Cookie* given a byte sequence _input_, boolean
    _isSecure_, domain or IP address _host_, URL path _path_, boolean
@@ -960,7 +965,7 @@ Table of Contents
        _httpOnlyAllowed_, _allowNonHostOnlyCookieForPublicSuffix_, and
        _sameSiteStrictOrLaxAllowed_.
 
-5.6.2.  Parse a Cookie
+5.4.2.  Parse a Cookie
 
    To *Parse a Cookie* given a byte sequence _input_, boolean
    _isSecure_, host _host_, URL path _path_, run these steps.  They
@@ -1147,7 +1152,7 @@ Table of Contents
    Note: This intentionally overrides earlier cookie attributes so that
    generally the last specified cookie attribute "wins".
 
-5.6.3.  Store a Cookie
+5.4.3.  Store a Cookie
 
    To *Store a Cookie* given a cookie _cookie_, boolean _isSecure_,
    domain or IP address _host_, boolean _httpOnlyAllowed_, boolean
@@ -1309,7 +1314,7 @@ Table of Contents
 
    20.  Run Remove Global Excess Cookies.
 
-5.6.4.  Retrieve Cookies
+5.4.4.  Retrieve Cookies
 
    To *Retrieve Cookies* given a boolean _isSecure_, host _host_, URL
    path _path_, boolean _httpOnlyAllowed_, and string _sameSite_:
@@ -1397,7 +1402,7 @@ Table of Contents
 
    5.  Return _cookies_.
 
-5.6.5.  Serialize Cookies
+5.4.5.  Serialize Cookies
 
    To *Serialize Cookies* given a list of cookies _cookies_:
 
@@ -1415,9 +1420,9 @@ Table of Contents
 
    3.  Return _output_.
 
-5.7.  Requirements Specific to Non-Browser User Agents
+5.5.  Requirements Specific to Non-Browser User Agents
 
-5.7.1.  The Set-Cookie Header Field
+5.5.1.  The Set-Cookie Header Field
 
    When a user agent receives a Set-Cookie header field in an HTTP
    response, the user agent MAY ignore the Set-Cookie header field in
@@ -1450,7 +1455,7 @@ Table of Contents
        _httpOnlyAllowed_, _allowNonHostOnlyCookieForPublicSuffix_, and
        _sameSiteStrictOrLaxAllowed_.
 
-5.7.2.  The Cookie Header Field
+5.5.2.  The Cookie Header Field
 
    The user agent includes stored cookies in the Cookie request header
    field.
@@ -1481,7 +1486,7 @@ Table of Contents
 
    7.  Return the result of running Serialize Cookies given _cookies_.
 
-5.8.  Requirements Specific to Browser User Agents
+5.6.  Requirements Specific to Browser User Agents
 
    While browsers are expected to generally follow the same model as
    non-browser user agents, they have additional complexity due to the
@@ -1612,7 +1617,7 @@ Table of Contents
 7.2.  Cookie Policy
 
    User agents MAY enforce a cookie policy consisting of restrictions on
-   how cookies may be used or ignored (see Section 5.7.1).
+   how cookies may be used or ignored (see Section 5.5.1).
 
    A cookie policy may govern which domains or parties, as in first and
    third parties (see Section 7.1), for which the user agent will allow
@@ -1853,7 +1858,7 @@ Table of Contents
 
 8.8.  SameSite Cookies
 
-   "SameSite" cookies offer a robust defense against CSRF attack when
+   SameSite cookies offer a robust defense against CSRF attack when
    deployed in strict mode, and when supported by the client.  It is,
    however, prudent to ensure that this designation is not the extent of
    a site's defense against CSRF, as same-site navigations and
@@ -1879,7 +1884,7 @@ Table of Contents
 
    Author/Change controller:  IETF
 
-   Specification document:  this specification (Section 5.7.2)
+   Specification document:  this specification (Section 5.5.2)
 
 9.2.  Set-Cookie
 
@@ -1894,7 +1899,7 @@ Table of Contents
 
    Author/Change controller:  IETF
 
-   Specification document:  this specification (Section 5.7.1)
+   Specification document:  this specification (Section 5.5.1)
 
 10.  Changes
 
@@ -1903,13 +1908,12 @@ Table of Contents
 
 Acknowledgements
 
-   RFC 6265 was written by Adam Barth.  This document is an update of
-   RFC 6265, adding features and aligning the specification with the
-   reality of today’s deployments.  Here, we’re standing upon the
-   shoulders of a giant since the majority of the text is still Adam’s.
+   Many thanks to Adam Barth for laying the groundwork for a modern
+   cookie specification with RFC 6265.
 
-   Thank you to both Lily Chen and Steven Englehardt, editors emeritus,
-   for their significant contributions improving this draft.
+   And thanks to John Wilander, Lily Chen, Mike West, Steven Bingler,
+   and Steven Englehardt for improving upon that work in subsequent
+   drafts.
 
 References
 
