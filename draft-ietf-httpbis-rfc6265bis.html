@@ -1173,7 +1173,7 @@ header fields are widely used on the Internet. This document obsoletes RFC
                 <p id="section-toc.1-1.2.2.1.1" class="keepWithNext"><a href="#section-2.1" class="auto internal xref">2.1</a>.  <a href="#name-terminology" class="internal xref">Terminology</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.2">
-                <p id="section-toc.1-1.2.2.2.1"><a href="#section-2.2" class="auto internal xref">2.2</a>.  <a href="#name-syntax-notation" class="internal xref">Syntax Notation</a></p>
+                <p id="section-toc.1-1.2.2.2.1"><a href="#section-2.2" class="auto internal xref">2.2</a>.  <a href="#name-abnf" class="internal xref">ABNF</a></p>
 </li>
             </ul>
 </li>
@@ -1517,24 +1517,24 @@ Cookie: SID=31d4d96e407aad42
         <h3 id="name-terminology">
 <a href="#section-2.1" class="section-number selfRef">2.1. </a><a href="#name-terminology" class="section-name selfRef">Terminology</a>
         </h3>
-<p id="section-2.1-1">This specification depends on Infra. XXX: INFRA<a href="#section-2.1-1" class="pilcrow">¶</a></p>
+<p id="section-2.1-1">This specification depends on Infra. <span>[<a href="#INFRA" class="cite xref">INFRA</a>]</span><a href="#section-2.1-1" class="pilcrow">¶</a></p>
 <p id="section-2.1-2">Some terms used in this specification are defined in the following standards and specifications:<a href="#section-2.1-2" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-2.1-3.1">
             <p id="section-2.1-3.1.1">HTTP <span>[<a href="#HTTPSEM" class="cite xref">HTTPSEM</a>]</span><a href="#section-2.1-3.1.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-2.1-3.2">
-            <p id="section-2.1-3.2.1">URL XXX: URL<a href="#section-2.1-3.2.1" class="pilcrow">¶</a></p>
+            <p id="section-2.1-3.2.1">URL <span>[<a href="#URL" class="cite xref">URL</a>]</span><a href="#section-2.1-3.2.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 <p id="section-2.1-4">A <strong>non-HTTP API</strong> is a non-HTTP mechanisms used to set and retrieve
 cookies, such as a web browser API that exposes cookies to JavaScript.<a href="#section-2.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="syntax-notation">
+<div id="abnf">
 <section id="section-2.2">
-        <h3 id="name-syntax-notation">
-<a href="#section-2.2" class="section-number selfRef">2.2. </a><a href="#name-syntax-notation" class="section-name selfRef">Syntax Notation</a>
+        <h3 id="name-abnf">
+<a href="#section-2.2" class="section-number selfRef">2.2. </a><a href="#name-abnf" class="section-name selfRef">ABNF</a>
         </h3>
 <p id="section-2.2-1">This specification uses the Augmented Backus-Naur Form (ABNF) notation of
 <span>[<a href="#RFC5234" class="cite xref">RFC5234</a>]</span>.<a href="#section-2.2-1" class="pilcrow">¶</a></p>
@@ -1543,7 +1543,7 @@ Appendix B.1: ALPHA (letters), CR (carriage return), CRLF (CR LF), CTLs
 (controls), DIGIT (decimal 0-9), DQUOTE (double quote), HEXDIG
 (hexadecimal 0-9/A-F/a-f), LF (line feed), NUL (null octet), OCTET (any
 8-bit sequence of data except NUL), SP (space), HTAB (horizontal tab),
-CHAR (any <span>[<a href="#USASCII" class="cite xref">USASCII</a>]</span> character), VCHAR (any visible <span>[<a href="#USASCII" class="cite xref">USASCII</a>]</span> character),
+CHAR (any ASCII byte), VCHAR (any visible ASCII byte),
 and WSP (whitespace).<a href="#section-2.2-2" class="pilcrow">¶</a></p>
 <p id="section-2.2-3">The OWS (optional whitespace) and BWS (bad whitespace) rules are defined in
 Section 5.6.3 of <span>[<a href="#HTTPSEM" class="cite xref">HTTPSEM</a>]</span>.<a href="#section-2.2-3" class="pilcrow">¶</a></p>
@@ -2688,37 +2688,7 @@ a path of '/login' or '/login/en'.<a href="#section-5.4.3-2.10.2.2.4" class="pil
 </li>
             <li id="section-5.4.3-2.11">
               <p id="section-5.4.3-2.11.1">If <em>cookie</em>'s same-site is not "<code>none</code>" and <em>sameSiteStrictOrLaxAllowed</em> is false,
-then return.
-&lt;!--
-XXX: Move these to browser specs to set <em>sameSiteStrictOrLaxAllowed</em> appropriately<a href="#section-5.4.3-2.11.1" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-5.4.3-2.11.2">
-<li id="section-5.4.3-2.11.2.1">
-                  <p id="section-5.4.3-2.11.2.1.1">If the cookie was received from a "non-HTTP" API, and the API was called
-from a navigable's active document whose "site for cookies" is
-not same-site with the top-level origin, then abort these steps and
-ignore the newly created cookie entirely.<a href="#section-5.4.3-2.11.2.1.1" class="pilcrow">¶</a></p>
-</li>
-                <li id="section-5.4.3-2.11.2.2">
-                  <p id="section-5.4.3-2.11.2.2.1">If the cookie was received from a "same-site" request (as defined in
-same-site-requests), skip the remaining substeps and continue
-processing the cookie.<a href="#section-5.4.3-2.11.2.2.1" class="pilcrow">¶</a></p>
-</li>
-                <li id="section-5.4.3-2.11.2.3">
-                  <p id="section-5.4.3-2.11.2.3.1">If the cookie was received from a request which is navigating a
-top-level traversable <span>[<a href="#HTML" class="cite xref">HTML</a>]</span> (e.g. if the request's "reserved
-client" is either <code>null</code> or an environment whose "target browsing
-context"'s navigable is a top-level traversable), skip the remaining
-substeps and continue processing the cookie.<a href="#section-5.4.3-2.11.2.3.1" class="pilcrow">¶</a></p>
-<p id="section-5.4.3-2.11.2.3.2">
-Note: Top-level navigations can create a cookie with any <code>SameSite</code>
-value, even if the new cookie wouldn't have been sent along with
-the request had it already existed prior to the navigation.<a href="#section-5.4.3-2.11.2.3.2" class="pilcrow">¶</a></p>
-</li>
-                <li id="section-5.4.3-2.11.2.4">
-                  <p id="section-5.4.3-2.11.2.4.1">Abort these steps and ignore the newly created cookie entirely.
---&gt;<a href="#section-5.4.3-2.11.2.4.1" class="pilcrow">¶</a></p>
-</li>
-              </ol>
+then return.<a href="#section-5.4.3-2.11.1" class="pilcrow">¶</a></p>
 </li>
             <li id="section-5.4.3-2.12">
               <p id="section-5.4.3-2.12.1">If <em>cookie</em>'s same-site is "<code>none</code>" and <em>cookie</em>'s secure-only is false,
@@ -2863,31 +2833,9 @@ should happen as part of updating the public suffixes.<a href="#section-5.4.4-2.
                       <p id="section-5.4.4-2.2.2.5.2.3.1">cookie's same-site is "<code>unset</code>" and <em>sameSite</em> is one of "<code>strict-or-less</code>", "<code>lax-or-less</code>", or "<code>unset-or-less</code>"; or<a href="#section-5.4.4-2.2.2.5.2.3.1" class="pilcrow">¶</a></p>
 </li>
                     <li class="normal" id="section-5.4.4-2.2.2.5.2.4">
-                      <p id="section-5.4.4-2.2.2.5.2.4.1">cookie's same-site is "<code>none</code>".
-&lt;!--
-XXX This needs to be moved into Fetch or HTML. They need to set <em>sameSite</em> correctly.<a href="#section-5.4.4-2.2.2.5.2.4.1" class="pilcrow">¶</a></p>
+                      <p id="section-5.4.4-2.2.2.5.2.4.1">cookie's same-site is "<code>none</code>".<a href="#section-5.4.4-2.2.2.5.2.4.1" class="pilcrow">¶</a></p>
 </li>
                   </ul>
-</li>
-              </ul>
-<p id="section-5.4.4-2.2.3">
-If the cookie's same-site-flag is not "None" and the retrieval's same-site
-  status is "cross-site", then exclude the cookie unless all of the
-  following conditions are met:<a href="#section-5.4.4-2.2.3" class="pilcrow">¶</a></p>
-<ul class="normal">
-<li class="normal" id="section-5.4.4-2.2.4.1">
-                  <p id="section-5.4.4-2.2.4.1.1">The retrieval's type is "HTTP".<a href="#section-5.4.4-2.2.4.1.1" class="pilcrow">¶</a></p>
-</li>
-                <li class="normal" id="section-5.4.4-2.2.4.2">
-                  <p id="section-5.4.4-2.2.4.2.1">The same-site-flag is "Lax" or "Default".<a href="#section-5.4.4-2.2.4.2.1" class="pilcrow">¶</a></p>
-</li>
-                <li class="normal" id="section-5.4.4-2.2.4.3">
-                  <p id="section-5.4.4-2.2.4.3.1">The HTTP request associated with the retrieval uses a "safe" method.<a href="#section-5.4.4-2.2.4.3.1" class="pilcrow">¶</a></p>
-</li>
-                <li class="normal" id="section-5.4.4-2.2.4.4">
-                  <p id="section-5.4.4-2.2.4.4.1">The target browsing context of the HTTP request associated with the
-retrieval is the active browsing context or a top-level traversable.
---&gt;<a href="#section-5.4.4-2.2.4.4.1" class="pilcrow">¶</a></p>
 </li>
               </ul>
 </li>
@@ -3537,10 +3485,6 @@ updated with the following registration:<a href="#section-9.2-1" class="pilcrow"
 <a href="#name-normative-references" class="section-name selfRef">Normative References</a>
         </h3>
 <dl class="references">
-<dt id="FETCH">[FETCH]</dt>
-        <dd>
-<span class="refAuthor">van Kesteren, A.</span>, <span class="refTitle">"Fetch"</span>, <span>n.d.</span>, <span>&lt;<a href="https://fetch.spec.whatwg.org/">https://fetch.spec.whatwg.org/</a>&gt;</span>. </dd>
-<dd class="break"></dd>
 <dt id="HTML">[HTML]</dt>
         <dd>
 <span class="refAuthor">Hickson, I.</span>, <span class="refAuthor">Pieters, S.</span>, <span class="refAuthor">van Kesteren, A.</span>, <span class="refAuthor">Jägenstedt, P.</span>, and <span class="refAuthor">D. Denicola</span>, <span class="refTitle">"HTML"</span>, <span>n.d.</span>, <span>&lt;<a href="https://html.spec.whatwg.org/">https://html.spec.whatwg.org/</a>&gt;</span>. </dd>
@@ -3548,6 +3492,10 @@ updated with the following registration:<a href="#section-9.2-1" class="pilcrow"
 <dt id="HTTPSEM">[HTTPSEM]</dt>
         <dd>
 <span class="refAuthor">Fielding, R. T.</span>, <span class="refAuthor">Nottingham, M.</span>, and <span class="refAuthor">J. Reschke</span>, <span class="refTitle">"HTTP Semantics"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-httpbis-semantics-19</span>, <time datetime="2021-09-12" class="refDate">12 September 2021</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-semantics-19">https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-semantics-19</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="INFRA">[INFRA]</dt>
+        <dd>
+<span class="refAuthor">van Kesteren, A.</span> and <span class="refAuthor">D. Denicola</span>, <span class="refTitle">"Infra"</span>, <span>n.d.</span>, <span>&lt;<a href="https://infra.spec.whatwg.org">https://infra.spec.whatwg.org</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC1034">[RFC1034]</dt>
         <dd>
@@ -3561,29 +3509,13 @@ updated with the following registration:<a href="#section-9.2-1" class="pilcrow"
         <dd>
 <span class="refAuthor">Bradner, S.</span>, <span class="refTitle">"Key words for use in RFCs to Indicate Requirement Levels"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 2119</span>, <span class="seriesInfo">DOI 10.17487/RFC2119</span>, <time datetime="1997-03" class="refDate">March 1997</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc2119">https://www.rfc-editor.org/rfc/rfc2119</a>&gt;</span>. </dd>
 <dd class="break"></dd>
-<dt id="RFC4790">[RFC4790]</dt>
-        <dd>
-<span class="refAuthor">Newman, C.</span>, <span class="refAuthor">Duerst, M.</span>, and <span class="refAuthor">A. Gulbrandsen</span>, <span class="refTitle">"Internet Application Protocol Collation Registry"</span>, <span class="seriesInfo">RFC 4790</span>, <span class="seriesInfo">DOI 10.17487/RFC4790</span>, <time datetime="2007-03" class="refDate">March 2007</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc4790">https://www.rfc-editor.org/rfc/rfc4790</a>&gt;</span>. </dd>
-<dd class="break"></dd>
 <dt id="RFC5234">[RFC5234]</dt>
         <dd>
 <span class="refAuthor">Crocker, D., Ed.</span> and <span class="refAuthor">P. Overell</span>, <span class="refTitle">"Augmented BNF for Syntax Specifications: ABNF"</span>, <span class="seriesInfo">STD 68</span>, <span class="seriesInfo">RFC 5234</span>, <span class="seriesInfo">DOI 10.17487/RFC5234</span>, <time datetime="2008-01" class="refDate">January 2008</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc5234">https://www.rfc-editor.org/rfc/rfc5234</a>&gt;</span>. </dd>
 <dd class="break"></dd>
-<dt id="RFC5890">[RFC5890]</dt>
-        <dd>
-<span class="refAuthor">Klensin, J.</span>, <span class="refTitle">"Internationalized Domain Names for Applications (IDNA): Definitions and Document Framework"</span>, <span class="seriesInfo">RFC 5890</span>, <span class="seriesInfo">DOI 10.17487/RFC5890</span>, <time datetime="2010-08" class="refDate">August 2010</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc5890">https://www.rfc-editor.org/rfc/rfc5890</a>&gt;</span>. </dd>
-<dd class="break"></dd>
-<dt id="RFC6454">[RFC6454]</dt>
-        <dd>
-<span class="refAuthor">Barth, A.</span>, <span class="refTitle">"The Web Origin Concept"</span>, <span class="seriesInfo">RFC 6454</span>, <span class="seriesInfo">DOI 10.17487/RFC6454</span>, <time datetime="2011-12" class="refDate">December 2011</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc6454">https://www.rfc-editor.org/rfc/rfc6454</a>&gt;</span>. </dd>
-<dd class="break"></dd>
-<dt id="RFC8126">[RFC8126]</dt>
-        <dd>
-<span class="refAuthor">Cotton, M.</span>, <span class="refAuthor">Leiba, B.</span>, and <span class="refAuthor">T. Narten</span>, <span class="refTitle">"Guidelines for Writing an IANA Considerations Section in RFCs"</span>, <span class="seriesInfo">BCP 26</span>, <span class="seriesInfo">RFC 8126</span>, <span class="seriesInfo">DOI 10.17487/RFC8126</span>, <time datetime="2017-06" class="refDate">June 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8126">https://www.rfc-editor.org/rfc/rfc8126</a>&gt;</span>. </dd>
-<dd class="break"></dd>
-<dt id="USASCII">[USASCII]</dt>
+<dt id="URL">[URL]</dt>
       <dd>
-<span class="refAuthor">American National Standards Institute</span>, <span class="refTitle">"Coded Character Set -- 7-bit American Standard Code for Information Interchange"</span>, <span class="seriesInfo">ANSI X3.4</span>, <time datetime="1986" class="refDate">1986</time>. </dd>
+<span class="refAuthor">van Kesteren, A.</span>, <span class="refTitle">"URL"</span>, <span>n.d.</span>, <span>&lt;<a href="https://url.spec.whatwg.org">https://url.spec.whatwg.org</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 </dl>
 </section>
@@ -3609,14 +3541,6 @@ updated with the following registration:<a href="#section-9.2-1" class="pilcrow"
 <dt id="I-D.ietf-httpbis-cookie-same-site">[I-D.ietf-httpbis-cookie-same-site]</dt>
         <dd>
 <span class="refAuthor">West, M.</span> and <span class="refAuthor">M. Goodwin</span>, <span class="refTitle">"Same-Site Cookies"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-httpbis-cookie-same-site-00</span>, <time datetime="2016-06-20" class="refDate">20 June 2016</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-cookie-same-site-00">https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-cookie-same-site-00</a>&gt;</span>. </dd>
-<dd class="break"></dd>
-<dt id="prerendering">[prerendering]</dt>
-        <dd>
-<span class="refAuthor">Bentzel, C.</span>, <span class="refTitle">"Chrome Prerendering"</span>, <span>n.d.</span>, <span>&lt;<a href="https://www.chromium.org/developers/design-documents/prerender">https://www.chromium.org/developers/design-documents/prerender</a>&gt;</span>. </dd>
-<dd class="break"></dd>
-<dt id="PSL">[PSL]</dt>
-        <dd>
-<span class="refTitle">"Public Suffix List"</span>, <span>n.d.</span>, <span>&lt;<a href="https://publicsuffix.org/list/">https://publicsuffix.org/list/</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC2109">[RFC2109]</dt>
         <dd>
