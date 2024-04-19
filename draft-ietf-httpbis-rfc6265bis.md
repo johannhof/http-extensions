@@ -773,40 +773,36 @@ agent MUST remove from the cookie store all cookies whose expiry-time is null.
 
 ### Cookie store eviction {#cookie-store-eviction}
 
-XXX: How does this relate to the "Limits" section?
 
-At any time, the user agent MAY "remove excess cookies" from the cookie store
-if the number of cookies sharing a domain field exceeds some
-implementation-defined upper bound (such as 50 cookies).
+To **Remove Expired Cookies**:
 
-At any time, the user agent MAY "remove excess cookies" from the cookie store
-if the cookie store exceeds some predetermined upper bound (such as 3000
-cookies).
+XXX: How do correctly specify the time here?
 
-XXX: Finish these steps
+1. Remove all cookies from the cookie store whose expiry-time is earlier than the current time.
 
-To **Remove Expired Cookies** from the cookie store, the user
-agent MUST evict cookies in the following priority order:
+To **Remove Excess Cookies for a Host** from the cookie store given host _host_:
 
-1.  Expired cookies.
+1. Let _insecureCookies_ be the subset of all cookies in the cookie store whose host is _host_ and whose secure is false.
 
-To **Remove Excess Cookies for a Domain** from the cookie store, the user
-agent MUST evict cookies in the following priority order:
+1. Sort _insecureCookies_ by earliest last-access-time first.
 
-2.  Cookies whose secure is false, and which share a domain field
-    with more than a predetermined number of other cookies.
+1. Let _secureCookies_ be the subset of all cookies in the cookie store whose host is _host_ and whose secure is true.
 
-To **Remove Global Excess Cookies** from the cookie store, the user
-agent MUST evict cookies in the following priority order:
+1. Sort _secureCookies_ by earliest last-access-time first.
 
-3.  Cookies that share a domain field with more than a predetermined number of
-    other cookies.
+1. While the size of _insecureCookies_ + the size of _secureCookies_ exceeds an implementation-defined number (such as 50):
 
-4.  All cookies.
+  1. If the size of _insecureCookies_ is not 0, remove the first item of _insecureCookies_ and delete the cookie from the cookie store.
 
-If two cookies have the same removal priority, the user agent MUST evict the
-cookie with the earliest last-access-time first.
+  1. Otherwise, remove the first item of _secureCookies_ and delete the cookie from the cookie store.
 
+To **Remove Global Excess Cookies** from the cookie store:
+
+1. Let _allCookies_ be the result of sorting the cookie store by earliest last-access-time first.
+
+1. While the size of _allCookies_ exceeds an implementation-defined number (such as 3000):
+
+  1. Remove the first item of _allCookies_ and delete the cookie from the cookie store.
 
 ## Subcomponent Algorithms
 
@@ -1296,7 +1292,11 @@ XXX: Move these to browser specs to set _sameSiteStrictOrLaxAllowed_ appropriate
 
 1. Insert _cookie_ into the user agent's cookie store.
 
-1. Remove Excess Cookies from the user agent's cookie store.
+1. Remove Expired Cookies from the user agent's cookie store.
+
+1. Remove Excess Cookies for Host _cookie_'s host from the user agent's cookie store.
+
+1. Remove Global Excess Cookies from the user agent's cookie store.
 
 <!--
 XXX 5.7.2. Non-HTTP APIs
