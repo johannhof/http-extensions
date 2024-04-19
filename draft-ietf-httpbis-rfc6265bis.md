@@ -1733,7 +1733,7 @@ security properties required by applications.
 
 ## SameSite Cookies
 
-"SameSite" cookies offer a robust defense against CSRF attack when deployed in
+SameSite cookies offer a robust defense against CSRF attack when deployed in
 strict mode, and when supported by the client. It is, however, prudent to ensure
 that this designation is not the extent of a site's defense against CSRF, as
 same-site navigations and submissions can certainly be executed in conjunction
@@ -1794,10 +1794,7 @@ Revamped the document to allow for more detailed requirements on browsers in dow
 
 # Acknowledgements
 {:numbered="false"}
-RFC 6265 was written by Adam Barth. This document is an update of RFC 6265,
-adding features and aligning the specification with the reality of today’s
-deployments. Here, we’re standing upon the shoulders of a giant since the
-majority of the text is still Adam’s.
 
-Thank you to both Lily Chen and Steven Englehardt, editors emeritus, for their
-significant contributions improving this draft.
+Many thanks to Adam Barth for laying the groundwork for a modern cookie specification with RFC 6265.
+
+And thanks to John Wilander, Lily Chen, Mike West, Steven Bingler, and Steven Englehardt for improving upon that work in subsequent drafts.
