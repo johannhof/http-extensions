@@ -773,36 +773,38 @@ agent MUST remove from the cookie store all cookies whose expiry-time is null.
 
 ### Cookie store eviction {#cookie-store-eviction}
 
-
 To **Remove Expired Cookies**:
 
-XXX: How do correctly specify the time here?
+1. Remove all expired cookies from the cookie store.
 
-1. Remove all cookies from the cookie store whose expiry-time is earlier than the current time.
+To **Remove Excess Cookies for a Host** given a host _host_:
 
-To **Remove Excess Cookies for a Host** from the cookie store given host _host_:
-
-1. Let _insecureCookies_ be the subset of all cookies in the cookie store whose host is _host_ and whose secure is false.
+1. Let _insecureCookies_ be all cookies in the user agent's cookie store whose host host-equals _host_ and whose secure is false.
 
 1. Sort _insecureCookies_ by earliest last-access-time first.
 
-1. Let _secureCookies_ be the subset of all cookies in the cookie store whose host is _host_ and whose secure is true.
+1. Let _secureCookies_ be all cookies in the user agent's cookie store whose host host-equals _host_ and whose secure is true.
 
 1. Sort _secureCookies_ by earliest last-access-time first.
 
+XXX: Make 50 a constant.
+
 1. While the size of _insecureCookies_ + the size of _secureCookies_ exceeds an implementation-defined number (such as 50):
 
-  1. If the size of _insecureCookies_ is not 0, remove the first item of _insecureCookies_ and delete the cookie from the cookie store.
+    1. If the size of _insecureCookies_ is not 0, remove the first item of _insecureCookies_ and
+    delete the corresponding cookie from the cookie store.
 
-  1. Otherwise, remove the first item of _secureCookies_ and delete the cookie from the cookie store.
+    1. Otherwise, remove the first item of _secureCookies_ and delete the corresponding cookie from the cookie store.
 
-To **Remove Global Excess Cookies** from the cookie store:
+To **Remove Global Excess Cookies**:
 
 1. Let _allCookies_ be the result of sorting the cookie store by earliest last-access-time first.
 
+XXX: Make 3000 a constant.
+
 1. While the size of _allCookies_ exceeds an implementation-defined number (such as 3000):
 
-  1. Remove the first item of _allCookies_ and delete the cookie from the cookie store.
+    1. Remove the first item of _allCookies_ and delete the corresponding cookie from the cookie store.
 
 ## Subcomponent Algorithms
 
