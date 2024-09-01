@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-08-29T00:20:59.125671+00:00",
+  "timestamp": "2024-09-01T00:25:37.314081+00:00",
   "repo": "johannhof/http-extensions",
   "labels": [
     {
@@ -67,7 +67,7 @@
       "baseRepository": "johannhof/http-extensions",
       "baseRefName": "cookie-layering",
       "baseRefOid": "63f5bfee9d2cbb2a28cf698dfdb248a8038caae5",
-      "headRepository": "annevk/http-extensions",
+      "headRepository": null,
       "headRefName": "cookie-representation",
       "headRefOid": "e2e7745f82726cf5d3a6c3b7263ebfbb6cdd1a03",
       "closedAt": "2024-01-11T21:20:34Z",
