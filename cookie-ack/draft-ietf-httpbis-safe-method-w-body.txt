@@ -5,10 +5,10 @@
 HTTP                                                          J. Reschke
 Internet-Draft                                                greenbytes
 Intended status: Standards Track                              J.M. Snell
-Expires: 14 February 2026                                     Cloudflare
+Expires: 19 May 2026                                          Cloudflare
                                                                M. Bishop
                                                                   Akamai
-                                                          13 August 2025
+                                                        15 November 2025
 
 
                          The HTTP QUERY Method
@@ -35,7 +35,7 @@ Editorial Note
    code and issues list for this draft can be found at
    https://github.com/httpwg/http-extensions/labels/query-method.
 
-   The changes in this draft are summarized in Appendix B.12.
+   The changes in this draft are summarized in Appendix B.13.
 
 Status of This Memo
 
@@ -52,7 +52,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 14 February 2026.
+   This Internet-Draft will expire on 19 May 2026.
 
 Copyright Notice
 
@@ -74,12 +74,14 @@ Table of Contents
      1.1.  Terminology
      1.2.  Notational Conventions
    2.  QUERY
-     2.1.  Content-Location Response Field
-     2.2.  Location Response Field
-     2.3.  Redirection
-     2.4.  Conditional Requests
-     2.5.  Caching
-     2.6.  Range Requests
+     2.1.  Media Types and Content Negotiation
+     2.2.  Equivalent Resource
+     2.3.  Content-Location Response Field
+     2.4.  Location Response Field
+     2.5.  Redirection
+     2.6.  Conditional Requests
+     2.7.  Caching
+     2.8.  Range Requests
    3.  The "Accept-Query" Header Field
    4.  Security Considerations
    5.  IANA Considerations
@@ -95,7 +97,8 @@ Table of Contents
        A.4.1.  Using Content-Location
        A.4.2.  Using Location
        A.4.3.  Indirect Responses
-     A.5.  More Query Formats
+     A.5.  Conditional Requests
+     A.6.  More Query Formats
    Appendix B.  Change Log
      B.1.  Since draft-ietf-httpbis-safe-method-w-body-00
      B.2.  Since draft-ietf-httpbis-safe-method-w-body-01
@@ -109,6 +112,7 @@ Table of Contents
      B.10. Since draft-ietf-httpbis-safe-method-w-body-09
      B.11. Since draft-ietf-httpbis-safe-method-w-body-10
      B.12. Since draft-ietf-httpbis-safe-method-w-body-11
+     B.13. Since draft-ietf-httpbis-safe-method-w-body-12
    Acknowledgements
    Contributors
    Authors' Addresses
@@ -116,9 +120,9 @@ Table of Contents
 1.  Introduction
 
    This specification defines the HTTP QUERY request method as a means
-   of making a safe, idempotent request (Section 9.2 of [HTTP])
-   containing content that describes how the request is to be processed
-   by the target resource.
+   of making a safe, idempotent request (Section 9.2 of [HTTP]) that
+   encloses a representation describing how the request is to be
+   processed by the target resource.
 
    Most often, this is desirable when the data conveyed in a request is
    too voluminous to be encoded into the request's URI.  A common query
@@ -158,10 +162,9 @@ Table of Contents
 
    q=foo&limit=10&sort=-published
 
-   This variation, however, suffers from the fact that it is not readily
-   apparent -- absent specific knowledge of the resource and server to
-   which the request is being sent -- that a safe, idempotent query is
-   being performed.
+   In this variation, however, it is not readily apparent -- absent
+   specific knowledge of the resource and server to which the request is
+   being sent -- that a safe, idempotent query is being performed.
 
    The QUERY method provides a solution that spans the gap between the
    use of GET and POST, with the example above being expressed as:
@@ -230,39 +233,100 @@ Table of Contents
 2.  QUERY
 
    The QUERY method is used to initiate a server-side query.  Unlike the
-   HTTP GET method, which requests that a server return a representation
-   of the resource identified by the target URI (as defined by
-   Section 7.1 of [HTTP]), the QUERY method is used to ask the server to
-   perform a query operation (described by the request content) over
-   some set of data at the resource.  The content returned in response
-   to a QUERY cannot be assumed to be a representation of the resource
-   identified by the target URI.
+   GET method, which requests a representation of the resource
+   identified by the target URI (as defined by Section 7.1 of [HTTP]),
+   the QUERY method is used to ask the target resource to perform a
+   query operation within the scope of that target resource.
 
-   The content of the request and it's media type define the query.
-   Implementations MAY use a request content of any media type with the
-   QUERY method, provided that it has appropriate query semantics.
+   The content of the request and its media type define the query.  The
+   origin server determines the scope of the operation based on the
+   target resource.
 
-   As for all HTTP methods in general, the target URI's query part takes
-   part in identifying the resource being queried and therefore is not
-   part of the actual query.  Whether and how the URI's query part
-   directly affects the result of the query is implementation specific
-   and out of scope for this specification.
+   Servers MUST fail the request if the Content-Type request field
+   ([HTTP], Section 8.3) is missing or is inconsistent with the request
+   content.
 
-   QUERY requests are both safe and idempotent with regard to the
-   resource identified by the request URI.  That is, QUERY requests do
-   not alter the state of the identified resource.  However, while
-   processing a QUERY request, a server can be expected to allocate
-   computing and memory resources or even create additional HTTP
-   resources through which the response can be retrieved.
+   As for all HTTP methods, the target URI's query part takes part in
+   identifying the resource being queried.  Whether and how it directly
+   affects the result of the query is specific to the resource and out
+   of scope for this specification.
 
-   A successful response to a QUERY request is expected to provide some
-   indication as to the final disposition of the operation.  For
-   instance, a successful query that yields no results can be
-   represented by a 204 (No Content, Section 15.3.5 of [HTTP]) response.
-   If the response includes content, it is expected to describe the
-   results of the operation.
+   QUERY requests are safe with regard to the target resource ([HTTP],
+   Section 9.2.1) -- that is, the client does not request or expect any
+   change to the state of the target resource.  This does not prevent
+   the server from creating additional HTTP resources through which
+   additional information can be retrieved (see Sections 2.3 and 2.4).
 
-2.1.  Content-Location Response Field
+   Furthermore, QUERY requests are idempotent ([HTTP], Section 9.2.2) --
+   they can be retried or repeated when needed, for instance after a
+   connection failure.
+
+   As per Section 15.3 of [HTTP], a 2xx (Successful) response code
+   signals that the request was successfully received, understood, and
+   accepted.
+
+   In particular, a 200 (OK) response indicates that the query was
+   successfully processed and the results of that processing are
+   enclosed as the response content.
+
+2.1.  Media Types and Content Negotiation
+
+   The semantics of a QUERY request depends both on the request content
+   and the associated metadata, such as the Media Type ([HTTP],
+   Section 8.3.1).  In general, any problem with requests where content
+   and metadata are inconsistent MUST be rejected with a 4xx (Client
+   Error) response ([HTTP], Section 15.5).
+
+   The list below describes various cases of failures and recommends
+   specific status codes:
+
+   *  A request lacking media type information by definition is
+      incorrect and needs to fail with a 4xx status code such as 400
+      (Client Error).
+
+   *  If a media type is specified, but not supported by the resource, a
+      415 (Unsupported Media Type) is appropriate.  This specifically
+      includes the case where the media type is known in principle, but
+      lacks semantics specific to a QUERY to the target resource.  In
+      both cases, the Accept-Query response field (Section 3) can be
+      used to inform the client of media types which are supported.
+
+   *  If a media type is specified, but is inconsistent with the actual
+      request content, a 400 (Bad Request) can be returned.  That is, a
+      server is not allowed to infer a media type from the request
+      content and then override a missing or "erroneous" value ("content
+      sniffing").
+
+   *  If the media type is specified, is understood, and the content is
+      indeed consistent with the type, but the query cannot be processed
+      due to the actual contents of the query, the status 422
+      (Unprocessable Content) can be used.  An example would be a
+      syntactically correct SQL query that identifies a non-existent
+      table.
+
+   *  Finally, if the client requests a specific response media type
+      using the Accept field ([HTTP], Section 12.5.1) which is not
+      supported by the resource, a status code of 406 (Not Acceptable)
+      is appropriate.
+
+2.2.  Equivalent Resource
+
+   The _equivalent resource_ for any given QUERY request is a resource
+   responding to GET requests, representing that QUERY request and its
+   target, taking both message content and metadata into account
+   (Section 6 of [HTTP]).  In particular, this includes representation
+   metadata (Section 8 of [HTTP]), such as the content's media type.
+
+   In other words, the equivalent resource is derived from the resource
+   implementing QUERY by incorporating the request content.
+
+   The term _equivalent resource_ is used as a means to define behavior
+   for other HTTP aspects, such as selected representations.  Servers
+   can but do not have to assign URIs to these resources (see
+   Section 1.1 of [URI]).  If they do so, these resources will become
+   accessible for GET requests.
+
+2.3.  Content-Location Response Field
 
    A successful response (2xx, Section 15.3 of [HTTP]) can include a
    Content-Location header field containing an identifier for a resource
@@ -274,32 +338,32 @@ Table of Contents
 
    See Appendix A.4.1 for an example.
 
-2.2.  Location Response Field
+2.4.  Location Response Field
 
-   A server can create or locate a resource that identifies the query
-   operation for future use.  If the server does so, the URI of the
-   resource can be included in the Location header field of the 2xx
-   response (see Section 10.2.2 of [HTTP]).  This represents a claim
-   that a client can send a GET request to the indicated URI to repeat
-   the query operation just performed without resending the query
-   content.  This resource might be temporary; if a future request
-   fails, the client can retry using the original QUERY resource and the
-   previously submitted content.
+   A server can assign a URI to the equivalent resource (Section 2.2) of
+   a QUERY request.  If the server does so, the URI of that resource can
+   be included in the Location header field of the 2xx response (see
+   Section 10.2.2 of [HTTP]).  This represents a claim that a client can
+   send a GET request to the indicated URI to repeat the query operation
+   just performed without resending the query content.  This resource's
+   URI might be temporary; if a future request fails, the client can
+   retry using the original QUERY request target and the previously
+   submitted content.
 
    See Appendix A.4.2 for an example.
 
-2.3.  Redirection
+2.5.  Redirection
 
    In some cases, the server may choose to respond indirectly to the
    QUERY request by redirecting the user agent to a different URI (see
    Section 15.4 of [HTTP]).
 
-   A response with either of the status codes 301 (Moved Permanently,
-   [HTTP], Section 15.4.2) or 308 (Permanent Redirect, [HTTP],
-   Section 15.4.9) indicates that the target resource has permanently
-   moved to a different URI referenced by the Location response field
-   ([HTTP], Section 10.2.2).  Likewise, a response with either 302
-   (Found, [HTTP], Section 15.4.3 or 307 (Temporary Redirect, [HTTP],
+   A response with either status codes 301 (Moved Permanently, [HTTP],
+   Section 15.4.2) or 308 (Permanent Redirect, [HTTP], Section 15.4.9)
+   indicates that the target resource has permanently moved to a
+   different URI referenced by the Location response field ([HTTP],
+   Section 10.2.2).  Likewise, a response with either status codes 302
+   (Found, [HTTP], Section 15.4.3) or 307 (Temporary Redirect, [HTTP],
    Section 15.4.8) indicates that the target resource has temporarily
    moved.  In all four cases, the server is suggesting that the user
    agent can accomplish its original QUERY request by sending a similar
@@ -315,26 +379,30 @@ Table of Contents
    means sending a GET request to the new target URI, as illustrated by
    the example in Appendix A.4.3.
 
-2.4.  Conditional Requests
+2.6.  Conditional Requests
 
-   A conditional QUERY requests that the selected representation (i.e.,
+   The selected representation (Section 3.2 of [HTTP]) of a QUERY
+   request is the same as for a GET request to the equivalent resource
+   (Section 2.2) of that QUERY request.
+
+   A conditional QUERY requests that that selected representation (i.e.,
    the query results, after any content negotiation) be returned in the
    response only under the circumstances described by the conditional
    header field(s), as defined in Section 13 of [HTTP].
 
-2.5.  Caching
+   See Appendix A.5 for examples.
+
+2.7.  Caching
 
    The response to a QUERY method is cacheable; a cache MAY use it to
-   satisfy subsequent QUERY requests as per Section 4 of
-   [HTTP-CACHING]).
+   satisfy subsequent QUERY requests as per Section 4 of [HTTP-CACHING].
 
    The cache key for a QUERY request (see Section 2 of [HTTP-CACHING])
-   MUST incorporate the request content.
+   MUST incorporate the request content (Section 6 of [HTTP-CACHING])
+   and related metadata (Section 8 of [HTTP-CACHING]).
 
-   Caches MAY remove semantically insignificant differences first,
-   thereby improving cache efficiency.
-
-   For instance, by
+   To improve cache efficiency, caches MAY remove semantically
+   insignificant differences first.  For instance, by:
 
    *  removing content encoding(s) (Section 8.4 of [HTTP]).
 
@@ -353,10 +421,24 @@ Table of Contents
    transformation happens (but note that this directive is just
    advisory).
 
-2.6.  Range Requests
+   Note that caching QUERY method responses is inherently more complex
+   than caching responses to GET, as complete reading of the request's
+   content is needed in order to determine the cache key.  If a QUERY
+   response supplies a Location response field (Section 2.4) to indicate
+   a URI for an equivalent resource (Section 2.2), clients can switch to
+   GET for subsequent requests, thereby simplifying processing.
+
+2.8.  Range Requests
 
    The semantics of Range Requests for QUERY are identical to those for
-   GET, as defined in Section 14 of [HTTP].
+   GET, as defined in Section 14 of [HTTP].  Byte Range requests (the
+   only range unit defined at the time of writing), however, offer
+   little value for the results of a QUERY request.
+
+   Query formats often define their own way for limiting or paging
+   through result sets, such as with "FETCH FIRST ... ROWS ONLY" in SQL.
+   It is expected that these built-in features will be used instead of
+   HTTP Range Requests.
 
 3.  The "Accept-Query" Header Field
 
@@ -506,6 +588,11 @@ Table of Contents
               DOI 10.17487/RFC9535, February 2024,
               <https://www.rfc-editor.org/info/rfc9535>.
 
+   [URI]      Berners-Lee, T., Fielding, R., and L. Masinter, "Uniform
+              Resource Identifier (URI): Generic Syntax", STD 66,
+              RFC 3986, January 2005,
+              <https://www.rfc-editor.org/rfc/rfc3986>.
+
    [URL]      WHATWG, "URL", <https://url.spec.whatwg.org>.
 
    [XSLT]     Kay, M., "XSL Transformations (XSLT) Version 3.0", W3C
@@ -604,7 +691,7 @@ A.3.  Discovery of QUERY Formats
 
 A.4.  Content-Location, Location, and Indirect Responses
 
-   As described in Sections 2.1 and 2.2, the Content-Location and
+   As described in Sections 2.3 and 2.4, the Content-Location and
    Location response fields in success responses (2xx, Section 15.3 of
    [HTTP]) provide a way to identify alternate resources that will
    respond to GET requests, either for the received result of the
@@ -711,7 +798,7 @@ A.4.2.  Using Location
 
 A.4.3.  Indirect Responses
 
-   Servers can send "indirect" responses (Section 2.3) using the status
+   Servers can send "indirect" responses (Section 2.5) using the status
    code 303 (See Other, Section 15.4.4 of [HTTP]).
 
    Given the request at the beginning of Appendix A.4, a server might
@@ -729,13 +816,175 @@ A.4.3.  Indirect Responses
    only generate or reuse an alternative resource.  This resource could
    then be used as shown in Appendix A.4.2.
 
-A.5.  More Query Formats
+A.5.  Conditional Requests
+
+   Consider a resource implementing QUERY that supports "application/
+   sql" and "application/xslt+xml" ([XSLT]) as request media types, and
+   which can generate responses as "text/csv".  The data set being
+   queried contains RFC document information, and the query returns
+   information grouped by decade:
+
+   QUERY /rfc-index.xml HTTP/1.1
+   Host: example.org
+   Date: Sun, 7 Sep 2025, 00:00:00 GMT
+   Content-Type: application/xslt+xml
+   Accept: text/csv
+
+   ...Query content using XSLT...
+
+   Response:
+
+   HTTP/1.1 200 OK
+   Date: Sun, 7 Sep 2025, 00:00:00 GMT
+   Location: /stored-queries/4815162342
+   Content-Type: text/csv
+   Accept-Query: "application/sql", "application/xslt+xml"
+   Last-Modified: Sun, 31 Aug 2025, 08:44:00 GMT
+   Vary: Accept-Query, Content-Encoding, Content-Type
+
+   decade, total, with errata, % with errata, average page count
+   1960, 26, 5, 19.2, 5.3
+   1970, 666, 18, 2.7, 6.1
+   1980, 376, 44, 11.7, 23.4
+   1990, 1593, 269, 16.9, 25.5
+   2000, 2888, 1048, 36.3, 27.3
+   2010, 2954, 895, 30.3, 26.1
+   2020, 1133, 230, 20.3, 26.2
+
+   Here, the server has assigned the path "/stored-queries/4815162342"
+   to the equivalent resource (Section 2.4) for subsequent use with GET.
+
+   Later on, the client repeats the query, but specifies that results
+   should only be returned when changed:
+
+   QUERY /rfc-index.xml HTTP/1.1
+   Host: example.org
+   Date: Mon, 8, Sep 2025, 11:00:00 GMT
+   Content-Type: application/sql
+   Accept: text/csv
+   If-Modified-Since: Sun, 31 Aug 2025, 08:44:00 GMT
+   Vary: Accept-Query, Content-Type
+
+   ...Same query, but using SQL...
+
+   The data being queried did not change, therefore the server responds
+   with:
+
+   HTTP/1.1 304 Not Modified
+   Date: Mon, 8 Sep 2025, 11:00:00 GMT
+   Content-Type: text/csv
+   Location: /stored-queries/4815162342
+   Accept-Query: "application/sql", "application/xslt+xml"
+   Last-Modified: Sun, 31 Aug 2025, 08:44:00 GMT
+   Vary: Accept-Query, Content-Type
+
+   As the server identified a URI for the equivalent resource, that
+   resource can be accessed with GET.  In particular, this avoids re-
+   sending the query request's content:
+
+   GET /stored-queries/4815162342 HTTP/1.1
+   Host: example.org
+   Date: Sun, 21, Sep 2025, 12:08:00 GMT
+   Accept: text/csv
+   If-Modified-Since: Sun, 31 Aug 2025, 00:00:00 GMT
+
+   Here, the state of the data set indeed changed, so new content is
+   returned:
+
+   HTTP/1.1 200 OK
+   Date: Sun, 21, Sep 2025, 12:08:00 GMT
+   Content-Type: text/csv
+   Last-Modified: Thu, 18 Sep 2025, 19:56:00 GMT
+   Vary: Accept-Query, Content-Encoding, Content-Type
+
+   decade, total, with errata, % with errata, average page count
+   1960, 26, 5, 19.2, 5.3
+   1970, 666, 18, 2.7, 6.1
+   1980, 376, 44, 11.7, 23.4
+   1990, 1593, 269, 16.9, 25.5
+   2000, 2888, 1048, 36.3, 27.3
+   2010, 2954, 895, 30.3, 26.1
+   2020, 1133, 230, 20.3, 26.2
+
+   (Note the change in the row for this decade.)
+
+   The diagrams below illustrate the use of conditional requests and how
+   they can differ when a URI is assigned to the equivalent resource
+   (and when the client is taking advantage of it).  The fictitious
+   field name "Validator" is used for demonstration purposes.
+
+            Client                             Resource
+            |                                         |
+            | QUERY with content                      |
+            +---------------------------------------->|
+            |                                         |
+            |                                  200 OK |
+            |                          Validator: foo |
+            |<----------------------------------------+
+            |                                         |
+            | QUERY with content                      |
+            | (conditional on 'foo')                  |
+            +---------------------------------------->|
+            |                                         |
+            |                        304 Not Modified |
+            |                          Validator: foo |
+            |<----------------------------------------+
+            |                                         |
+            |                                  +--------------+
+            |                                  | State Change |
+            |                                  +--------------+
+            |                                         |
+            | QUERY with content                      |
+            | (conditional on 'foo')                  |
+            +---------------------------------------->|
+            |                                         |
+            |                                  200 OK |
+            |                          Validator: bar |
+            |<----------------------------------------+
+            |                                         |
+
+                    Figure 1: Data Flow with QUERY only
+
+   Client                   Resource
+   |                               |
+   | QUERY with content            |         Equivalent Resource
+   +------------------------------>|            (generates /xyz)
+   |                               +---------------------------o
+   |                               |                           |
+   |                        200 OK |                           |
+   |                Validator: foo |                           |
+   |                Location: /xyz |                           |
+   |<------------------------------+                           |
+   |                               |                           |
+   | GET                                                       |
+   | (conditional on 'foo')                                    |
+   +---------------------------------------------------------->|
+   |                                                           |
+   |                                          304 Not Modified |
+   |                                            Validator: foo |
+   |<----------------------------------------------------------+
+   |                                                           |
+   |                                                    +--------------+
+   |                                                    | State Change |
+   |                                                    +--------------+
+   | GET                                                       |
+   | (conditional on 'foo')                                    |
+   +---------------------------------------------------------->|
+   |                                                           |
+   |                                                    200 OK |
+   |                                            Validator: bar |
+   |<----------------------------------------------------------+
+   |                                                           |
+
+            Figure 2: Data Flow with GET to Equivalent Resource
+
+A.6.  More Query Formats
 
    The following examples show requests on a JSON-shaped ([RFC8259])
    database of RFC errata.
 
-   The request below uses XSLT ([XSLT]) to extract errata information
-   summarized per year and the defined errata types.
+   The request below uses XSLT to extract errata information summarized
+   per year and the defined errata types.
 
    QUERY /errata.json HTTP/1.1
    Host: example.org
@@ -1040,14 +1289,35 @@ B.12.  Since draft-ietf-httpbis-safe-method-w-body-11
    *  Address HTTPDIR/RF feedback on redirection
       (https://github.com/httpwg/http-extensions/issues/3119)
 
+   *  Address HTTPDIR/RF feedback on caching (https://github.com/httpwg/
+      http-extensions/issues/3120)
+
    *  Address HTTPDIR/RF feedback on abstract
       (https://github.com/httpwg/http-extensions/issues/3121)
 
    *  Address HTTPDIR/RF feedback on introduction
       (https://github.com/httpwg/http-extensions/issues/3122)
 
+   *  Address HTTPDIR/RF feedback on method definition
+      (https://github.com/httpwg/http-extensions/issues/3123)
+
    *  Consistent Table Captions (https://github.com/httpwg/http-
       extensions/issues/3134)
+
+   *  Define "Equivalent Resource", update description of Conditional
+      Requests, add examples (https://github.com/httpwg/http-extensions/
+      issues/3137)
+
+   *  Extend discussion of Range Requests (https://github.com/httpwg/
+      http-extensions/issues/3151)
+
+B.13.  Since draft-ietf-httpbis-safe-method-w-body-12
+
+   *  Ack Asbjørn Ulsberg (https://github.com/httpwg/http-extensions/
+      issues/3299)
+
+   *  LC feedback from Rahul Gupta (https://github.com/httpwg/http-
+      extensions/issues/3315)
 
 Acknowledgements
 
@@ -1065,6 +1335,14 @@ Contributors
 
    Ashok Malhotra
    Email: malhotrasahib@gmail.com
+
+
+   Discussion on the this HTTP method was reopened by Asbjørn Ulsberg
+   during the HTTP Workshop in 2019:
+
+   Asbjørn Ulsberg
+   Email: asbjorn@ulsberg.no
+   URI:   https://asbjor.nu/
 
 
 Authors' Addresses
