@@ -6,7 +6,7 @@ HTTP                                                A. van Kesteren, Ed.
 Internet-Draft                                                     Apple
 Obsoletes: [6265] (if approved)                          J. Hofmann, Ed.
 Intended status: Standards Track                                  Google
-Expires: 19 May 2026                                    15 November 2025
+Expires: 22 May 2026                                    18 November 2025
 
 
                 Cookies: HTTP State Management Mechanism
@@ -52,7 +52,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 19 May 2026.
+   This Internet-Draft will expire on 22 May 2026.
 
 Copyright Notice
 
@@ -2061,12 +2061,9 @@ Acknowledgements
    Many thanks to Adam Barth for laying the groundwork for a modern
    cookie specification with RFC 6265.
 
-   And thanks to John Wilander, Lily Chen, Mike West, Steven Bingler,
-   and Steven Englehardt for improving upon that work in subsequent
-   drafts.
-
-   Further thanks goes to Dylan Cutler and Yoav Weiss (in alphabetical
-   order) for their substantial contributions to this document.
+   And many thanks to Steven Bingler, Lily Chen, Dylan Cutler, Steven
+   Englehardt, Yoav Weiss, Mike West, and John Wilander for improving
+   upon that work.
 
 References
 
