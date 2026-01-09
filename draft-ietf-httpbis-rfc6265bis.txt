@@ -2,11 +2,13 @@
 
 
 
-HTTP                                                     J. Hofmann, Ed.
-Internet-Draft                                                    Google
-Obsoletes: 6265 (if approved)                       A. van Kesteren, Ed.
-Intended status: Standards Track                                   Apple
-Expires: 21 October 2024                                   19 April 2024
+HTTP                                                     S. Bingler, Ed.
+Internet-Draft                                                          
+Obsoletes: 6265 (if approved)                               M. West, Ed.
+Intended status: Standards Track                              Google LLC
+Expires: 13 July 2026                                   J. Wilander, Ed.
+                                                              Apple, Inc
+                                                          9 January 2026
 
 
                 Cookies: HTTP State Management Mechanism
@@ -18,9 +20,9 @@ Abstract
    These header fields can be used by HTTP servers to store state
    (called cookies) at HTTP user agents, letting the servers maintain a
    stateful session over the mostly stateless HTTP protocol.  Although
-   cookies have many historical infelicities that degrade their security
-   and privacy, the Cookie and Set-Cookie header fields are widely used
-   on the Internet.  This document obsoletes RFC 6265 and 6265bis.
+   cookies have many historical flaws that degrade their security and
+   privacy, the Cookie and Set-Cookie header fields are widely used on
+   the Internet.  This document obsoletes RFC 6265.
 
 About This Document
 
@@ -52,11 +54,11 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 21 October 2024.
+   This Internet-Draft will expire on 13 July 2026.
 
 Copyright Notice
 
-   Copyright (c) 2024 IETF Trust and the persons identified as the
+   Copyright (c) 2026 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -83,44 +85,49 @@ Copyright Notice
 Table of Contents
 
    1.  Introduction
-     1.1.  Examples
    2.  Conventions
-     2.1.  Terminology
-     2.2.  ABNF
-   3.  Which Requirements to Implement
-     3.1.  Cookie Producing Implementations
-     3.2.  Cookie Consuming Implementations
-     3.3.  Programming Languages & Software Frameworks
+     2.1.  Conformance Criteria
+     2.2.  Syntax Notation
+     2.3.  Terminology
+     2.4.  Name Resolution System
+   3.  Overview
+     3.1.  Examples
+     3.2.  Which Requirements to Implement
+       3.2.1.  Cookie Producing Implementations
+       3.2.2.  Cookie Consuming Implementations
    4.  Server Requirements
-     4.1.  Set-Cookie
+     4.1.  Set-Cookie Header
        4.1.1.  Syntax
        4.1.2.  Semantics (Non-Normative)
        4.1.3.  Cookie Name Prefixes
-     4.2.  Cookie
+     4.2.  Cookie Header
        4.2.1.  Syntax
        4.2.2.  Semantics
    5.  User Agent Requirements
-     5.1.  Cookie Concepts
-       5.1.1.  Cookie Store And Limits
-       5.1.2.  Cookie Struct
-     5.2.  Cookie Store Eviction
-       5.2.1.  Remove Excess Cookies for a Host
-       5.2.2.  Remove Global Excess Cookies
-     5.3.  Subcomponent Algorithms
-       5.3.1.  Parse a Date
-       5.3.2.  Domain Matching
-       5.3.3.  Cookie Default Path
-       5.3.4.  Path Matching
-     5.4.  Main Algorithms
-       5.4.1.  Parse and Store a Cookie
-       5.4.2.  Parse a Cookie
-       5.4.3.  Store a Cookie
-       5.4.4.  Retrieve Cookies
-       5.4.5.  Serialize Cookies
-     5.5.  Requirements Specific to Non-Browser User Agents
-       5.5.1.  The Set-Cookie Header Field
-       5.5.2.  The Cookie Header Field
-     5.6.  Requirements Specific to Browser User Agents
+     5.1.  Subcomponent Algorithms
+       5.1.1.  Dates
+       5.1.2.  Canonicalized Host Names
+       5.1.3.  Domain Matching
+       5.1.4.  Paths and Path-Match
+     5.2.  "Same-site" and "cross-site" Requests
+       5.2.1.  Document-based requests
+       5.2.2.  Worker-based requests
+     5.3.  Ignoring Set-Cookie Header Fields
+     5.4.  Cookie Name Prefixes
+     5.5.  Cookie Lifetime Limits
+     5.6.  The Set-Cookie Header Field
+       5.6.1.  The Expires Attribute
+       5.6.2.  The Max-Age Attribute
+       5.6.3.  The Domain Attribute
+       5.6.4.  The Path Attribute
+       5.6.5.  The Secure Attribute
+       5.6.6.  The HttpOnly Attribute
+       5.6.7.  The SameSite Attribute
+     5.7.  Storage Model
+     5.8.  Retrieval Model
+       5.8.1.  The Cookie Header Field
+       5.8.2.  Non-HTTP APIs
+       5.8.3.  Retrieval Algorithm
    6.  Implementation Considerations
      6.1.  Limits
      6.2.  Application Programming Interfaces
@@ -138,14 +145,24 @@ Table of Contents
      8.6.  Weak Integrity
      8.7.  Reliance on DNS
      8.8.  SameSite Cookies
+       8.8.1.  Defense in depth
+       8.8.2.  Top-level Navigations
+       8.8.3.  Mashups and Widgets
+       8.8.4.  Server-controlled
+       8.8.5.  Reload navigations
+       8.8.6.  Top-level requests with "unsafe" methods
+     8.9.  Public Suffix List
    9.  IANA Considerations
      9.1.  Cookie
      9.2.  Set-Cookie
-   10. Changes
+     9.3.  "Cookie Attributes" Registry
+       9.3.1.  Procedure
+       9.3.2.  Registration
+   10. References
+     10.1.  Normative References
+     10.2.  Informative References
+   Appendix A.  Changes from RFC 6265
    Acknowledgements
-   References
-     Normative References
-     Informative References
    Authors' Addresses
 
 1.  Introduction
@@ -158,29 +175,195 @@ Table of Contents
    return the name/value pairs in the Cookie header field.
 
    Although simple on their surface, cookies have a number of
-   complexities.  For example, the server can scope the maximum amount
-   of time during which the user agent should return the cookie, the
-   servers to which the user agent should return the cookie, and whether
-   the cookie can be accessed through a non-HTTP API, such as JavaScript
-   in a web browser.
+   complexities.  For example, the server indicates a scope for each
+   cookie when sending it to the user agent.  The scope indicates the
+   maximum amount of time in which the user agent should return the
+   cookie, the servers to which the user agent should return the cookie,
+   and the connection types for which the cookie is applicable.
 
    For historical reasons, cookies contain a number of security and
-   privacy infelicities.  For example, a server can indicate that a
-   given cookie is intended for "secure" connections, but the cookie's
-   Secure attribute does not provide integrity in the presence of an
-   active network attacker.  Similarly, cookies for a given host are
-   shared across all the ports on that host, even though the usual
-   "same-origin policy" used by web browsers isolates content retrieved
-   via different ports.
+   privacy flaws.  For example, a server can indicate that a given
+   cookie is intended for "secure" connections, but the Secure attribute
+   does not provide integrity in the presence of an active network
+   attacker.  Similarly, cookies for a given host are shared across all
+   the ports on that host, even though the usual "same-origin policy"
+   used by web browsers isolates content retrieved via different ports.
+
+   This specification applies to developers of both cookie-producing
+   servers and cookie-consuming user agents.  Section 3.2 helps to
+   clarify the intended target audience for each implementation type.
+
+   To maximize interoperability with user agents, servers SHOULD limit
+   themselves to the well-behaved profile defined in Section 4 when
+   generating cookies.
+
+   User agents MUST implement the more liberal processing rules defined
+   in Section 5, in order to maximize interoperability with existing
+   servers that do not conform to the well-behaved profile defined in
+   Section 4.
 
    This document specifies the syntax and semantics of these header
-   fields.  Where some existing software differs from the requirements
-   in significant ways, the document contains a note explaining the
-   difference.
+   fields as they are actually used on the Internet.  In particular,
+   this document does not create new syntax or semantics beyond those in
+   use today.  The recommendations for cookie generation provided in
+   Section 4 represent a preferred subset of current server behavior,
+   and even the more liberal cookie processing algorithm provided in
+   Section 5 does not recommend all of the syntactic and semantic
+   variations in use today.  Where some existing software differs from
+   the recommended protocol in significant ways, the document contains a
+   note explaining the difference.
 
-   This document obsoletes [RFC6265] and 6265bis.
+   This document obsoletes [RFC6265].
 
-1.1.  Examples
+2.  Conventions
+
+2.1.  Conformance Criteria
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
+   "OPTIONAL" in this document are to be interpreted as described in BCP
+   14 [RFC2119] [RFC8174] when, and only when, they appear in all
+   capitals, as shown here.
+
+   Requirements phrased in the imperative as part of algorithms (such as
+   "strip any leading space characters" or "return false and abort this
+   algorithm") are to be interpreted with the meaning of the key word
+   ("MUST", "SHOULD", "MAY", etc.) used in introducing the algorithm.
+
+   Conformance requirements phrased as algorithms or specific steps can
+   be implemented in any manner, so long as the end result is
+   equivalent.  In particular, the algorithms defined in this
+   specification are intended to be easy to understand and are not
+   intended to be performant.
+
+2.2.  Syntax Notation
+
+   This specification uses the Augmented Backus-Naur Form (ABNF)
+   notation of [RFC5234].
+
+   The following core rules are included by reference, as defined in
+   [RFC5234], Appendix B.1: ALPHA (letters), CR (carriage return), CRLF
+   (CR LF), CTLs (controls), DIGIT (decimal 0-9), DQUOTE (double quote),
+   HEXDIG (hexadecimal 0-9/A-F/a-f), LF (line feed), NUL (null octet),
+   OCTET (any 8-bit sequence of data except NUL), SP (space), HTAB
+   (horizontal tab), CHAR (any [USASCII] character), VCHAR (any visible
+   [USASCII] character), and WSP (whitespace).
+
+   The OWS (optional whitespace) and BWS (bad whitespace) rules are
+   defined in Section 5.6.3 of [HTTP].
+
+2.3.  Terminology
+
+   The terms "user agent", "client", "server", "proxy", and "origin
+   server" have the same meaning as in the HTTP/1.1 specification
+   (Section 3 of [HTTP]).
+
+   The request-host is the name of the host, as known by the user agent,
+   to which the user agent is sending an HTTP request or from which it
+   is receiving an HTTP response (i.e., the name of the host to which it
+   sent the corresponding HTTP request).
+
+   The term request-uri refers to "target URI" as defined in Section 7.1
+   of [HTTP].
+
+   Two sequences of octets are said to case-insensitively match each
+   other if and only if they are equivalent under the i;ascii-casemap
+   collation defined in [RFC4790].
+
+   The term string means a sequence of non-NUL octets.
+
+   The terms "active browsing context", "active document", "ancestor
+   navigables", "container document", "content navigable", "dedicated
+   worker", "Document", "inclusive ancestor navigables", "navigable",
+   "navigate", "opaque origin", "sandboxed origin browsing context
+   flag", "shared worker", "the worker's Documents", "top-level
+   traversable", and "WorkerGlobalScope" are defined in [HTML].
+
+   "Service Workers" are defined in the Service Workers specification
+   [SERVICE-WORKERS].
+
+   The term "origin", the mechanism of deriving an origin from a URI,
+   and the "the same" matching algorithm for origins are defined in
+   [RFC6454].
+
+   "Safe" HTTP methods include GET, HEAD, OPTIONS, and TRACE, as defined
+   in Section 9.2.1 of [HTTP].
+
+   A domain's "public suffix" is the portion of a domain that is
+   controlled by a public registry, such as "com", "co.uk", and
+   "pvt.k12.wy.us".  A domain's "registrable domain" is the domain's
+   public suffix plus the label to its left.  That is, for
+   https://www.site.example, the public suffix is example, and the
+   registrable domain is site.example.  See Section 8.9 for security
+   considerations.
+
+   The term "request", as well as a request's "client", "current url",
+   "method", "target browsing context", and "url list", are defined in
+   [FETCH].
+
+   The term "non-HTTP APIs" refers to non-HTTP mechanisms used to set
+   and retrieve cookies, such as a web browser API that exposes cookies
+   to scripts.
+
+   The term "top-level navigation" refers to a navigation of a top-level
+   traversable.
+
+2.4.  Name Resolution System
+
+   While this document does not strictly prescribe any specific name
+   resolution system for use with cookies it does require that the
+   system uses only [USASCII] characters or uses an ASCII-compatible
+   encoding (ACE).  As the Domain Name System (DNS) is a typical and
+   conventional example this document will reference name resolution in
+   terms of DNS.
+
+   Name resolution systems that directly expose non-ASCII characters,
+   such as Unicode, are out of scope of this document.
+
+3.  Overview
+
+   This section outlines a way for an origin server to send state
+   information to a user agent and for the user agent to return the
+   state information to the origin server.
+
+   To store state, the origin server includes a Set-Cookie header field
+   in an HTTP response.  In subsequent requests, the user agent returns
+   a Cookie request header field to the origin server.  The Cookie
+   header field contains cookies the user agent received in previous
+   Set-Cookie header fields.  The origin server is free to ignore the
+   Cookie header field or use its contents for an application-defined
+   purpose.
+
+   Origin servers MAY send a Set-Cookie response header field with any
+   response.  An origin server can include multiple Set-Cookie header
+   fields in a single response.  The presence of a Cookie or a Set-
+   Cookie header field does not preclude HTTP caches from storing and
+   reusing a response.
+
+   Origin servers and intermediaries MUST NOT combine multiple Set-
+   Cookie header fields into a single header field.  The usual mechanism
+   for combining HTTP headers fields (i.e., as defined in Section 5.3 of
+   [HTTP]) might change the semantics of the Set-Cookie header field
+   because the %x2C (",") character is used by Set-Cookie in a way that
+   conflicts with such combining.
+
+   For example,
+
+   Set-Cookie: a=b;path=/c,d=e
+
+   is ambiguous.  It could be intended as two cookies, a=b and d=e, or a
+   single cookie with a path of /c,d=e.
+
+   User agents MAY ignore Set-Cookie header fields based on response
+   status codes or the user agent's cookie policy (see Section 5.3).
+
+   Note: A cookie's octets MUST be processed as [USASCII] characters.
+   While it's possible a non-HTTP API could pass a set-cookie-string
+   with one or more non-[USASCII] characters, no attempt should be made
+   to interpret these octets as anything other than [USASCII]
+   characters.
+
+3.1.  Examples
 
    Using the Set-Cookie header field, a server can send the user agent a
    short string in an HTTP response that the user agent will return in
@@ -227,16 +410,32 @@ Table of Contents
    Cookie: SID=31d4d96e407aad42; lang=en-US
 
    Notice that the Cookie header field above contains two cookies, one
-   named SID and one named lang.  If the server wishes the user agent to
-   persist the cookie over multiple "sessions" (e.g., user agent
-   restarts), the server can specify an expiration date in the Expires
-   attribute.  Note that the user agent might delete the cookie before
-   the expiration date if the user agent's cookie store exceeds its
-   quota or if the user manually deletes the server's cookie.
+   named SID and one named lang.
+
+   Cookie names are case-sensitive, meaning that if a server sends the
+   user agent two Set-Cookie header fields that differ only in their
+   name's case the user agent will store and return both of those
+   cookies in subsequent requests.
 
    == Server -> User Agent ==
 
-   Set-Cookie: lang=en-US; Expires=Wed, 09 Jun 2021 10:18:14 GMT
+   Set-Cookie: SID=31d4d96e407aad42
+   Set-Cookie: sid=31d4d96e407aad42
+
+   == User Agent -> Server ==
+
+   Cookie: SID=31d4d96e407aad42; sid=31d4d96e407aad42
+
+   If the server wishes the user agent to persist the cookie over
+   multiple "sessions" (e.g., user agent restarts), the server can
+   specify an expiration date in the Expires attribute.  Note that the
+   user agent might delete the cookie before the expiration date if the
+   user agent's cookie store exceeds its quota or if the user manually
+   deletes the server's cookie.
+
+   == Server -> User Agent ==
+
+   Set-Cookie: lang=en-US; Expires=Wed, 09 Jun 2026 10:18:14 GMT
 
    == User Agent -> Server ==
 
@@ -256,40 +455,7 @@ Table of Contents
 
    Cookie: SID=31d4d96e407aad42
 
-2.  Conventions
-
-2.1.  Terminology
-
-   This specification depends on Infra.  [INFRA]
-
-   Some terms used in this specification are defined in the following
-   standards and specifications:
-
-   *  HTTP [HTTPSEM]
-
-   *  URL [URL]
-
-   A *non-HTTP API* is a non-HTTP mechanisms used to set and retrieve
-   cookies, such as a web browser API that exposes cookies to
-   JavaScript.
-
-2.2.  ABNF
-
-   This specification uses the Augmented Backus-Naur Form (ABNF)
-   notation of [RFC5234].
-
-   The following core rules are included by reference, as defined in
-   [RFC5234], Appendix B.1: ALPHA (letters), CR (carriage return), CRLF
-   (CR LF), CTLs (controls), DIGIT (decimal 0-9), DQUOTE (double quote),
-   HEXDIG (hexadecimal 0-9/A-F/a-f), LF (line feed), NUL (null octet),
-   OCTET (any 8-bit sequence of data except NUL), SP (space), HTAB
-   (horizontal tab), CHAR (any ASCII byte), VCHAR (any visible ASCII
-   byte), and WSP (whitespace).
-
-   The OWS (optional whitespace) and BWS (bad whitespace) rules are
-   defined in Section 5.6.3 of [HTTPSEM].
-
-3.  Which Requirements to Implement
+3.2.  Which Requirements to Implement
 
    The upcoming two sections, Section 4 and Section 5, discuss the set
    of requirements for two distinct types of implementations.  This
@@ -300,22 +466,21 @@ Table of Contents
 
    It's important to note that being compatible means different things
    depending on the implementer's goals.  These differences have built
-   up over time due to both intentional and unintentional specification
-   changes, specification interpretations, and historical implementation
-   differences.
+   up over time due to both intentional and unintentional spec changes,
+   spec interpretations, and historical implementation differences.
 
-   This section roughly divides implementers of this specification into
-   two types, producers and consumers.  These are not official terms and
-   are only used here to help readers develop an intuitive understanding
-   of the use cases.
+   This section roughly divides implementers of the cookie spec into two
+   types, producers and consumers.  These are not official terms and are
+   only used here to help readers develop an intuitive understanding of
+   the use cases.
 
-3.1.  Cookie Producing Implementations
+3.2.1.  Cookie Producing Implementations
 
    An implementer should choose Section 4 whenever cookies are created
    and will be sent to a user agent, such as a web browser.  These
-   implementations are frequently referred to as servers by the
-   specification but that term includes anything which primarily
-   produces cookies.  Some potential examples:
+   implementations are frequently referred to as servers by the spec but
+   that term includes anything which primarily produces cookies.  Some
+   potential examples:
 
    *  Server applications hosting a website or API
 
@@ -330,7 +495,10 @@ Table of Contents
    a server application which needs to read it.  Section 4 advises best
    practices that help maximize this sense of compatibility.
 
-3.2.  Cookie Consuming Implementations
+   See Section 3.2.2.1 for more details on programming languages and
+   software frameworks.
+
+3.2.2.  Cookie Consuming Implementations
 
    An implementer should choose Section 5 whenever cookies are primarily
    received from another source.  These implementations are referred to
@@ -349,7 +517,10 @@ Table of Contents
    Section 5 advises best practices that help maximize this sense of
    compatibility.
 
-3.3.  Programming Languages & Software Frameworks
+   See Section 3.2.2.1 for more details on programming languages and
+   software frameworks.
+
+3.2.2.1.  Programming Languages & Software Frameworks
 
    A programming language or software framework with support for cookies
    could reasonably be used to create an application that acts as a
@@ -365,52 +536,40 @@ Table of Contents
 
 4.  Server Requirements
 
-   This section describes the conforming syntax and semantics of the
-   HTTP Cookie and Set-Cookie header fields.
+   This section describes the syntax and semantics of a well-behaved
+   profile of the Cookie and Set-Cookie header fields.
 
-4.1.  Set-Cookie
+4.1.  Set-Cookie Header
 
    The Set-Cookie HTTP response header field is used to send cookies
    from the server to the user agent.
-
-   Origin servers MAY send a Set-Cookie response header field with any
-   response.  An origin server can include multiple Set-Cookie header
-   fields in a single response.  The presence of a Cookie or a Set-
-   Cookie header field does not preclude HTTP caches from storing and
-   reusing a response.
-
-   Origin servers SHOULD NOT fold multiple Set-Cookie header fields into
-   a single header field.  The usual mechanism for folding HTTP headers
-   fields (i.e., as defined in Section 5.3 of [HTTPSEM]) might change
-   the semantics of the Set-Cookie header field because 0x2C (,) is used
-   by Set-Cookie in a way that conflicts with such folding.
 
 4.1.1.  Syntax
 
    Informally, the Set-Cookie response header field contains a cookie,
    which begins with a name-value-pair, followed by zero or more
-   attribute-value pairs.  User agents SHOULD send Set-Cookie header
-   fields that conform to the following grammar:
+   attribute-value pairs.  Servers conforming to this profile MUST NOT
+   send Set-Cookie header fields that deviate from the following
+   grammar:
 
    set-cookie        = set-cookie-string
    set-cookie-string = BWS cookie-pair *( BWS ";" OWS cookie-av )
    cookie-pair       = cookie-name BWS "=" BWS cookie-value
-   cookie-name       = 1*cookie-octet
+   cookie-name       = token
    cookie-value      = *cookie-octet / ( DQUOTE *cookie-octet DQUOTE )
    cookie-octet      = %x21 / %x23-2B / %x2D-3A / %x3C-5B / %x5D-7E
                          ; US-ASCII characters excluding CTLs,
-                         ; whitespace DQUOTE, comma, semicolon,
+                         ; whitespace, DQUOTE, comma, semicolon,
                          ; and backslash
+   token             = <token, defined in [HTTP], Section 5.6.2>
 
    cookie-av         = expires-av / max-age-av / domain-av /
                        path-av / secure-av / httponly-av /
                        samesite-av / extension-av
    expires-av        = "Expires" BWS "=" BWS sane-cookie-date
    sane-cookie-date  =
-       <IMF-fixdate, defined in [HTTPSEM], Section 5.6.7>
-   max-age-av        = "Max-Age" BWS "=" BWS non-zero-digit *DIGIT
-   non-zero-digit    = %x31-39
-                         ; digits 1 through 9
+       <IMF-fixdate, defined in [HTTP], Section 5.6.7>
+   max-age-av        = "Max-Age" BWS "=" BWS 1*DIGIT
    domain-av         = "Domain" BWS "=" BWS domain-value
    domain-value      = <subdomain>
                          ; see details below
@@ -420,7 +579,7 @@ Table of Contents
    httponly-av       = "HttpOnly"
    samesite-av       = "SameSite" BWS "=" BWS samesite-value
    samesite-value    = "Strict" / "Lax" / "None"
-   extension-av      = *av-octet
+   extension-av      = 1*av-octet
    av-octet          = %x20-3A / %x3C-7E
                          ; any CHAR except CTLs or ";"
 
@@ -428,9 +587,9 @@ Table of Contents
    that use different grammatical notations than this document (which
    uses ABNF from [RFC5234]).
 
-   Per the grammar above, servers SHOULD NOT produce nameless cookies
-   (i.e., an empty cookie-name) as such cookies may be unpredictably
-   serialized by user agents when sent back to the server.
+   Per the grammar above, servers MUST NOT produce nameless cookies
+   (i.e.: an empty cookie-name) as such cookies may be unpredictably
+   serialized by UAs when sent back to the server.
 
    The semantics of the cookie-value are not defined by this document.
 
@@ -443,34 +602,40 @@ Table of Contents
    characters are not stripped.  They are part of the cookie-value, and
    will be included in Cookie header fields sent to the server.
 
-   The domain-value is a subdomain as defined by [RFC1034], Section 3.5,
-   and as enhanced by [RFC1123], Section 2.1.  Thus, domain-value is a
-   byte sequence of ASCII bytes.
+   Per the grammar above, extension-av MUST NOT contain leading or
+   trailing WSP characters as they will be interpreted as BWS and
+   removed.
+
+   The domain-value is a subdomain as defined by Section 3.5 of
+   [RFC1034], and as enhanced by Section 2.1 of [RFC1123].  Thus,
+   domain-value is a string of [USASCII] characters, such as an
+   "A-label" as defined in Section 2.3.2.1 of [RFC5890].
 
    The portions of the set-cookie-string produced by the cookie-av term
    are known as attributes.  To maximize compatibility with user agents,
-   servers SHOULD NOT produce two attributes with the same name in the
-   same set-cookie-string.
+   servers MUST NOT produce two attributes with the same name in the
+   same set-cookie-string.  (See Section 5.7 for how user agents handle
+   this case.)
 
-   NOTE: The name of an attribute-value pair is not case-sensitive.  So
-   while they are presented here in CamelCase, such as HttpOnly or
-   SameSite, any case is accepted.  E.g., httponly, Httponly, hTTPoNLY,
-   etc.
+   Note: The name of an attribute-value pair is not case-sensitive.  So
+   while they are presented here in CamelCase, such as "HttpOnly" or
+   "SameSite", any case is accepted.  E.x.: "httponly", "Httponly",
+   "hTTPoNLY", etc.
 
-   Servers SHOULD NOT include more than one Set-Cookie header field in
-   the same response with the same cookie-name.  (See Section 5.5.1 for
-   how user agents handle this case.)
+   Servers MUST NOT include more than one Set-Cookie header field in the
+   same response with the same cookie-name.  (See Section 5.6 for how
+   user agents handle this case.)
 
    If a server sends multiple responses containing Set-Cookie header
    fields concurrently to the user agent (e.g., when communicating with
    the user agent over multiple sockets), these responses create a "race
    condition" that can lead to unpredictable behavior.
 
-   NOTE: Some existing user agents differ in their interpretation of
+   Note: Some existing user agents differ in their interpretation of
    two-digit years.  To avoid compatibility issues, servers SHOULD use
    the rfc1123-date format, which requires a four-digit year.
 
-   NOTE: Some user agents store and process dates in cookies as 32-bit
+   Note: Some user agents store and process dates in cookies as 32-bit
    UNIX time_t values.  Implementation bugs in the libraries supporting
    time_t processing on some systems might cause such user agents to
    process dates after the year 2038 incorrectly.
@@ -503,19 +668,24 @@ Table of Contents
 
    The Expires attribute indicates the maximum lifetime of the cookie,
    represented as the date and time at which the cookie expires.  The
-   user agent is not required to retain the cookie until the specified
-   date has passed.  In fact, user agents often evict cookies due to
-   memory pressure or privacy concerns.
+   user agent may adjust the specified date and is not required to
+   retain the cookie until that date has passed.  In fact, user agents
+   often evict cookies due to memory pressure or privacy concerns.
+
+   The cookie's lifetime is based on the user agent's clock which may
+   differ from the server's clock.  Servers MUST NOT depend on cookies
+   being evicted exactly at the specified date and time of the server's
+   clock.
 
 4.1.2.2.  The Max-Age Attribute
 
    The Max-Age attribute indicates the maximum lifetime of the cookie,
    represented as the number of seconds until the cookie expires.  The
-   user agent is not required to retain the cookie for the specified
-   duration.  In fact, user agents often evict cookies due to memory
-   pressure or privacy concerns.
+   user agent may adjust the specified duration and is not required to
+   retain the cookie for that duration.  In fact, user agents often
+   evict cookies due to memory pressure or privacy concerns.
 
-   NOTE: Some existing user agents do not support the Max-Age attribute.
+   Note: Some existing user agents do not support the Max-Age attribute.
    User agents that do not support the Max-Age attribute ignore the
    attribute.
 
@@ -531,10 +701,9 @@ Table of Contents
    be sent.  For example, if the value of the Domain attribute is
    "site.example", the user agent will include the cookie in the Cookie
    header field when making HTTP requests to site.example,
-   www.site.example, and www.corp.site.example.  (Note that a leading
-   %x2E ("."), if present, is ignored even though that character is not
-   permitted.)  If the server omits the Domain attribute, the user agent
-   will return the cookie only to the origin server.
+   www.site.example, and www.corp.site.example.  If the server omits the
+   Domain attribute, the user agent will return the cookie only to the
+   origin server.
 
    WARNING: Some existing user agents treat an absent Domain attribute
    as if the Domain attribute were present and contained the current
@@ -549,12 +718,17 @@ Table of Contents
    foo.site.example, but the user agent will not accept a cookie with a
    Domain attribute of "bar.site.example" or of "baz.foo.site.example".
 
+   Note: For security reasons, many user agents are configured to reject
+   Domain attributes that correspond to "public suffixes".  For example,
+   some user agents will reject Domain attributes of "com" or "co.uk".
+   (See Section 5.7 for more information.)
+
 4.1.2.4.  The Path Attribute
 
    The scope of each cookie is limited to a set of paths, controlled by
    the Path attribute.  If the server omits the Path attribute, the user
    agent will use the "directory" of the request-uri's path component as
-   the default value.  (See Section 5.3.3 for more details.)
+   the default value.  (See Section 5.1.4 for more details.)
 
    The user agent will include the cookie in an HTTP request only if the
    path portion of the request-uri matches (or is a subdirectory of) the
@@ -568,11 +742,11 @@ Table of Contents
 4.1.2.5.  The Secure Attribute
 
    The Secure attribute limits the scope of the cookie to "secure"
-   channels (where "secure" is outside the scope of this document).
-   E.g., when a cookie has the Secure attribute, the user agent will
-   include the cookie in an HTTP request only if the request is
-   transmitted over a secure channel (typically HTTP over Transport
-   Layer Security (TLS) [RFC2818]).
+   channels (where "secure" is defined by the user agent).  When a
+   cookie has the Secure attribute, the user agent will include the
+   cookie in an HTTP request only if the request is transmitted over a
+   secure channel (typically HTTP over Transport Layer Security (TLS
+   [TLS13]) [HTTP]).
 
 4.1.2.6.  The HttpOnly Attribute
 
@@ -580,16 +754,37 @@ Table of Contents
    requests.  In particular, the attribute instructs the user agent to
    omit the cookie when providing access to cookies via non-HTTP APIs.
 
+   Note that the HttpOnly attribute is independent of the Secure
+   attribute: a cookie can have both the HttpOnly and the Secure
+   attribute.
+
 4.1.2.7.  The SameSite Attribute
 
-   The SameSite attribute limits the scope of the cookie upon creation
-   and delivery with respect to whether the cookie is considered to be
-   "same-site" within a larger context (where "same-site" is outside the
-   scope of this document).  The SameSite attribute is particularly
-   relevant for web browsers and web applications accessible through
-   them.
+   The "SameSite" attribute limits the scope of the cookie such that it
+   will only be attached to requests if those requests are same-site, as
+   defined by the algorithm in Section 5.2.  For example, requests for
+   https://site.example/sekrit-image will attach same-site cookies if
+   and only if initiated from a context whose "site for cookies" is an
+   origin with a scheme and registered domain of "https" and
+   "site.example" respectively.
 
-   The SameSite attribute supports Strict, Lax, and None as values.
+   If the "SameSite" attribute's value is "Strict", the cookie will only
+   be sent along with "same-site" requests.  If the value is "Lax", the
+   cookie will be sent with same-site requests, and with "cross-site"
+   top-level navigations, as described in Section 5.6.7.1.  If the value
+   is "None", the cookie will be sent with same-site and cross-site
+   requests.  If the "SameSite" attribute's value is something other
+   than these three known keywords, the attribute's value will be
+   subject to a default enforcement mode that is equivalent to "Lax".
+   If a user agent uses "Lax-allowing-unsafe" enforcement (See
+   Section 5.6.7.2) then this default enforcement mode will instead be
+   equivalent to "Lax-allowing-unsafe".
+
+   The "SameSite" attribute affects cookie creation as well as delivery.
+   Cookies which assert "SameSite=Lax" or "SameSite=Strict" cannot be
+   set in responses to cross-site subresource requests, or cross-site
+   nested navigations.  They can be set along with any top-level
+   navigation, cross-site or otherwise.
 
 4.1.3.  Cookie Name Prefixes
 
@@ -601,7 +796,10 @@ Table of Contents
    requirements can be inferred from the first few characters of the
    cookie's name.
 
-   To maximize compatibility with user agents, servers SHOULD use
+   The user agent requirements for the prefixes described below are
+   detailed in Section 5.4.
+
+   To maximize compatibility with user agents servers SHOULD use
    prefixes as described below.
 
 4.1.3.1.  The "__Secure-" Prefix
@@ -616,7 +814,7 @@ Table of Contents
    Set-Cookie: __Secure-SID=12345; Domain=site.example
 
    Whereas the following Set-Cookie header field would be accepted if
-   set from a secure origin (e.g. https://site.example/), and rejected
+   set from a secure origin (e.g. "https://site.example/"), and rejected
    otherwise:
 
    Set-Cookie: __Secure-SID=12345; Domain=site.example; Secure
@@ -629,15 +827,15 @@ Table of Contents
 
    This combination yields a cookie that hews as closely as a cookie can
    to treating the origin as a security boundary.  The lack of a Domain
-   attribute ensures that cookie's host-only is true, locking the cookie
-   to a particular host, rather than allowing it to span subdomains.
-   Setting the Path to / means that the cookie is effective for the
-   entire host, and won't be overridden for specific paths.  The Secure
-   attribute ensures that the cookie is unaltered by non-secure origins,
-   and won't span protocols.
+   attribute ensures that the cookie's host-only-flag is true, locking
+   the cookie to a particular host, rather than allowing it to span
+   subdomains.  Setting the Path to / means that the cookie is effective
+   for the entire host, and won't be overridden for specific paths.  The
+   Secure attribute ensures that the cookie is unaltered by non-secure
+   origins, and won't span protocols.
 
-   Ports are the only piece of the same-origin policy that __Host-
-   cookies continue to ignore.
+   Ports are the only piece of the origin model that __Host- cookies
+   continue to ignore.
 
    For example, the following cookies would always be rejected:
 
@@ -648,11 +846,11 @@ Table of Contents
    Set-Cookie: __Host-SID=12345; Secure; Domain=site.example; Path=/
 
    While the following would be accepted if set from a secure origin
-   (e.g. https://site.example/), and rejected otherwise:
+   (e.g. "https://site.example/"), and rejected otherwise:
 
    Set-Cookie: __Host-SID=12345; Secure; Path=/
 
-4.2.  Cookie
+4.2.  Cookie Header
 
 4.2.1.  Syntax
 
@@ -664,6 +862,28 @@ Table of Contents
 
    cookie        = cookie-string
    cookie-string = cookie-pair *( ";" SP cookie-pair )
+
+   While Section 5.4 of [HTTP] does not define a length limit for header
+   fields it is likely that the web server's implementation does impose
+   a limit; many popular implementations have default limits of 8192
+   octets.  Servers SHOULD avoid setting a large number of large cookies
+   such that the final cookie-string would exceed their header field
+   limit.  Not doing so could result in requests to the server failing.
+
+   Servers MUST be tolerant of multiple cookie headers.  For example, an
+   HTTP/2 [RFC9113] or HTTP/3 [RFC9114] client or intermediary might
+   split a cookie header to improve compression.  Servers are free to
+   determine what form this tolerance takes.  For example, the server
+   could process each cookie header individually or the server could
+   concatenate all the cookie headers into one and then process that
+   final, single, header.  The server should be mindful of any header
+   field limits when deciding which approach to take.
+
+   Note: Since intermediaries can modify cookie headers they should also
+   be mindful of common server header field limits in order to avoid
+   sending servers headers that they cannot process.  For example,
+   concatenating multiple cookie headers into a single header might
+   exceed a server's size limit.
 
 4.2.2.  Semantics
 
@@ -690,10 +910,10 @@ Table of Contents
 
 5.  User Agent Requirements
 
-   This section specifies the processing models associated with the
-   Cookie and Set-Cookie header fields in sufficient detail that a user
-   agent can interoperate with existing servers (even those that do not
-   conform to the well-behaved profile described in Section 4).
+   This section specifies the Cookie and Set-Cookie header fields in
+   sufficient detail that a user agent implementing these requirements
+   precisely can interoperate with existing servers (even those that do
+   not conform to the well-behaved profile described in Section 4).
 
    A user agent could enforce more restrictions than those specified
    herein (e.g., restrictions specified by its cookie policy, described
@@ -701,142 +921,37 @@ Table of Contents
    the likelihood that a user agent will be able to interoperate with
    existing servers.
 
-5.1.  Cookie Concepts
-
-   To facilitate the algorithms that follow, a number of pre-requisite
-   concepts need to be introduced.
-
-5.1.1.  Cookie Store And Limits
-
-   A user agent has an associated *cookie store*, which is a list of
-   cookies.  It is initially « ».
-
-   A user agent has an associated *total cookies-per-host limit*, which
-   is an integer.  It SHOULD be 50 or more.
-
-   A user agent has an associated *total cookies limit*, which is an
-   integer.  It SHOULD be 3000 or more.
-
-   A user agent has an associated *cookie age limit*, which is a number
-   of days.  It SHOULD be 400 days or less (see Section 7.2).
-
-5.1.2.  Cookie Struct
-
-   A *cookie* is a struct that represents a piece of state to be
-   transmitted between a client and a server.
-
-   A cookie's *name* is a byte sequence.  It always needs to be set.
-
-   A cookie's *value* is a byte sequence.  It always needs to be set.
-
-   A cookie's *secure* is a boolean.  It is initially false.
-
-   A cookie's *host* is a domain, IP address, null, or failure.  It is
-   initially null.  Note: Once a cookie is in the user agent's cookie
-   store its host is a domain or IP address.
-
-   A cookie's *host-only* is a boolean.  It is initially false.
-
-   A cookie's *path* is a URL path.
-
-   A cookie's *same-site* is "strict", "lax", "unset", or "none".  It is
-   initially "unset".
-
-   A cookie's *http-only* is a boolean.  It is initially false.
-
-   A cookie's *creation-time* is a time.  It is initially the current
-   time.
-
-   A cookie's *expiry-time* is null or a time.  It is initially null.
-   Note: A prior version of this specification referred to null with a
-   distinct "persistent-flag" field being false.
-
-   A cookie's *last-access-time* is a time.  It is initially the current
-   time.
-
-5.1.2.1.  Cookie Struct Miscellaneous
-
-   A cookie is *expired* if its expiry-time is non-null and its expiry-
-   time is in the past.
-
-5.2.  Cookie Store Eviction
-
-   The user agent SHOULD evict all expired cookies from its cookie store
-   if, at any time, an expired cookie exists in the cookie store.
-
-   When "the current session is over" (as defined by the user agent),
-   the user agent MUST remove from the cookie store all cookies whose
-   expiry-time is null.
-
-5.2.1.  Remove Excess Cookies for a Host
-
-   To *Remove Excess Cookies for a Host* given a host _host_:
-
-   1.  Let _insecureCookies_ be all cookies in the user agent's cookie
-       store whose host is host-equal to _host_ and whose secure is
-       false.
-
-   2.  Sort _insecureCookies_ by earliest last-access-time first.
-
-   3.  Let _secureCookies_ be all cookies in the user agent's cookie
-       store whose host is host-equal to _host_ and whose secure is
-       true.
-
-   4.  Sort _secureCookies_ by earliest last-access-time first.
-
-   5.  While _insecureCookies_'s size + _secureCookies_'s size is
-       greater than the user agent's total cookies-per-host limit:
-
-       1.  If _insecureCookies_ is not empty, remove the first item of
-           _insecureCookies_ and delete the corresponding cookie from
-           the user agent's cookie store.
-
-       2.  Otherwise, remove the first item of _secureCookies_ and
-           delete the corresponding cookie from the user agent's cookie
-           store.
-
-5.2.2.  Remove Global Excess Cookies
-
-   To *Remove Global Excess Cookies*:
-
-   1.  Let _allCookies_ be the result of sorting the user agent's cookie
-       store by earliest last-access-time first.
-
-   2.  While _allCookies_'s size is greater than the user agent's total
-       cookies limit:
-
-       1.  Remove the first item of _allCookies_ and delete the
-           corresponding cookie from the user agent's cookie store.
-
-5.3.  Subcomponent Algorithms
+5.1.  Subcomponent Algorithms
 
    This section defines some algorithms used by user agents to process
    specific subcomponents of the Cookie and Set-Cookie header fields.
 
-5.3.1.  Parse a Date
+5.1.1.  Dates
 
-   To *Parse a Date* given a byte sequence _input_, run these steps.
-   They return a date and time or failure.
-
-   Note that the various boolean flags defined as a part of the
-   algorithm (i.e., found-time, found-day-of-month, found-month, found-
-   year) are initially "not set".
+   The user agent MUST use an algorithm equivalent to the following
+   algorithm to parse a cookie-date.  Note that the various boolean
+   flags defined as a part of the algorithm (i.e., found-time, found-
+   day-of-month, found-month, found-year) are initially "not set".
 
    1.  Using the grammar below, divide the cookie-date into date-tokens.
 
-       ~~~ abnf cookie-date = _delimiter date-token-list *delimiter
-       date-token-list = date-token *( 1_delimiter date-token ) date-
-       token = 1*non-delimiter
+      cookie-date     = *delimiter date-token-list *delimiter
+      date-token-list = date-token *( 1*delimiter date-token )
+      date-token      = 1*non-delimiter
 
-       delimiter = %x09 / %x20-2F / %x3B-40 / %x5B-60 / %x7B-7E non-
-       delimiter = %x00-08 / %x0A-1F / DIGIT / ":" / ALPHA / %x7F-FF
-       non-digit = %x00-2F / %x3A-FF
+      delimiter       = %x09 / %x20-2F / %x3B-40 / %x5B-60 / %x7B-7E
+      non-delimiter   = %x00-08 / %x0A-1F / DIGIT / ":" / ALPHA
+                        / %x7F-FF
+      non-digit       = %x00-2F / %x3A-FF
 
-       day-of-month = 1_2DIGIT [ non-digit *OCTET ] month = ( "jan" /
-       "feb" / "mar" / "apr" / "may" / "jun" / "jul" / "aug" / "sep" /
-       "oct" / "nov" / "dec" ) *OCTET year = 2_4DIGIT [ non-digit _OCTET
-       ] time = hms-time [ non-digit *OCTET ] hms-time = time-field ":"
-       time-field ":" time-field time-field = 1_2DIGIT ~~~
+      day-of-month    = 1*2DIGIT [ non-digit *OCTET ]
+      month           = ( "jan" / "feb" / "mar" / "apr" /
+                          "may" / "jun" / "jul" / "aug" /
+                          "sep" / "oct" / "nov" / "dec" ) *OCTET
+      year            = 2*4DIGIT [ non-digit *OCTET ]
+      time            = hms-time [ non-digit *OCTET ]
+      hms-time        = time-field ":" time-field ":" time-field
+      time-field      = 1*2DIGIT
 
    2.  Process each date-token sequentially in the order the date-tokens
        appear in the cookie-date:
@@ -869,10 +984,10 @@ Table of Contents
    4.  If the year-value is greater than or equal to 0 and less than or
        equal to 69, increment the year-value by 2000.
 
-       1.  NOTE: Some existing user agents interpret two-digit years
+       1.  Note: Some existing user agents interpret two-digit years
            differently.
 
-   5.  If one of the following is true:
+   5.  Abort this algorithm and fail to parse the cookie-date if:
 
        *  at least one of the found-day-of-month, found-month, found-
           year, or found-time flags is not set,
@@ -885,9 +1000,7 @@ Table of Contents
 
        *  the minute-value is greater than 59, or
 
-       *  the second-value is greater than 59,
-
-       then return failure.
+       *  the second-value is greater than 59.
 
        (Note that leap seconds cannot be represented in this syntax.)
 
@@ -895,584 +1008,1064 @@ Table of Contents
        year, hour, minute, and second (in UTC) are the day-of-month-
        value, the month-value, the year-value, the hour-value, the
        minute-value, and the second-value, respectively.  If no such
-       date exists, abort these steps and fail to parse the cookie-date.
+       date exists, abort this algorithm and fail to parse the cookie-
+       date.
 
    7.  Return the parsed-cookie-date as the result of this algorithm.
 
-5.3.2.  Domain Matching
+5.1.2.  Canonicalized Host Names
 
-   A host _host_ *Domain-Matches* a string _domainAttributeValue_ if at
-   least one of the following is true:
+   A canonicalized host name is the string generated by the following
+   algorithm:
 
-   *  _host_ equals _domainAttributeValue_, or
+   1.  Convert the host name to a sequence of individual domain name
+       labels.
 
-   *  if all of the following are true:
+   2.  All labels must be one of U-label, A-label, or Non-Reserved LDH
+       (NR-LDH) label (see Section 2.3.1 of [RFC5890]).  If any label is
+       not one of these then abort this algorithm and fail to
+       canonicalize the host name.
 
-      -  _host_ is a domain, and
+   3.  Convert each U-label to an A-label (see Section 2.3.2.1 of
+       [RFC5890]).
 
-      -  _host_ ends with the concatenation of U+002E (.) and
-         _domainAttributeValue_.
+   4.  If any label is a Fake A-label then abort this algorithm and fail
+       to canonicalize the host name.
 
-5.3.3.  Cookie Default Path
+   5.  Concatenate the resulting labels, separated by a %x2E (".")
+       character.
 
-   To determine the *Cookie Default Path*, given a URL path _path_, run
-   these steps.  They return a URL path.
+5.1.3.  Domain Matching
 
-   1.  Assert: _path_ is a non-empty list.
+   Note: This algorithm expects that both inputs are canonicalized.
 
-   2.  If _path_'s size is greater than 1, then remove _path_'s last
-       item.
+   A string domain-matches a given domain string if at least one of the
+   following conditions hold:
 
-   3.  Otherwise, set _path_[0] to the empty string.
+   *  The domain string and the string are identical.  (Note that both
+      the domain string and the string will have been canonicalized to
+      lower case at this point.)
 
-   4.  Return _path_.
+   *  All of the following conditions hold:
 
-5.3.4.  Path Matching
+      -  The domain string is a suffix of the string.
 
-   To determine if a URL path _requestPath_ *Path-Matches* a URL path
-   _cookiePath_, run these steps.  They return a boolean.
+      -  The last character of the string that is not included in the
+         domain string is a %x2E (".") character.
 
-   1.  Let _serializedRequestPath_ be the result of URL path serializing
-       _requestPath_.
+      -  The string is a host name (i.e., not an IP address).
 
-   2.  Let _serializedCookiePath_ be the result of URL path serializing
-       _cookiePath_.
+5.1.4.  Paths and Path-Match
 
-   3.  If _serializedCookiePath_ is _serializedRequestPath_, then return
-       true.
+   The user agent MUST use an algorithm equivalent to the following
+   algorithm to compute the default-path of a cookie:
 
-   4.  If _serializedRequestPath_ starts with _serializedCookiePath_ and
-       _serializedCookiePath_ ends with a U+002F (/), then return true.
+   1.  Let uri-path be the path portion of the request-uri if such a
+       portion exists (and empty otherwise).
 
-   5.  Return whether the concatenation of _serializedRequestPath_
-       followed by U+002F (/) starts with _serializedCookiePath_.
+   2.  If the uri-path is empty or if the first character of the uri-
+       path is not a %x2F ("/") character, output %x2F ("/") and skip
+       the remaining steps.
 
-5.4.  Main Algorithms
+   3.  If the uri-path contains no more than one %x2F ("/") character,
+       output %x2F ("/") and skip the remaining step.
 
-5.4.1.  Parse and Store a Cookie
+   4.  Output the characters of the uri-path from the first character up
+       to, but not including, the right-most %x2F ("/").
 
-   To *Parse and Store a Cookie* given a byte sequence _input_, boolean
-   _isSecure_, domain or IP address _host_, URL path _path_, boolean
-   _httpOnlyAllowed_, boolean _allowNonHostOnlyCookieForPublicSuffix_,
-   and boolean _sameSiteStrictOrLaxAllowed_:
+   A request-path path-matches a given cookie-path if at least one of
+   the following conditions holds:
 
-   1.  Let _cookie_ be the result of running Parse a Cookie with
-       _input_, _isSecure_, _host_, and _path_.
+   *  The cookie-path and the request-path are identical.
 
-   2.  If _cookie_ is failure, then return.
+      Note that this differs from the rules in [RFC3986] for equivalence
+      of the path component, and hence two equivalent paths can have
+      different cookies.
 
-   3.  Run Store a Cookie given _cookie_, _isSecure_, _host_, _path_,
-       _httpOnlyAllowed_, _allowNonHostOnlyCookieForPublicSuffix_, and
-       _sameSiteStrictOrLaxAllowed_.
+   *  The cookie-path is a prefix of the request-path, and the last
+      character of the cookie-path is %x2F ("/").
 
-5.4.2.  Parse a Cookie
+   *  The cookie-path is a prefix of the request-path, and the first
+      character of the request-path that is not included in the cookie-
+      path is a %x2F ("/") character.
 
-   To *Parse a Cookie* given a byte sequence _input_, boolean
-   _isSecure_, host _host_, URL path _path_, run these steps.  They
-   return a new cookie or failure:
+5.2.  "Same-site" and "cross-site" Requests
 
-   1.   If _input_ contains a byte in the range 0x00 to 0x08, inclusive,
-        the range 0x0A to 0x1F inclusive, or 0x7F (CTL bytes excluding
-        HTAB), then return failure.
+   Two origins are same-site if they satisfy the "same site" criteria
+   defined in [SAMESITE].  A request is "same-site" if the following
+   criteria are true:
 
-   2.   Let _nameValueInput_ be null.
+   1.  The request is not the result of a reload navigation triggered
+       through a user interface element (as defined by the user agent;
+       e.g., a request triggered by the user clicking a refresh button
+       on a toolbar).
 
-   3.   Let _attributesInput_ be the empty byte sequence.
+   2.  The request's current url's origin is same-site with the
+       request's client's "site for cookies" (which is an origin), or if
+       the request has no client or the request's client is null.
 
-   4.   If _input_ contains 0x3B (;), then set _nameValueInput_ to the
-        bytes up to, but not including, the first 0x3B (;), and
-        _attributesInput_ to the remainder of _input_ (including the
-        0x3B (;) in question).
+   Requests which are the result of a reload navigation triggered
+   through a user interface element are same-site if the reloaded
+   document was originally navigated to via a same-site request.  A
+   request that is not "same-site" is instead "cross-site".
 
-   5.   Otherwise, set _nameValueInput_ to _input_.
+   The request's client's "site for cookies" is calculated depending
+   upon its client's type, as described in the following subsections:
 
-   6.   Assert: _nameValueInput_ is a byte sequence.
+5.2.1.  Document-based requests
 
-   7.   Let _name_ be null.
+   The URI displayed in a user agent's address bar is the only security
+   context directly exposed to users, and therefore the only signal
+   users can reasonably rely upon to determine whether or not they trust
+   a particular website.  The origin of that URI represents the context
+   in which a user most likely believes themselves to be interacting.
+   This origin, the top-level traversable's active document's origin, is
+   defined as the "top-level origin".
 
-   8.   Let _value_ be null.
+   For a document displayed in a top-level traversable, the document's
+   "site for cookies" is the top-level origin.
 
-   9.   If _nameValueInput_ does not contain a 0x3D (=) character, then
-        set _name_ to the empty byte sequence, and _value_ to
-        _nameValueInput_.
+   For container documents, the origins of each of a document's ancestor
+   navigables' active documents must be audited in order to account for
+   the "multiple-nested scenarios" described in Section 4 of [RFC7034].
+   A document's "site for cookies" is the top-level origin if and only
+   if the top-level origin is same-site with the document's origin, and
+   with each of the document's ancestor documents' origins.  Otherwise
+   its "site for cookies" is an origin set to an opaque origin.
 
-   10.  Otherwise, set _name_ to the bytes up to, but not including, the
-        first 0x3D (=), and set _value_ to the bytes after the first
-        0x3D (=) (possibly being the empty byte sequence).
+   Given a Document (document), the following algorithm returns its
+   "site for cookies":
 
-   11.  Remove any leading or trailing WSP bytes from _name_ and
-        _value_.
+   1.  Let top-document be the active document in document's navigable's
+       top-level traversable.
 
-   12.  If _name_'s length + _value_'s length is 0 or is greater than
-        4096, then return failure.
+   2.  Let top-origin be the origin of top-document's URI if top-
+       document's sandboxed origin browsing context flag is set, and
+       top-document's origin otherwise.
 
-   13.  Let _cookie_ be a new cookie whose name is _name_ and value is
-        _value_.
+   3.  Let documents be a list consisting of the active documents of
+       document's inclusive ancestor navigables.
 
-   14.  Set _cookie_'s path to the result of running Cookie Default Path
-        with _path_.
+   4.  For each item in documents:
 
-        Note: A Path attribute can override this.
+       1.  Let origin be the origin of item's URI if item's sandboxed
+           origin browsing context flag is set, and item's origin
+           otherwise.
 
-   15.  While _attributesInput_ is not an empty byte sequence:
+       2.  If origin is not same-site with top-origin, return an origin
+           set to an opaque origin.
 
-        1.   Let _maxAgeSeen_ be false.
+   5.  Return top-origin.
 
-        2.   Let _char_ be the result of consuming the first byte of
-             _attributesInput_.
+   Note: This algorithm only applies when the entire chain of documents
+   from top-document to document are all active.
 
-        3.   Assert: _char_ is 0x3B (;).
+5.2.2.  Worker-based requests
 
-        4.   Let _attributeNameValueInput_ be null.
+   Worker-driven requests aren't as clear-cut as document-driven
+   requests, as there isn't a clear link between a top-level traversable
+   and a worker.  This is especially true for Service Workers
+   [SERVICE-WORKERS], which may execute code in the background, without
+   any document visible at all.
 
-        5.   If _attributesInput_ contains 0x3B (;), then set
-             _attributeNameValueInput_ to the result of consuming the
-             bytes of _attributesInput_ up to, but not including, the
-             first 0x3B (;).
+5.2.2.1.  Dedicated and Shared Workers
 
-        6.   Otherwise, set _attributeNameValueInput_ to the result of
-             consuming the remainder of _attributesInput_.
+   Dedicated workers are simple, as each dedicated worker is bound to
+   one and only one document.  The worker's "site for cookies" is the
+   document's "site for cookies" if the worker's origin is same-site
+   with the document's "site for cookies", otherwise its "site for
+   cookies" is an origin set to an opaque origin.
 
-        7.   Let _attributeName_ be null.
+   Shared workers may be bound to multiple documents at once.  As it is
+   quite possible for those documents to have distinct "site for
+   cookies" values, the worker's "site for cookies" will be an origin
+   set to an opaque origin in cases where the values are not all same-
+   site with the worker's origin, and the worker's origin in cases where
+   the values agree.
 
-        8.   Let _attributeValue_ be the empty string.
+   Given a WorkerGlobalScope (worker), the following algorithm returns
+   its "site for cookies":
 
-        9.   If _attributeNameValueInput_ contains a 0x3D (=), then set
-             _attributeName_ to the bytes up to, but not including, the
-             first 0x3D (=) of _attributeNameValueInput_, and
-             _attributeValue_ to the bytes after the first 0x3D (=) of
-             _attributeNameValueInput_.
+   1.  Let site be worker's origin.
 
-        10.  Otherwise, set _attributeName_ to
-             _attributeNameValueInput_.
+   2.  For each document in worker's Documents:
 
-        11.  Remove any leading or trailing WSP bytes from
-             _attributeName_ and _attributeValue_.
+       1.  Let document-site be document's "site for cookies" (as
+           defined in Section 5.2.1).
 
-        12.  If _attributeValue_'s length is greater than 1024, then
-             continue.
+       2.  If document-site is not same-site with site, return an origin
+           set to an opaque origin.
 
-        13.  If _attributeName_ is a byte-case-insensitive match for
-             Expires:
+   3.  Return site.
 
-             1.  If _maxAgeSeen_ is true, then continue.
+5.2.2.2.  Service Workers
 
-             2.  Let _expiryTime_ be the result of running Parse a Date
-                 given _attributeValue_.
+   Service Workers are more complicated, as they act as a completely
+   separate execution context with only tangential relationship to the
+   Document which registered them.
 
-             3.  If _attributeValue_ is failure, then continue.
+   How user agents handle Service Workers may differ, but user agents
+   SHOULD match the [SERVICE-WORKERS] specification.
 
-             4.  If _expiryTime_ is greater than the current time and
-                 date + the user agent's cookie age limit, then set
-                 _expiryTime_ to the user agent's cookie age limit.
+5.3.  Ignoring Set-Cookie Header Fields
 
-             5.  If _expiryTime_ is earlier than the earliest date the
-                 user agent can represent, the user agent MAY replace
-                 _expiryTime_ with the earliest representable date.
+   User agents MAY ignore Set-Cookie header fields contained in
+   responses with 100-level status codes or based on its cookie policy
+   (see Section 7.2).
 
-             6.  Set _cookie_'s expiry-time to _expiryTime_.
+   All other Set-Cookie header fields SHOULD be processed according to
+   Section 5.6.  That is, Set-Cookie header fields contained in
+   responses with non-100-level status codes (including those in
+   responses with 400- and 500-level status codes) SHOULD be processed
+   unless ignored according to the user agent's cookie policy.
 
-        14.  If _attributeName_ is a byte-case-insensitive match for
-             Max-Age:
+5.4.  Cookie Name Prefixes
 
-             1.  If _attributeValue_ is empty, continue.
+   User agents' requirements for cookie name prefixes differ slightly
+   from servers' (Section 4.1.3) in that UAs MUST match the prefix
+   string case-insensitively.
 
-             2.  If the first byte of _attributeValue_ is neither a
-                 DIGIT, nor 0x2D (-) followed by a DIGIT, then continue.
+   The normative requirements for the prefixes are detailed in the
+   storage model algorithm defined in Section 5.7.
 
-             3.  If the remainder of _attributeValue_ contains a non-
-                 DIGIT, then continue.
+   This is because some servers will process cookies case-insensitively,
+   resulting in them unintentionally miscapitalizing and accepting
+   miscapitalized prefixes.
 
-             4.  Let _deltaSeconds_ be _attributeValue_, converted to a
-                 base 10 integer.
+   For example, if a server sends the following Set-Cookie header field
 
-             5.  Set _deltaSeconds_ to the smaller of _deltaSeconds_ and
-                 the user agent's cookie age limit, in seconds.
+   Set-Cookie: __SECURE-SID=12345
 
-             6.  If _deltaSeconds_ is less than or equal to 0, let
-                 _expiryTime_ be the earliest representable date and
-                 time.  Otherwise, let _expiryTime_ be the current date
-                 and time + _deltaSeconds_ seconds.
+   to a UA which checks prefixes case-sensitively it will accept this
+   cookie and the server would incorrectly believe the cookie is subject
+   the same guarantees as one spelled __Secure-.
 
-             7.  Set _cookie_'s expiry-time to _expiryTime_.
+   Additionally the server is vulnerable to an attacker that
+   purposefully miscapitalizes a cookie in order to impersonate a
+   prefixed cookie.  For example, a site already has a cookie __Secure-
+   SID=12345 and by some means an attacker sends the following Set-
+   Cookie header field for the site to a UA which checks prefixes case-
+   sensitively.
 
-             8.  Set _maxAgeSeen_ to true.
+   Set-Cookie: __SeCuRe-SID=evil
 
-        15.  If _attributeName_ is a byte-case-insensitive match for
-             Domain:
+   The next time a user visits the site the UA will send both cookies:
 
-             1.  Let _host_ be failure.
+   Cookie: __Secure-SID=12345; __SeCuRe-SID=evil
 
-             2.  If _attributeValue_ contains only ASCII bytes:
+   The server, being case-insensitive, won't be able to tell the
+   difference between the two cookies allowing the attacker to
+   compromise the site.
 
-                 1.  Let _hostInput_ be _attributeValue_, ASCII decoded.
+   To prevent these issues, UAs MUST match cookie name prefixes case-
+   insensitively.
 
-                 2.  If _hostInput_ starts with U+002E (.), then set
-                     _hostInput_ to _hostInput_ without its leading
-                     U+002E (.).
+   Note: Cookies with different names are still considered separate by
+   UAs.  So both __Secure-foo=bar and __secure-foo=baz can exist as
+   distinct cookies simultaneously and both would have the requirements
+   of the __Secure- prefix applied.
 
-                 3.  Set _host_ to the result of host parsing
-                     _hostInput_.
+   The following are examples of Set-Cookie header fields that would be
+   rejected by a conformant user agent.
 
-             3.  Set _cookie_'s host to _host_.
+   Set-Cookie: __Secure-SID=12345; Domain=site.example
+   Set-Cookie: __secure-SID=12345; Domain=site.example
+   Set-Cookie: __SECURE-SID=12345; Domain=site.example
+   Set-Cookie: __Host-SID=12345
+   Set-Cookie: __host-SID=12345; Secure
+   Set-Cookie: __host-SID=12345; Domain=site.example
+   Set-Cookie: __HOST-SID=12345; Domain=site.example; Path=/
+   Set-Cookie: __Host-SID=12345; Secure; Domain=site.example; Path=/
+   Set-Cookie: __host-SID=12345; Secure; Domain=site.example; Path=/
+   Set-Cookie: __HOST-SID=12345; Secure; Domain=site.example; Path=/
 
-        16.  If _attributeName_ is a byte-case-insensitive match for
-             Path:
+   Whereas the following Set-Cookie header fields would be accepted if
+   set from a secure origin.
 
-             1.  If _attributeValue_ is not empty and if the first byte
-                 of _attributeValue_ is 0x2F (/), then set _cookie_'s
-                 path to _attributeValue_ split on 0x2F (/).
+   Set-Cookie: __Secure-SID=12345; Domain=site.example; Secure
+   Set-Cookie: __secure-SID=12345; Domain=site.example; Secure
+   Set-Cookie: __SECURE-SID=12345; Domain=site.example; Secure
+   Set-Cookie: __Host-SID=12345; Secure; Path=/
+   Set-Cookie: __host-SID=12345; Secure; Path=/
+   Set-Cookie: __HOST-SID=12345; Secure; Path=/
 
-        17.  If _attributeName_ is a byte-case-insensitive match for
-             Secure:
+5.5.  Cookie Lifetime Limits
 
-             1.  Set _cookie_'s secure to true.
+   When processing cookies with a specified lifetime, either with the
+   Expires or with the Max-Age attribute, the user agent MUST limit the
+   maximum age of the cookie.  The limit SHOULD NOT be greater than 400
+   days (34560000 seconds) in the future.  The RECOMMENDED limit is 400
+   days in the future, but the user agent MAY adjust the limit (see
+   Section 7.2).  Expires or Max-Age attributes that specify a lifetime
+   longer than the limit MUST be reduced to the limit.
 
-        18.  If _attributeName_ is a byte-case-insensitive match for
-             HttpOnly:
-
-             1.  Set _cookie_'s http-only to true.
-
-        19.  If _attributeName_ is a byte-case-insensitive match for
-             SameSite:
-
-             1.  If _attributeValue_ is a byte-case-insensitive match
-                 for None, then set _cookie_'s same-site to "none".
-
-             2.  If _attributeValue_ is a byte-case-insensitive match
-                 for Strict, then set _cookie_'s same-site to "strict".
-
-             3.  If _attributeValue_ is a byte-case-insensitive match
-                 for Lax, then set _cookie_'s same-site to "lax".
-
-   16.  Return _cookie_.
-
-   Note: Attributes with an unrecognized _attributeName_ are ignored.
-
-   Note: This intentionally overrides earlier cookie attributes so that
-   generally the last specified cookie attribute "wins".
-
-5.4.3.  Store a Cookie
-
-   To *Store a Cookie* given a cookie _cookie_, boolean _isSecure_,
-   domain or IP address _host_, boolean _httpOnlyAllowed_, boolean
-   _allowNonHostOnlyCookieForPublicSuffix_, and boolean
-   _sameSiteStrictOrLaxAllowed_:
-
-   1.   Assert: _cookie_'s name's length + _cookie_'s value's length is
-        not 0 or greater than 4096.
-
-   2.   Assert: _cookie_'s name does not contain a byte in the range
-        0x00 to 0x08, inclusive, in the range 0x0A to 0x1F, inclusive,
-        or 0x7F (CTL characters excluding HTAB).
-
-   3.   If _cookie_'s host is failure, then return.
-
-   4.   Set _cookie_'s creation-time and last-access-time to the current
-        date and time.
-
-   5.   If _allowNonHostOnlyCookieForPublicSuffix_ is false and
-        _cookie_'s host is a public suffix:
-
-        1.  If _cookie_'s host is host-equal to _host_, then set
-            _cookie_'s host to null.
-
-        2.  Otherwise, return.
-
-        Note: This step prevents attacker.example from disrupting the
-        integrity of site.example by setting a cookie with a Domain
-        attribute of example.  In the event the end user navigates
-        directly to example, a cookie can still be set and will forcibly
-        have its host-only set to true.
-
-   6.   If _cookie_'s host is null:
-
-        1.  Set _cookie_'s host-only to true.
-
-        2.  Set _cookie_'s host to _host_.
-
-   7.   Otherwise:
-
-        1.  If _host_ does not Domain-Match _cookie_'s host, then
-            return.
-
-        2.  Set _cookie_'s host-only to false.
-
-   8.   Assert: _cookie_'s host is a domain or IP address.
-
-   9.   If _httpOnlyAllowed_ is false and _cookie_'s http-only is true,
-        then return.
-
-   10.  If _isSecure_ is false:
-
-        1.  If _cookie_'s secure-only is true, then return.
-
-        2.  If the user agent's cookie store contains at least one
-            cookie _existingCookie_ that meets all of the following
-            criteria:
-
-            1.  _existingCookie_'s name is _cookie_'s name;
-
-            2.  _existingCookie_'s secure-only is true;
-
-            3.  _existingCookie_'s host Domain-Matches _cookie_'s host,
-                or vice-versa; and
-
-            4.  _cookie_'s path Path-Matches _existingCookie_'s path,
-
-            then return.
-
-            Note: The path comparison is not symmetric, ensuring only
-            that a newly-created, non-secure cookie does not overlay an
-            existing secure cookie, providing some mitigation against
-            cookie-fixing attacks.  That is, given an existing secure
-            cookie named 'a' with a path of '/login', a non-secure
-            cookie named 'a' could be set for a path of '/' or '/foo',
-            but not for a path of '/login' or '/login/en'.
-
-   11.  If _cookie_'s same-site is not "none" and
-        _sameSiteStrictOrLaxAllowed_ is false, then return.
-
-   12.  If _cookie_'s same-site is "none" and _cookie_'s secure-only is
-        false, then return.
-
-   13.  If _cookie_'s name, byte-lowercased, starts with __secure- and
-        _cookie_'s secure-only is false, then return.
-
-        Note: The check here and those below are with a byte-lowercased
-        value in order to protect servers that process these values in a
-        case-insensitive manner.
-
-   14.  If _cookie_'s name, byte-lowercased, starts with __host- and not
-        all of the following are true:
-
-        1.  _cookie_'s secure-only is true;
-
-        2.  _cookie_'s host-only is true; and
-
-        3.  _cookie_'s path's size is 1 and _cookie_'s path[0] is the
-            empty string,
-
-        then return.
-
-   15.  If _cookie_'s name is the empty byte sequence and one of the
-        following is true:
-
-        *  _cookie_'s value, byte-lowercased, starts with __secure-, or
-
-        *  _cookie_'s value, byte-lowercased, starts with __host-
-
-        then return.
-
-   16.  If the user agent's cookie store contains a cookie _oldCookie_
-        whose name is _cookie_'s name, host is host-equal to _cookie_'s
-        host, host-only is _cookie_'s host-only, and path is path-equal
-        to _cookie_'s path:
-
-        1.  If _httpOnlyAllowed_ is false and _oldCookie_'s http-only is
-            true, then return.
-
-        2.  Set _cookie_'s creation-time to _oldCookie_'s creation-time.
-
-        3.  Remove _oldCookie_ from the user agent's cookie store.
-
-        Note: This algorithm maintains the invariant that there is at
-        most one such cookie.
-
-   17.  Insert _cookie_ into the user agent's cookie store.
-
-   18.  Remove all expired cookies from the user agent's cookie store.
-
-   19.  Run Remove Excess Cookies for Host given _cookie_'s host.
-
-   20.  Run Remove Global Excess Cookies.
-
-5.4.4.  Retrieve Cookies
-
-   To *Retrieve Cookies* given a boolean _isSecure_, host _host_, URL
-   path _path_, boolean _httpOnlyAllowed_, and string _sameSite_:
-
-   1.  Assert: _sameSite_ is "strict-or-less", "lax-or-less", "unset-or-
-       less", or "none".
-
-   2.  Let _cookies_ be all cookies from the user agent's cookie store
-       that meet these conditions:
-
-       *  One of the following is true:
-
-          -  cookie's host-only is true and _host_ is host-equal to
-             cookie's host, or
-
-          -  cookie's host-only is false and _host_ Domain-Matches
-             cookie's host.
-
-          It's possible that the public suffix list changed since a
-          cookie was created.  If this change results in a cookie's host
-          becoming a public suffix and the cookie's host-only is false,
-          then that cookie SHOULD NOT be returned.
-
-          XXX: We should probably move this requirement out-of-bound as
-          this invalidation should happen as part of updating the public
-          suffixes.
-
-       *  _path_ Path-Matches cookie's path.
-
-       *  One of the following is true:
-
-          -  cookie's secure is true and _isSecure_ is true, or
-
-          -  cookie's secure is false.
-
-       *  One of the following is true:
-
-          -  cookie's http-only is true and _httpOnlyAllowed_ is true,
-             or
-
-          -  cookie's http-only is false.
-
-       *  One of the following is true:
-
-          -  cookie's same-site is "strict" and _sameSite_ is "strict-
-             or-less";
-
-          -  cookie's same-site is "lax" and _sameSite_ is one of
-             "strict-or-less" or "lax-or-less";
-
-          -  cookie's same-site is "unset" and _sameSite_ is one of
-             "strict-or-less", "lax-or-less", or "unset-or-less"; or
-
-          -  cookie's same-site is "none".
-
-   3.  Sort _cookies_ in the following order:
-
-       *  Cookies whose path's size is greater are listed before cookies
-          whose path's size is smaller.
-
-       *  Among cookies whose path's size is equal, cookies whose
-          creation-time is earlier are listed before cookies whose
-          creation-time is later.
-
-   4.  Set the last-access-time of each cookie of _cookies_ to the
-       current date and time and reflect these changes in the user
-       agent's cookie store.
-
-   5.  Return _cookies_.
-
-5.4.5.  Serialize Cookies
-
-   To *Serialize Cookies* given a list of cookies _cookies_:
-
-   1.  Let _output_ be an empty byte sequence.
-
-   2.  For each _cookie_ of _cookies_:
-
-       1.  If _output_ is not the empty byte sequence, then append 0x3B
-           (;) followed by 0x20 (SP) to _output_.
-
-       2.  If _cookie_'s name is not the empty byte sequence, then
-           append _cookie_'s name followed by 0x3D (=) to _output_.
-
-       3.  Append _cookie_'s value to _output_.
-
-   3.  Return _output_.
-
-5.5.  Requirements Specific to Non-Browser User Agents
-
-5.5.1.  The Set-Cookie Header Field
+5.6.  The Set-Cookie Header Field
 
    When a user agent receives a Set-Cookie header field in an HTTP
    response, the user agent MAY ignore the Set-Cookie header field in
-   its entirety as per its cookie policy (see Section 7.2).
+   its entirety (see Section 5.3).
 
-   User agents MAY ignore Set-Cookie header fields contained in
-   responses with 100-level status codes.
+   If the user agent does not ignore the Set-Cookie header field in its
+   entirety, the user agent MUST parse the field-value of the Set-Cookie
+   header field as a set-cookie-string (defined below).
 
-   Set-Cookie header fields contained in responses with non-100-level
-   status codes (including those in responses with 400- and 500-level
-   status codes) SHOULD be processed as follows:
+   Note: The algorithm below is more permissive than the grammar in
+   Section 4.1.  For example, the algorithm allows cookie-name to be
+   comprised of cookie-octets instead of being a token as specified in
+   Section 4.1 and the algorithm accommodates some characters that are
+   not cookie-octets according to the grammar in Section 4.1.  In
+   addition, the algorithm below also strips leading and trailing
+   whitespace from the cookie name and value (but maintains internal
+   whitespace), whereas the grammar in Section 4.1 forbids whitespace in
+   these positions.  User agents use this algorithm so as to
+   interoperate with servers that do not follow the recommendations in
+   Section 4.
 
-   1.  Let _isSecure_ be a boolean indicating whether request's URL's
-       scheme is deemed secure, in an implementation-defined manner.
+   Note: As set-cookie-string may originate from a non-HTTP API, it is
+   not guaranteed to be free of CTL characters, so this algorithm
+   handles them explicitly.  Horizontal tab (%x09) is excluded from the
+   CTL characters that lead to set-cookie-string rejection, as it is
+   considered whitespace, which is handled separately.
 
-   2.  Let _host_ be request's host.
+   Note: The set-cookie-string may contain octet sequences that appear
+   percent-encoded as per Section 2.1 of [RFC3986].  However, a user
+   agent MUST NOT decode these sequences and instead parse the
+   individual octets as specified in this algorithm.
 
-   3.  Let _path_ be request's URL's path.
+   A user agent MUST use an algorithm equivalent to the following
+   algorithm to parse a set-cookie-string:
 
-   4.  Let _httpOnlyAllowed_ be true.
+   1.  If the set-cookie-string contains a %x00-08 / %x0A-1F / %x7F
+       character (CTL characters excluding HTAB): Abort this algorithm
+       and ignore the set-cookie-string entirely.
 
-   5.  Let _allowNonHostOnlyCookieForPublicSuffix_ be a boolean whose
-       value is implementation-defined.
+   2.  If the set-cookie-string contains a %x3B (";") character:
 
-   6.  Let _sameSiteStrictOrLaxAllowed_ be a boolean whose value is
-       implementation-defined.
+       1.  The name-value-pair string consists of the characters up to,
+           but not including, the first %x3B (";"), and the unparsed-
+           attributes consist of the remainder of the set-cookie-string
+           (including the %x3B (";") in question).
 
-   7.  Let _cookie_ be the result of running Parse and Store a Cookie
-       given the header field value, _isSecure_, _host_, _path_,
-       _httpOnlyAllowed_, _allowNonHostOnlyCookieForPublicSuffix_, and
-       _sameSiteStrictOrLaxAllowed_.
+       Otherwise:
 
-5.5.2.  The Cookie Header Field
+       1.  The name-value-pair string consists of all the characters
+           contained in the set-cookie-string, and the unparsed-
+           attributes is the empty string.
 
-   The user agent includes stored cookies in the Cookie request header
-   field.
+   3.  If the name-value-pair string lacks a %x3D ("=") character, then
+       the name string is empty, and the value string is the value of
+       name-value-pair.
 
-   When the user agent generates an HTTP request, the user agent MUST
-   NOT attach more than one Cookie header field.
+       Otherwise, the (possibly empty) name string consists of the
+       characters up to, but not including, the first %x3D ("=")
+       character, and the (possibly empty) value string consists of the
+       characters after the first %x3D ("=") character.
 
-   A user agent MAY omit the Cookie header field in its entirety.
+   4.  Remove any leading or trailing WSP characters from the name
+       string and the value string.
+
+   5.  If the sum of the lengths of the name string and the value string
+       is more than 4096 octets, abort this algorithm and ignore the
+       set-cookie-string entirely.
+
+   6.  The cookie-name is the name string, and the cookie-value is the
+       value string.
+
+   The user agent MUST use an algorithm equivalent to the following
+   algorithm to parse the unparsed-attributes:
+
+   1.  If the unparsed-attributes string is empty, skip the rest of
+       these steps.
+
+   2.  Discard the first character of the unparsed-attributes (which
+       will be a %x3B (";") character).
+
+   3.  If the remaining unparsed-attributes contains a %x3B (";")
+       character:
+
+       1.  Consume the characters of the unparsed-attributes up to, but
+           not including, the first %x3B (";") character.
+
+       Otherwise:
+
+       1.  Consume the remainder of the unparsed-attributes.
+
+       Let the cookie-av string be the characters consumed in this step;
+       unparsed-attributes now contains any remaining characters.
+
+   4.  If the cookie-av string contains a %x3D ("=") character:
+
+       1.  The (possibly empty) attribute-name string consists of the
+           characters up to, but not including, the first %x3D ("=")
+           character, and the (possibly empty) attribute-value string
+           consists of the characters after the first %x3D ("=")
+           character.
+
+       Otherwise:
+
+       1.  The attribute-name string consists of the entire cookie-av
+           string, and the attribute-value string is empty.
+
+   5.  Remove any leading or trailing WSP characters from the attribute-
+       name string and the attribute-value string.
+
+   6.  If the attribute-value is longer than 1024 octets, ignore the
+       cookie-av string and return to Step 1 of this algorithm.
+
+   7.  Process the attribute-name and attribute-value according to the
+       requirements in the following subsections.  (Notice that
+       attributes with unrecognized attribute-names are ignored.)
+
+   8.  Return to Step 1 of this algorithm.
+
+   When the user agent finishes parsing the set-cookie-string, the user
+   agent is said to "receive a cookie" from the request-uri with name
+   cookie-name, value cookie-value, and attributes cookie-attribute-
+   list.  (See Section 5.7 for additional requirements triggered by
+   receiving a cookie.)
+
+5.6.1.  The Expires Attribute
+
+   If the attribute-name case-insensitively matches the string
+   "Expires", the user agent MUST process the cookie-av as follows.
+
+   1.  Let the expiry-time be the result of parsing the attribute-value
+       as cookie-date (see Section 5.1.1).
+
+   2.  If the attribute-value failed to parse as a cookie date, ignore
+       the cookie-av.
+
+   3.  Let cookie-age-limit be the maximum age of the cookie (which
+       SHOULD be 400 days in the future or sooner, see Section 5.5).
+
+   4.  If the expiry-time is more than cookie-age-limit, the user agent
+       MUST set the expiry time to cookie-age-limit in seconds.
+
+   5.  If the expiry-time is earlier than the earliest date the user
+       agent can represent, the user agent MAY replace the expiry-time
+       with the earliest representable date.
+
+   6.  Append an attribute to the cookie-attribute-list with an
+       attribute-name of Expires and an attribute-value of expiry-time.
+
+5.6.2.  The Max-Age Attribute
+
+   If the attribute-name case-insensitively matches the string "Max-
+   Age", the user agent MUST process the cookie-av as follows.
+
+   1.  If the attribute-value is empty, ignore the cookie-av.
+
+   2.  If the first character of the attribute-value is neither a DIGIT,
+       nor a "-" character followed by a DIGIT, ignore the cookie-av.
+
+   3.  If the remainder of attribute-value contains a non-DIGIT
+       character, ignore the cookie-av.
+
+   4.  Let delta-seconds be the attribute-value converted to a base 10
+       integer.
+
+   5.  Let cookie-age-limit be the maximum age of the cookie (which
+       SHOULD be 400 days or less, see Section 5.5).
+
+   6.  Set delta-seconds to the smaller of its present value and cookie-
+       age-limit.
+
+   7.  If delta-seconds is less than or equal to zero (0), let expiry-
+       time be the earliest representable date and time.  Otherwise, let
+       the expiry-time be the current date and time plus delta-seconds
+       seconds.
+
+   8.  Append an attribute to the cookie-attribute-list with an
+       attribute-name of Max-Age and an attribute-value of expiry-time.
+
+5.6.3.  The Domain Attribute
+
+   If the attribute-name case-insensitively matches the string "Domain",
+   the user agent MUST process the cookie-av as follows.
+
+   1.  Let cookie-domain be the attribute-value.
+
+   2.  If cookie-domain starts with %x2E ("."), let cookie-domain be
+       cookie-domain without its leading %x2E (".").
+
+   3.  Convert the cookie-domain to lower case.
+
+   4.  Append an attribute to the cookie-attribute-list with an
+       attribute-name of Domain and an attribute-value of cookie-domain.
+
+5.6.4.  The Path Attribute
+
+   If the attribute-name case-insensitively matches the string "Path",
+   the user agent MUST process the cookie-av as follows.
+
+   1.  If the attribute-value is empty or if the first character of the
+       attribute-value is not %x2F ("/"):
+
+       1.  Let cookie-path be the default-path.
+
+       Otherwise:
+
+       1.  Let cookie-path be the attribute-value.
+
+   2.  Append an attribute to the cookie-attribute-list with an
+       attribute-name of Path and an attribute-value of cookie-path.
+
+5.6.5.  The Secure Attribute
+
+   If the attribute-name case-insensitively matches the string "Secure",
+   the user agent MUST append an attribute to the cookie-attribute-list
+   with an attribute-name of Secure and an empty attribute-value.
+
+5.6.6.  The HttpOnly Attribute
+
+   If the attribute-name case-insensitively matches the string
+   "HttpOnly", the user agent MUST append an attribute to the cookie-
+   attribute-list with an attribute-name of HttpOnly and an empty
+   attribute-value.
+
+5.6.7.  The SameSite Attribute
+
+   If the attribute-name case-insensitively matches the string
+   "SameSite", the user agent MUST process the cookie-av as follows:
+
+   1.  Let enforcement be "Default".
+
+   2.  If cookie-av's attribute-value is a case-insensitive match for
+       "None", set enforcement to "None".
+
+   3.  If cookie-av's attribute-value is a case-insensitive match for
+       "Strict", set enforcement to "Strict".
+
+   4.  If cookie-av's attribute-value is a case-insensitive match for
+       "Lax", set enforcement to "Lax".
+
+   5.  Append an attribute to the cookie-attribute-list with an
+       attribute-name of "SameSite" and an attribute-value of
+       enforcement.
+
+5.6.7.1.  "Strict" and "Lax" enforcement
+
+   Same-site cookies in "Strict" enforcement mode will not be sent along
+   with top-level navigations which are triggered from a cross-site
+   document context.  As discussed in Section 8.8.2, this might or might
+   not be compatible with existing session management systems.  In the
+   interests of providing a drop-in mechanism that mitigates the risk of
+   CSRF attacks, developers may set the SameSite attribute in a "Lax"
+   enforcement mode that carves out an exception which sends same-site
+   cookies along with cross-site requests if and only if they are top-
+   level navigations which use a "safe" (in the [HTTP] sense) HTTP
+   method.  (Note that a request's method may be changed from POST to
+   GET for some redirects (see Sections 15.4.2 and 15.4.3 of [HTTP]); in
+   these cases, a request's "safe"ness is determined based on the method
+   of the current redirect hop.)
+
+   Lax enforcement provides reasonable defense in depth against CSRF
+   attacks that rely on unsafe HTTP methods (like POST), but does not
+   offer a robust defense against CSRF as a general category of attack:
+
+   1.  Attackers can still pop up new windows or trigger top-level
+       navigations in order to create a "same-site" request (as
+       described in Section 5.2.1), which is only a speedbump along the
+       road to exploitation.
+
+   2.  Features like <link rel='prerender'> [prerendering] can be
+       exploited to create "same-site" requests without the risk of user
+       detection.
+
+   Developers can more completely mitigate CSRF through a session
+   management mechanism such as that described in Section 8.8.2.
+
+5.6.7.2.  "Lax-Allowing-Unsafe" enforcement
+
+   As discussed in Section 8.8.6, compatibility concerns may necessitate
+   the use of a "Lax-allowing-unsafe" enforcement mode that allows
+   cookies to be sent with a cross-site HTTP request if and only if it
+   is a top-level request, regardless of request method.  That is, the
+   "Lax-allowing-unsafe" enforcement mode waives the requirement for the
+   HTTP request's method to be "safe" in the SameSite enforcement step
+   of the retrieval algorithm in Section 5.8.3.  (All cookies,
+   regardless of SameSite enforcement mode, may be set for top-level
+   navigations, regardless of HTTP request method, as specified in
+   Section 5.7.)
+
+   "Lax-allowing-unsafe" is not a distinct value of the SameSite
+   attribute.  Rather, user agents MAY apply "Lax-allowing-unsafe"
+   enforcement only to cookies that did not explicitly specify a
+   SameSite attribute (i.e., those whose same-site-flag was set to
+   "Default" by default).  To limit the scope of this compatibility
+   mode, user agents which apply "Lax-allowing-unsafe" enforcement
+   SHOULD restrict the enforcement to cookies which were created
+   recently.  Deployment experience has shown a cookie age of 2 minutes
+   or less to be a reasonable limit.
+
+   If the user agent uses "Lax-allowing-unsafe" enforcement, it MUST
+   apply the following modification to the retrieval algorithm defined
+   in Section 5.8.3:
+
+   Replace the condition in the penultimate bullet point of step 1 of
+   the retrieval algorithm reading
+
+    * The HTTP request associated with the retrieval uses a "safe"
+      method.
+
+   with
+
+    * At least one of the following is true:
+
+      1.  The HTTP request associated with the retrieval uses a "safe"
+          method.
+
+      2.  The cookie's same-site-flag is "Default" and the amount of
+          time elapsed since the cookie's creation-time is at most a
+          duration of the user agent's choosing.
+
+5.7.  Storage Model
+
+   The user agent stores the following fields about each cookie: name,
+   value, expiry-time, domain, path, creation-time, last-access-time,
+   persistent-flag, host-only-flag, secure-only-flag, http-only-flag,
+   and same-site-flag.
+
+   When the user agent "receives a cookie" from a request-uri with name
+   cookie-name, value cookie-value, and attributes cookie-attribute-
+   list, the user agent MUST process the cookie as follows:
+
+   1.   A user agent MAY ignore a received cookie in its entirety.  See
+        Section 5.3.
+
+   2.   If cookie-name is empty and cookie-value is empty, abort this
+        algorithm and ignore the cookie entirely.
+
+   3.   If the cookie-name or the cookie-value contains a %x00-08 /
+        %x0A-1F / %x7F character (CTL characters excluding HTAB), abort
+        this algorithm and ignore the cookie entirely.
+
+   4.   If the sum of the lengths of cookie-name and cookie-value is
+        more than 4096 octets, abort this algorithm and ignore the
+        cookie entirely.
+
+   5.   Create a new cookie with name cookie-name, value cookie-value.
+        Set the creation-time and the last-access-time to the current
+        date and time.
+
+   6.   If the cookie-attribute-list contains an attribute with an
+        attribute-name of "Max-Age":
+
+        1.  Set the cookie's persistent-flag to true.
+
+        2.  Set the cookie's expiry-time to attribute-value of the last
+            attribute in the cookie-attribute-list with an attribute-
+            name of "Max-Age".
+
+        Otherwise, if the cookie-attribute-list contains an attribute
+        with an attribute-name of "Expires" (and does not contain an
+        attribute with an attribute-name of "Max-Age"):
+
+        1.  Set the cookie's persistent-flag to true.
+
+        2.  Set the cookie's expiry-time to attribute-value of the last
+            attribute in the cookie-attribute-list with an attribute-
+            name of "Expires".
+
+        Otherwise:
+
+        1.  Set the cookie's persistent-flag to false.
+
+        2.  Set the cookie's expiry-time to the latest representable
+            date.
+
+   7.   If the cookie-attribute-list contains an attribute with an
+        attribute-name of "Domain":
+
+        1.  Let the domain-attribute be the attribute-value of the last
+            attribute in the cookie-attribute-list with both an
+            attribute-name of "Domain" and an attribute-value whose
+            length is no more than 1024 octets.  (Note that a leading
+            %x2E ("."), if present, is ignored even though that
+            character is not permitted.)
+
+        Otherwise:
+
+        1.  Let the domain-attribute be the empty string.
+
+   8.   If the domain-attribute contains a character that is not in
+        CHAR, abort this algorithm and ignore the cookie entirely.
+
+   9.   If the user agent is configured to reject "public suffixes" and
+        the domain-attribute is a public suffix:
+
+        1.  Let request-host-canonical be the canonicalized request-
+            host.
+
+        2.  If request-host fails to be canonicalized then abort this
+            algorithm and ignore the cookie entirely.
+
+        3.  If the domain-attribute is identical to the request-host-
+            canonical:
+
+            1.  Let the domain-attribute be the empty string.
+
+            Otherwise:
+
+            1.  Abort this algorithm and ignore the cookie entirely.
+
+        Note: This step prevents attacker.example from disrupting the
+        integrity of site.example by setting a cookie with a Domain
+        attribute of "example".
+
+   10.  If the domain-attribute is non-empty:
+
+        1.  If request-host-canonical does not domain-match (see
+            Section 5.1.3) the domain-attribute:
+
+            1.  Abort this algorithm and ignore the cookie entirely.
+
+            Otherwise:
+
+            1.  Set the cookie's host-only-flag to false.
+
+            2.  Set the cookie's domain to the domain-attribute.
+
+        Otherwise:
+
+        1.  Set the cookie's host-only-flag to true.
+
+        2.  Set the cookie's domain to request-host-canonical.
+
+   11.  If the cookie-attribute-list contains an attribute with an
+        attribute-name of "Path", set the cookie's path to attribute-
+        value of the last attribute in the cookie-attribute-list with
+        both an attribute-name of "Path" and an attribute-value whose
+        length is no more than 1024 octets.  Otherwise, set the cookie's
+        path to the default-path of the request-uri.
+
+   12.  If the cookie-attribute-list contains an attribute with an
+        attribute-name of "Secure", set the cookie's secure-only-flag to
+        true.  Otherwise, set the cookie's secure-only-flag to false.
+
+   13.  If the request-uri does not denote a "secure" connection (as
+        defined by the user agent), and the cookie's secure-only-flag is
+        true, then abort these steps and ignore the cookie entirely.
+
+   14.  If the cookie-attribute-list contains an attribute with an
+        attribute-name of "HttpOnly", set the cookie's http-only-flag to
+        true.  Otherwise, set the cookie's http-only-flag to false.
+
+   15.  If the cookie was received from a "non-HTTP" API and the
+        cookie's http-only-flag is true, abort this algorithm and ignore
+        the cookie entirely.
+
+   16.  If the cookie's secure-only-flag is false, and the request-uri
+        does not denote a "secure" connection, then abort this algorithm
+        and ignore the cookie entirely if the cookie store contains one
+        or more cookies that meet all of the following criteria:
+
+        1.  Their name matches the name of the newly-created cookie.
+
+        2.  Their secure-only-flag is true.
+
+        3.  Their domain domain-matches (see Section 5.1.3) the domain
+            of the newly-created cookie, or vice-versa.
+
+        4.  The path of the newly-created cookie path-matches the path
+            of the existing cookie.
+
+        Note: The path comparison is not symmetric, ensuring only that a
+        newly-created, non-secure cookie does not overlay an existing
+        secure cookie, providing some mitigation against cookie-fixing
+        attacks.  That is, given an existing secure cookie named 'a'
+        with a path of '/login', a non-secure cookie named 'a' could be
+        set for a path of '/' or '/foo', but not for a path of '/login'
+        or '/login/en'.
+
+   17.  If the cookie-attribute-list contains an attribute with an
+        attribute-name of "SameSite", and an attribute-value of
+        "Strict", "Lax", or "None", set the cookie's same-site-flag to
+        the attribute-value of the last attribute in the cookie-
+        attribute-list with an attribute-name of "SameSite".  Otherwise,
+        set the cookie's same-site-flag to "Default".
+
+   18.  If the cookie's same-site-flag is not "None":
+
+        1.  If the cookie was received from a "non-HTTP" API, and the
+            API was called from a navigable's active document whose
+            "site for cookies" is not same-site with the top-level
+            origin, then abort this algorithm and ignore the newly
+            created cookie entirely.
+
+        2.  If the cookie was received from a "same-site" request (as
+            defined in Section 5.2), skip the remaining substeps and
+            continue processing the cookie.
+
+        3.  If the cookie was received from a request which is
+            navigating a top-level traversable [HTML] (e.g. if the
+            request's "reserved client" is either null or an environment
+            whose "target browsing context"'s navigable is a top-level
+            traversable), skip the remaining substeps and continue
+            processing the cookie.
+
+            Note: Top-level navigations can create a cookie with any
+            SameSite value, even if the new cookie wouldn't have been
+            sent along with the request had it already existed prior to
+            the navigation.
+
+        4.  Abort this algorithm and ignore the newly created cookie
+            entirely.
+
+   19.  If the cookie's "same-site-flag" is "None", abort this algorithm
+        and ignore the cookie entirely unless the cookie's secure-only-
+        flag is true.
+
+   20.  If the cookie-name begins with a case-insensitive match for the
+        string "__Secure-", abort this algorithm and ignore the cookie
+        entirely unless the cookie's secure-only-flag is true.
+
+   21.  If the cookie-name begins with a case-insensitive match for the
+        string "__Host-", abort this algorithm and ignore the cookie
+        entirely unless the cookie meets all the following criteria:
+
+        1.  The cookie's secure-only-flag is true.
+
+        2.  The cookie's host-only-flag is true.
+
+        3.  The cookie-attribute-list contains an attribute with an
+            attribute-name of "Path", and the cookie's path is /.
+
+   22.  If the cookie-name is empty and either of the following
+        conditions are true, abort this algorithm and ignore the cookie
+        entirely:
+
+        *  the cookie-value begins with a case-insensitive match for the
+           string "__Secure-"
+
+        *  the cookie-value begins with a case-insensitive match for the
+           string "__Host-"
+
+   23.  If the cookie store contains a cookie with the same name,
+        domain, host-only-flag, and path as the newly-created cookie:
+
+        1.  Let old-cookie be the existing cookie with the same name,
+            domain, host-only-flag, and path as the newly-created
+            cookie.  (Notice that this algorithm maintains the invariant
+            that there is at most one such cookie.)
+
+        2.  If the newly-created cookie was received from a "non-HTTP"
+            API and the old-cookie's http-only-flag is true, abort this
+            algorithm and ignore the newly created cookie entirely.
+
+        3.  Update the creation-time of the newly-created cookie to
+            match the creation-time of the old-cookie.
+
+        4.  Remove the old-cookie from the cookie store.
+
+   24.  Insert the newly-created cookie into the cookie store.
+
+   A cookie is "expired" if the cookie has an expiry date in the past.
+
+   The user agent MUST evict all expired cookies from the cookie store
+   if, at any time, an expired cookie exists in the cookie store.
+
+   At any time, the user agent MAY "remove excess cookies" from the
+   cookie store if the number of cookies sharing a domain field exceeds
+   some implementation-defined upper bound (such as 50 cookies).
+
+   At any time, the user agent MAY "remove excess cookies" from the
+   cookie store if the cookie store exceeds some predetermined upper
+   bound (such as 3000 cookies).
+
+   When the user agent removes excess cookies from the cookie store, the
+   user agent MUST evict cookies in the following priority order:
+
+   1.  Expired cookies.
+
+   2.  Cookies whose secure-only-flag is false, and which share a domain
+       field with more than a predetermined number of other cookies.
+
+   3.  Cookies that share a domain field with more than a predetermined
+       number of other cookies.
+
+   4.  All cookies.
+
+   If two cookies have the same removal priority, the user agent MUST
+   evict the cookie with the earliest last-access-time first.
+
+   When "the current session is over" (as defined by the user agent),
+   the user agent MUST remove from the cookie store all cookies with the
+   persistent-flag set to false.
+
+5.8.  Retrieval Model
+
+   This section defines how cookies are retrieved from a cookie store in
+   the form of a cookie-string.  A "retrieval" is any event which
+   requires generating a cookie-string.  For example, a retrieval may
+   occur in order to build a Cookie header field for an HTTP request, or
+   may be required in order to return a cookie-string from a call to a
+   "non-HTTP" API that provides access to cookies.  A retrieval has an
+   associated URI, same-site status, and type, which are defined below
+   depending on the type of retrieval.
+
+5.8.1.  The Cookie Header Field
+
+   The user agent includes stored cookies in the Cookie HTTP request
+   header field.
+
+   A user agent MAY omit the Cookie header field in its entirety.  For
+   example, the user agent might wish to block sending cookies during
+   "third-party" requests (see Section 7.1).
 
    If the user agent does attach a Cookie header field to an HTTP
-   request, the user agent MUST compute its value as follows:
+   request, the user agent MUST generate a single cookie-string and the
+   user agent MUST compute the cookie-string following the algorithm
+   defined in Section 5.8.3, where the retrieval's URI is the request-
+   uri, the retrieval's same-site status is computed for the HTTP
+   request as defined in Section 5.2, and the retrieval's type is
+   "HTTP".
 
-   1.  Let _isSecure_ be a boolean indicating whether request's URL's
-       scheme is deemed secure, in an implementation-defined manner.
+   Note: Previous versions of this specification required that only one
+   Cookie header field be sent in requests.  This is no longer a
+   requirement.  While this specification requires that a single cookie-
+   string be produced, some user agents may split that string across
+   multiple cookie header fields.  For examples, see Section 8.2.3 of
+   [RFC9113] and Section 4.2.1 of [RFC9114].
 
-   2.  Let _host_ be request's host.
+5.8.2.  Non-HTTP APIs
 
-   3.  Let _path_ be request's URL's path.
+   The user agent MAY implement "non-HTTP" APIs that can be used to
+   access stored cookies.
 
-   4.  Let _httpOnlyAllowed_ be true.
+   A user agent MAY return an empty cookie-string in certain contexts,
+   such as when a retrieval occurs within a third-party context (see
+   Section 7.1).
 
-   5.  Let _sameSite_ be a string whose value is implementation-defined,
-       but has to be one of "strict-or-less", "lax-or-less", "unset-or-
-       less", or "none".
+   If a user agent does return cookies for a given call to a "non-HTTP"
+   API with an associated Document, then the user agent MUST compute the
+   cookie-string following the algorithm defined in Section 5.8.3, where
+   the retrieval's URI is defined by the caller (see
+   [DOM-DOCUMENT-COOKIE]), the retrieval's same-site status is "same-
+   site" if the Document's "site for cookies" is same-site with the top-
+   level origin as defined in Section 5.2.1 (otherwise it is "cross-
+   site"), and the retrieval's type is "non-HTTP".
 
-   6.  Let _cookies_ be the result of running Retrieve Cookies given
-       _isSecure_, _host_, _path_, _httpOnlyAllowed_, and _sameSite_.
+5.8.3.  Retrieval Algorithm
 
-   7.  Return the result of running Serialize Cookies given _cookies_.
+   Given a cookie store and a retrieval, the following algorithm returns
+   a cookie-string from a given cookie store.
 
-5.6.  Requirements Specific to Browser User Agents
+   1.  Let retrieval-host-canonical be the canonicalized host of the
+       retrieval's URI.
 
-   While browsers are expected to generally follow the same model as
-   non-browser user agents, they have additional complexity due to the
-   document model (and the ability to nest documents) that is considered
-   out-of-scope for this specification.
+   2.  If the host of the retrieval's URI fails to be canonicalized then
+       abort this algorithm.
 
-   Specifications for such a user agent are expected to build upon the
-   following algorithms and invoke them appropriately to process Cookie
-   and Set-Cookie header fields, as well as manipulating the user
-   agent's cookie store through non-HTTP APIs:
+   3.  Let cookie-list be the set of cookies from the cookie store that
+       meets all of the following requirements:
 
-   *  Parse and Store a Cookie
+       *  Either:
 
-   *  Store a Cookie
+          -  The cookie's host-only-flag is true and retrieval-host-
+             canonical is identical to the cookie's domain.
 
-   *  Retrieve Cookies
+          Or:
 
-   *  Serialize Cookies
+          -  The cookie's host-only-flag is false and retrieval-host-
+             canonical domain-matches (see Section 5.1.3) the cookie's
+             domain.
 
-   This provides the flexibility browsers need to detail their
-   requirements in considerable detail.
+          -  The cookie's domain is not a public suffix, for user agents
+             configured to reject "public suffixes".
+
+          Note: It's possible that the public suffix list was changed
+          since the cookie was created.  If this change resulted in the
+          cookie's domain becoming a public suffix then that cookie
+          would have been rejected during creation if it had been
+          created now.  (See Section 5.7 step 9).
+
+       *  The retrieval's URI's path path-matches the cookie's path.
+
+       *  If the cookie's secure-only-flag is true, then the retrieval's
+          URI must denote a "secure" connection (as defined by the user
+          agent).
+
+          Note: The notion of a "secure" connection is not defined by
+          this document.  Typically, user agents consider a connection
+          secure if the connection makes use of transport-layer
+          security, such as SSL or TLS [TLS13], or if the host is
+          trusted.  For example, most user agents consider "https" to be
+          a scheme that denotes a secure protocol and "localhost" to be
+          trusted host.
+
+       *  If the cookie's http-only-flag is true, then exclude the
+          cookie if the retrieval's type is "non-HTTP".
+
+       *  If the cookie's same-site-flag is not "None" and the
+          retrieval's same-site status is "cross-site", then exclude the
+          cookie unless all of the following conditions are met:
+
+          -  The retrieval's type is "HTTP".
+
+          -  The same-site-flag is "Lax" or "Default".
+
+          -  The HTTP request associated with the retrieval uses a
+             "safe" method.
+
+          -  The target browsing context of the HTTP request associated
+             with the retrieval is the active browsing context or a top-
+             level traversable.
+
+   4.  The user agent SHOULD sort the cookie-list in the following
+       order:
+
+       *  Cookies with longer paths are listed before cookies with
+          shorter paths.
+
+       *  Among cookies that have equal-length path fields, cookies with
+          earlier creation-times are listed before cookies with later
+          creation-times.
+
+       Note: Not all user agents sort the cookie-list in this order, but
+       this order reflects common practice when this document was
+       written, and, historically, there have been servers that
+       (erroneously) depended on this order.
+
+   5.  Update the last-access-time of each cookie in the cookie-list to
+       the current date and time.
+
+   6.  Serialize the cookie-list into a cookie-string by processing each
+       cookie in the cookie-list in order:
+
+       1.  If the cookies' name is not empty, output the cookie's name
+           followed by the %x3D ("=") character.
+
+       2.  If the cookies' value is not empty, output the cookie's
+           value.
+
+       3.  If the cookie was not the last cookie in the cookie-list,
+           output the characters %x3B and %x20 ("; ").
 
 6.  Implementation Considerations
 
 6.1.  Limits
 
+   Practical user agent implementations have limits on the number and
+   size of cookies that they can store.  General-use user agents SHOULD
+   provide each of the following minimum capabilities:
+
+   *  At least 50 cookies per domain.
+
+   *  At least 3000 cookies total.
+
+   User agents MAY limit the maximum number of cookies they store, and
+   may evict any cookie at any time (whether at the request of the user
+   or due to implementation limitations).
+
+   Note that a limit on the maximum number of cookies also limits the
+   total size of the stored cookies, due to the length limits which MUST
+   be enforced in Section 5.6.
+
    Servers SHOULD use as few and as small cookies as possible to avoid
-   reaching these implementation limits and to minimize network
-   bandwidth due to the Cookie header field being included in every
-   request.
+   reaching these implementation limits, minimize network bandwidth due
+   to the Cookie header field being included in every request, and to
+   avoid reaching server header field limits (See Section 4.2.1).
 
    Servers SHOULD gracefully degrade if the user agent fails to return
    one or more cookies in the Cookie header field because the user agent
@@ -1481,7 +2074,7 @@ Table of Contents
 6.2.  Application Programming Interfaces
 
    One reason the Cookie and Set-Cookie header fields use such esoteric
-   syntax is that many platforms (both in servers and user agents)
+   handling is that many platforms (both in servers and user agents)
    provide a string-based application programming interface (API) to
    cookies, requiring application-layer programmers to generate and
    parse the syntax used by the Cookie and Set-Cookie header fields,
@@ -1573,13 +2166,18 @@ Table of Contents
 7.2.  Cookie Policy
 
    User agents MAY enforce a cookie policy consisting of restrictions on
-   how cookies may be used or ignored (see Section 5.5.1).
+   how cookies may be used or ignored (see Section 5.3).
 
    A cookie policy may govern which domains or parties, as in first and
    third parties (see Section 7.1), for which the user agent will allow
    cookie access.  The policy can also define limits on cookie size,
-   cookie expiry (see Section 4.1.2.1 and Section 4.1.2.2), and the
-   number of cookies per domain or in total.
+   cookie expiry (see Section 5.5), and the number of cookies per domain
+   or in total.
+
+   The recommended cookie expiry upper limit is 400 days.  User agents
+   may set a lower limit to enforce shorter data retention timelines, or
+   set the limit higher to support longer retention when appropriate
+   (e.g., server-to-server communication over HTTPS).
 
    The goal of a restrictive cookie policy is often to improve security
    or privacy.  User agents often allow users to change the cookie
@@ -1604,8 +2202,9 @@ Table of Contents
 
    User agents MAY provide users the option of preventing persistent
    storage of cookies across sessions.  When configured thusly, user
-   agents MUST treat all received cookies as if their expiry-time is
-   null.
+   agents MUST treat all received cookies as if the persistent-flag were
+   set to false.  Some popular user agents expose this functionality via
+   "private browsing" mode [Aggarwal2010].
 
 7.4.  Expiration Dates
 
@@ -1630,13 +2229,23 @@ Table of Contents
    session identifiers in cookies, developers often create session
    fixation vulnerabilities.
 
-   Transport-layer encryption, such as that employed in HTTPS, is
-   insufficient to prevent a network attacker from obtaining or altering
-   a victim's cookies because the cookie protocol itself has various
-   vulnerabilities (see "Weak Confidentiality" and "Weak Integrity",
-   below).  In addition, by default, cookies do not provide
-   confidentiality or integrity from network attackers, even when used
-   in conjunction with HTTPS.
+   Transport-layer encryption, such as that employed in HTTPS, offers a
+   significant layer of defense against network attacks on cookies.
+   However, it is insufficient in fully preventing a networking attacker
+   from obtaining or altering a victim's cookies because of inherent
+   vulnerabilities in the cookie protocol itself (see "Weak
+   Confidentiality" and "Weak Integrity", below).  In addition, by
+   default, cookies do not provide confidentiality or integrity from
+   network attackers, even when used in conjunction with HTTPS.  This
+   means that a cookie needs to explicitly specify any protective
+   attributes.  For example, the cookie:
+
+   Set-Cookie: a=b
+
+   doesn't specify the Secure attribute and will therefore be accessible
+   on both secure and insecure connections, regardless of the original
+   connection type it was created on.  This behavior could allow an
+   attacker to read or modify the cookie.
 
 8.2.  Ambient Authority
 
@@ -1668,17 +2277,15 @@ Table of Contents
 
 8.3.  Clear Text
 
-   Unless sent over a secure channel (such as TLS), the information in
-   the Cookie and Set-Cookie header fields is transmitted in the clear.
+   Unless sent over a secure channel (such as TLS [TLS13]), the
+   information in the Cookie and Set-Cookie header fields is transmitted
+   in the clear.
 
    1.  All sensitive information conveyed in these header fields is
        exposed to an eavesdropper.
 
    2.  A malicious intermediary could alter the header fields as they
        travel in either direction, with unpredictable results.
-
-   3.  A malicious client could alter the Cookie header fields before
-       transmission, with unpredictable results.
 
    Servers SHOULD encrypt and sign the contents of cookies (using
    whatever format the server desires) when transmitting them to the
@@ -1814,22 +2421,174 @@ Table of Contents
 
 8.8.  SameSite Cookies
 
-   SameSite cookies offer a robust defense against CSRF attack when
+8.8.1.  Defense in depth
+
+   "SameSite" cookies offer a robust defense against CSRF attack when
    deployed in strict mode, and when supported by the client.  It is,
    however, prudent to ensure that this designation is not the extent of
    a site's defense against CSRF, as same-site navigations and
    submissions can certainly be executed in conjunction with other
-   attack vectors such as cross-site scripting.
+   attack vectors such as cross-site scripting or abuse of page
+   redirections.
+
+   Understanding how and when a request is considered same-site is also
+   important in order to properly design a site for SameSite cookies.
+   For example, if a cross-site top-level request is made to a sensitive
+   page that request will be considered cross-site and SameSite=Strict
+   cookies won't be sent; that page's sub-resources requests, however,
+   are same-site and would receive SameSite=Strict cookies.  Sites can
+   avoid inadvertently allowing access to these sub-resources by
+   returning an error for the initial page request if it doesn't include
+   the appropriate cookies.
 
    Developers are strongly encouraged to deploy the usual server-side
    defenses (CSRF tokens, ensuring that "safe" HTTP methods are
    idempotent, etc) to mitigate the risk more fully.
 
+   Additionally, client-side techniques such as those described in
+   [app-isolation] may also prove effective against CSRF, and are
+   certainly worth exploring in combination with "SameSite" cookies.
+
+8.8.2.  Top-level Navigations
+
+   Setting the SameSite attribute in "strict" mode provides robust
+   defense in depth against CSRF attacks, but has the potential to
+   confuse users unless sites' developers carefully ensure that their
+   cookie-based session management systems deal reasonably well with
+   top-level navigations.
+
+   Consider the scenario in which a user reads their email at MegaCorp
+   Inc's webmail provider https://site.example/. They might expect that
+   clicking on an emailed link to https://projects.example/secret/
+   project would show them the secret project that they're authorized to
+   see, but if https://projects.example has marked their session cookies
+   as SameSite=Strict, then this cross-site navigation won't send them
+   along with the request. https://projects.example will render a 404
+   error to avoid leaking secret information, and the user will be quite
+   confused.
+
+   Developers can avoid this confusion by adopting a session management
+   system that relies on not one, but two cookies: one conceptually
+   granting "read" access, another granting "write" access.  The latter
+   could be marked as SameSite=Strict, and its absence would prompt a
+   reauthentication step before executing any non-idempotent action.
+   The former could be marked as SameSite=Lax, in order to allow users
+   access to data via top-level navigation, or SameSite=None, to permit
+   access in all contexts (including cross-site embedded contexts).
+
+8.8.3.  Mashups and Widgets
+
+   The Lax and Strict values for the SameSite attribute are
+   inappropriate for some important use-cases.  In particular, note that
+   content intended for embedding in cross-site contexts (social
+   networking widgets or commenting services, for instance) will not
+   have access to same-site cookies.  Cookies which are required in
+   these situations should be marked with SameSite=None to allow access
+   in cross-site contexts.
+
+   Likewise, some forms of Single-Sign-On might require cookie-based
+   authentication in a cross-site context; these mechanisms will not
+   function as intended with same-site cookies and will also require
+   SameSite=None.
+
+8.8.4.  Server-controlled
+
+   SameSite cookies in and of themselves don't do anything to address
+   the general privacy concerns outlined in Section 7.1 of [RFC6265].
+   The "SameSite" attribute is set by the server, and serves to mitigate
+   the risk of certain kinds of attacks that the server is worried
+   about.  The user is not involved in this decision.  Moreover, a
+   number of side-channels exist which could allow a server to link
+   distinct requests even in the absence of cookies (for example,
+   connection and/or socket pooling between same-site and cross-site
+   requests).
+
+8.8.5.  Reload navigations
+
+   Requests issued for reloads triggered through user interface elements
+   (such as a refresh button on a toolbar) are same-site only if the
+   reloaded document was originally navigated to via a same-site
+   request.  This differs from the handling of other reload navigations,
+   which are always same-site if top-level, since the source navigable's
+   active document is precisely the document being reloaded.
+
+   This special handling of reloads triggered through a user interface
+   element avoids sending SameSite cookies on user-initiated reloads if
+   they were withheld on the original navigation (i.e., if the initial
+   navigation were cross-site).  If the reload navigation were instead
+   considered same-site, and sent all the initially withheld SameSite
+   cookies, the security benefits of withholding the cookies in the
+   first place would be nullified.  This is especially important given
+   that the absence of SameSite cookies withheld on a cross-site
+   navigation request may lead to visible site breakage, prompting the
+   user to trigger a reload.
+
+   For example, suppose the user clicks on a link from
+   https://attacker.example/ to https://victim.example/. This is a
+   cross-site request, so SameSite=Strict cookies are withheld.  Suppose
+   this causes https://victim.example/ to appear broken, because the
+   site only displays its sensitive content if a particular SameSite
+   cookie is present in the request.  The user, frustrated by the
+   unexpectedly broken site, presses refresh on their browser's toolbar.
+   To now consider the reload request same-site and send the initially
+   withheld SameSite cookie would defeat the purpose of withholding it
+   in the first place, as the reload navigation triggered through the
+   user interface may replay the original (potentially malicious)
+   request.  Thus, the reload request should be considered cross-site,
+   like the request that initially navigated to the page.
+
+   Because requests issued for, non-user initiated, reloads attach all
+   SameSite cookies, developers should be careful and thoughtful about
+   when to initiate a reload in order to avoid a CSRF attack.  For
+   example, the page could only initiate a reload if a CSRF token is
+   present on the initial request.
+
+8.8.6.  Top-level requests with "unsafe" methods
+
+   The "Lax" enforcement mode described in Section 5.6.7.1 allows a
+   cookie to be sent with a cross-site HTTP request if and only if it is
+   a top-level navigation with a "safe" HTTP method.  Implementation
+   experience shows that this is difficult to apply as the default
+   behavior, as some sites may rely on cookies not explicitly specifying
+   a SameSite attribute being included on top-level cross-site requests
+   with "unsafe" HTTP methods (as was the case prior to the introduction
+   of the SameSite attribute).
+
+   For example, the concluding step of a login flow may involve a cross-
+   site top-level POST request to an endpoint; this endpoint expects a
+   recently created cookie containing transactional state information,
+   necessary to securely complete the login.  For such a cookie, "Lax"
+   enforcement is not appropriate, as it would cause the cookie to be
+   excluded due to the unsafe HTTP request method, resulting in an
+   unrecoverable failure of the whole login flow.
+
+   The "Lax-allowing-unsafe" enforcement mode described in
+   Section 5.6.7.2 retains some of the protections of "Lax" enforcement
+   (as compared to "None") while still allowing recently created cookies
+   to be sent cross-site with unsafe top-level requests.
+
+   As a more permissive variant of "Lax" mode, "Lax-allowing-unsafe"
+   mode necessarily provides fewer protections against CSRF.
+   Ultimately, the provision of such an enforcement mode should be seen
+   as a temporary, transitional measure to ease adoption of "Lax"
+   enforcement by default.
+
+8.9.  Public Suffix List
+
+   The boundaries of cookies depend on a site's "registrable domain"
+   which in turn depends on the public suffix of the domain.
+
+   Whenever possible, user agents SHOULD use an up-to-date public suffix
+   list, such as the one maintained by the Mozilla project at [PSL].
+
+   Failure to do so could allow malicious or sensitive cookies to leak
+   between registrable domains.
+
 9.  IANA Considerations
 
 9.1.  Cookie
 
-   The permanent message header field registry (see [RFC3864]) needs to
+   The HTTP Field Name Registry (see [HttpFieldNameRegistry]) needs to
    be updated with the following registration:
 
    Header field name:  Cookie
@@ -1840,11 +2599,11 @@ Table of Contents
 
    Author/Change controller:  IETF
 
-   Specification document:  this specification (Section 5.5.2)
+   Specification document:  this specification (Section 5.8.1)
 
 9.2.  Set-Cookie
 
-   The permanent message header field registry (see [RFC3864]) needs to
+   The HTTP Field Name Registry (see [HttpFieldNameRegistry]) needs to
    be updated with the following registration:
 
    Header field name:  Set-Cookie
@@ -1855,38 +2614,69 @@ Table of Contents
 
    Author/Change controller:  IETF
 
-   Specification document:  this specification (Section 5.5.1)
+   Specification document:  this specification (Section 5.6)
 
-10.  Changes
+9.3.  "Cookie Attributes" Registry
 
-   Revamped the document to allow for more detailed requirements on
-   browsers in downstream specifications.
+   IANA is requested to create the "Cookie Attributes" registry,
+   defining the name space of attributes used to control cookies'
+   behavior.  The registry should be maintained in a new registry group
+   called "Hypertext Transfer Protocol (HTTP) Cookie Attributes" at
+   https://www.iana.org/assignments/cookie-attribute-names
+   (https://www.iana.org/assignments/cookie-attribute-names).
 
-Acknowledgements
+9.3.1.  Procedure
 
-   Many thanks to Adam Barth for laying the groundwork for a modern
-   cookie specification with RFC 6265.
+   Each registered attribute name is associated with a description, and
+   a reference detailing how the attribute is to be processed and
+   stored.
 
-   And thanks to John Wilander, Lily Chen, Mike West, Steven Bingler,
-   and Steven Englehardt for improving upon that work in subsequent
-   drafts.
+   New registrations happen on a "RFC Required" basis (see Section 4.7
+   of [RFC8126]).  The attribute to be registered MUST match the
+   extension-av syntax defined in Section 4.1.1.  Note that attribute
+   names are generally defined in CamelCase but MUST be recognized case-
+   insensitively.  Two attribute names that case-insensitively match
+   MUST NOT be registered.
 
-References
+9.3.2.  Registration
 
-Normative References
+   The "Cookie Attributes" registry should be created with the
+   registrations below:
 
-   [HTML]     Hickson, I., Pieters, S., van Kesteren, A., Jägenstedt,
-              P., and D. Denicola, "HTML", n.d.,
-              <https://html.spec.whatwg.org/>.
+              +==========+==================================+
+              |     Name | Reference                        |
+              +==========+==================================+
+              |   Domain | Section 4.1.2.3 of this document |
+              +----------+----------------------------------+
+              |  Expires | Section 4.1.2.1 of this document |
+              +----------+----------------------------------+
+              | HttpOnly | Section 4.1.2.6 of this document |
+              +----------+----------------------------------+
+              |  Max-Age | Section 4.1.2.2 of this document |
+              +----------+----------------------------------+
+              |     Path | Section 4.1.2.4 of this document |
+              +----------+----------------------------------+
+              | SameSite | Section 4.1.2.7 of this document |
+              +----------+----------------------------------+
+              |   Secure | Section 4.1.2.5 of this document |
+              +----------+----------------------------------+
 
-   [HTTPSEM]  Fielding, R. T., Nottingham, M., and J. Reschke, "HTTP
-              Semantics", Work in Progress, Internet-Draft, draft-ietf-
-              httpbis-semantics-19, 12 September 2021,
-              <https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-
-              semantics-19>.
+                                  Table 1
 
-   [INFRA]    van Kesteren, A. and D. Denicola, "Infra", n.d.,
-              <https://infra.spec.whatwg.org>.
+10.  References
+
+10.1.  Normative References
+
+   [DOM-DOCUMENT-COOKIE]
+              van Kesteren, A., Denicola, D., Farolino, D., Hickson, I.,
+              Jägenstedt, P., and S. Pieters, "HTML - Living Standard",
+              n.d., <https://html.spec.whatwg.org/#dom-document-cookie>.
+              WHATWG
+
+   [HTTP]     Fielding, R., Ed., Nottingham, M., Ed., and J. Reschke,
+              Ed., "HTTP Semantics", STD 97, RFC 9110,
+              DOI 10.17487/RFC9110, June 2022,
+              <https://www.rfc-editor.org/rfc/rfc9110>.
 
    [RFC1034]  Mockapetris, P., "Domain names - concepts and facilities",
               STD 13, RFC 1034, DOI 10.17487/RFC1034, November 1987,
@@ -1902,15 +2692,57 @@ Normative References
               DOI 10.17487/RFC2119, March 1997,
               <https://www.rfc-editor.org/rfc/rfc2119>.
 
+   [RFC4790]  Newman, C., Duerst, M., and A. Gulbrandsen, "Internet
+              Application Protocol Collation Registry", RFC 4790,
+              DOI 10.17487/RFC4790, March 2007,
+              <https://www.rfc-editor.org/rfc/rfc4790>.
+
    [RFC5234]  Crocker, D., Ed. and P. Overell, "Augmented BNF for Syntax
               Specifications: ABNF", STD 68, RFC 5234,
               DOI 10.17487/RFC5234, January 2008,
               <https://www.rfc-editor.org/rfc/rfc5234>.
 
-   [URL]      van Kesteren, A., "URL", n.d.,
-              <https://url.spec.whatwg.org>.
+   [RFC5890]  Klensin, J., "Internationalized Domain Names for
+              Applications (IDNA): Definitions and Document Framework",
+              RFC 5890, DOI 10.17487/RFC5890, August 2010,
+              <https://www.rfc-editor.org/rfc/rfc5890>.
 
-Informative References
+   [RFC6454]  Barth, A., "The Web Origin Concept", RFC 6454,
+              DOI 10.17487/RFC6454, December 2011,
+              <https://www.rfc-editor.org/rfc/rfc6454>.
+
+   [RFC8126]  Cotton, M., Leiba, B., and T. Narten, "Guidelines for
+              Writing an IANA Considerations Section in RFCs", BCP 26,
+              RFC 8126, DOI 10.17487/RFC8126, June 2017,
+              <https://www.rfc-editor.org/rfc/rfc8126>.
+
+   [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
+              2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
+              May 2017, <https://www.rfc-editor.org/rfc/rfc8174>.
+
+   [SAMESITE] van Kesteren, A., Denicola, D., Farolino, D., Hickson, I.,
+              Jägenstedt, P., and S. Pieters, "HTML Living Standard",
+              n.d., <https://html.spec.whatwg.org/#same-site>.  WHATWG
+
+   [USASCII]  American National Standards Institute, "Coded Character
+              Set -- 7-bit American Standard Code for Information
+              Interchange", ANSI X3.4, 1986.
+
+10.2.  Informative References
+
+   [Aggarwal2010]
+              Aggarwal, G., Burzstein, E., Jackson, C., and D. Boneh,
+              "An Analysis of Private Browsing Modes in Modern
+              Browsers", 2010,
+              <http://www.usenix.org/events/sec10/tech/full_papers/
+              Aggarwal.pdf>.
+
+   [app-isolation]
+              Chen, E., Bau, J., Reis, C., Barth, A., and C. Jackson,
+              "App Isolation - Get the Security of Multiple Browsers
+              with Just One", 2011,
+              <http://www.collinjackson.com/research/papers/
+              appisolation.pdf>.
 
    [CSRF]     Barth, A., Jackson, C., and J. Mitchell, "Robust Defenses
               for Cross-Site Request Forgery",
@@ -1920,27 +2752,37 @@ Informative References
               October 2008,
               <http://portal.acm.org/citation.cfm?id=1455770.1455782>.
 
+   [FETCH]    van Kesteren, A., "Fetch Living Standard", n.d.,
+              <https://fetch.spec.whatwg.org/>.  WHATWG
+
+   [HTML]     van Kesteren, A., Denicola, D., Farolino, D., Hickson, I.,
+              Jägenstedt, P., and S. Pieters, "HTML Living Standard",
+              n.d., <https://html.spec.whatwg.org/>.  WHATWG
+
+   [HttpFieldNameRegistry]
+              "Hypertext Transfer Protocol (HTTP) Field Name Registry",
+              n.d., <https://www.iana.org/assignments/http-fields/>.
+
+   [prerendering]
+              Bentzel, C., "Chrome Prerendering", n.d.,
+              <https://www.chromium.org/developers/design-documents/
+              prerender>.
+
+   [PSL]      "Public Suffix List", n.d.,
+              <https://publicsuffix.org/list/>.
+
    [RFC2109]  Kristol, D. and L. Montulli, "HTTP State Management
               Mechanism", RFC 2109, DOI 10.17487/RFC2109, February 1997,
               <https://www.rfc-editor.org/rfc/rfc2109>.
 
-   [RFC2818]  Rescorla, E., "HTTP Over TLS", RFC 2818,
-              DOI 10.17487/RFC2818, May 2000,
-              <https://www.rfc-editor.org/rfc/rfc2818>.
-
-   [RFC3864]  Klyne, G., Nottingham, M., and J. Mogul, "Registration
-              Procedures for Message Header Fields", BCP 90, RFC 3864,
-              DOI 10.17487/RFC3864, September 2004,
-              <https://www.rfc-editor.org/rfc/rfc3864>.
+   [RFC3986]  Berners-Lee, T., Fielding, R., and L. Masinter, "Uniform
+              Resource Identifier (URI): Generic Syntax", STD 66,
+              RFC 3986, DOI 10.17487/RFC3986, January 2005,
+              <https://www.rfc-editor.org/rfc/rfc3986>.
 
    [RFC4648]  Josefsson, S., "The Base16, Base32, and Base64 Data
               Encodings", RFC 4648, DOI 10.17487/RFC4648, October 2006,
               <https://www.rfc-editor.org/rfc/rfc4648>.
-
-   [RFC5895]  Resnick, P. and P. Hoffman, "Mapping Characters for
-              Internationalized Domain Names in Applications (IDNA)
-              2008", RFC 5895, DOI 10.17487/RFC5895, September 2010,
-              <https://www.rfc-editor.org/rfc/rfc5895>.
 
    [RFC6265]  Barth, A., "HTTP State Management Mechanism", RFC 6265,
               DOI 10.17487/RFC6265, April 2011,
@@ -1950,13 +2792,106 @@ Informative References
               Options", RFC 7034, DOI 10.17487/RFC7034, October 2013,
               <https://www.rfc-editor.org/rfc/rfc7034>.
 
+   [RFC9113]  Thomson, M., Ed. and C. Benfield, Ed., "HTTP/2", RFC 9113,
+              DOI 10.17487/RFC9113, June 2022,
+              <https://www.rfc-editor.org/rfc/rfc9113>.
+
+   [RFC9114]  Bishop, M., Ed., "HTTP/3", RFC 9114, DOI 10.17487/RFC9114,
+              June 2022, <https://www.rfc-editor.org/rfc/rfc9114>.
+
+   [SERVICE-WORKERS]
+              Archibald, J. and M. Kruisselbrink, "Service Workers",
+              n.d., <https://www.w3.org/TR/service-workers/>.
+
+   [TLS13]    Rescorla, E., "The Transport Layer Security (TLS) Protocol
+              Version 1.3", RFC 8446, DOI 10.17487/RFC8446, August 2018,
+              <https://www.rfc-editor.org/rfc/rfc8446>.
+
+Appendix A.  Changes from RFC 6265
+
+   *  Adds the same-site concept and the SameSite attribute.
+      (Section 5.2 and Section 4.1.2.7)
+
+   *  Introduces cookie prefixes and prohibits nameless cookies from
+      setting a value that would mimic a cookie prefix.  (Section 4.1.3
+      and Section 5.7)
+
+   *  Prohibits non-secure origins from setting cookies with a Secure
+      flag or overwriting cookies with this flag.  (Section 5.7)
+
+   *  Limits maximum cookie size.  (Section 5.7)
+
+   *  Limits maximum values for max-age and expire.  (Section 5.6.1 and
+      Section 5.6.2)
+
+   *  Includes the host-only-flag as part of a cookie's uniqueness
+      computation.  (Section 5.7)
+
+   *  Considers potentially trustworthy origins as "secure".
+      (Section 5.7)
+
+   *  Improves cookie syntax
+
+      -  Treats Set-Cookie: token as creating the cookie ("", "token").
+         (Section 5.6)
+
+      -  Rejects cookies without a name nor value.  (Section 5.7)
+
+      -  Specifies how to serialize a nameless/valueless cookie.
+         (Section 5.8.3)
+
+      -  Adjusts ABNF for cookie-pair and the Cookie header production
+         to allow for spaces.  (Section 4.1.1)
+
+      -  Explicitly handle control characters.  (Section 5.6 and
+         Section 5.7)
+
+      -  Specifies how to handle empty domain attributes.  (Section 5.7)
+
+      -  Requires ASCII characters for the domain attribute.
+         (Section 5.7)
+
+   *  Refactors cookie retrieval algorithm to support non-HTTP APIs.
+      (Section 5.8.2)
+
+   *  Specifies that the Set-Cookie line should not be decoded.
+      (Section 5.6)
+
+   *  Adds an advisory section to assist implementers in deciding which
+      requirements to implement.  (Section 3.2)
+
+   *  Advises against sending invalid cookies due to public suffix list
+      changes.  (Section 5.8.3)
+
+   *  Removes the single cookie header requirement.  (Section 5.8.1)
+
+   *  Address errata 3444 by updating the path-value andextension-av
+      grammar, errata 4148 by updating the day-of-month, year, and time
+      grammar, and errata 3663 by adding the requested note.
+      (Section 4.1 and Section 5.1.4)
+
+Acknowledgements
+
+   RFC 6265 was written by Adam Barth.  This document is an update of
+   RFC 6265, adding features and aligning the specification with the
+   reality of today's deployments.  Here, we're standing upon the
+   shoulders of a giant since the majority of the text is still Adam's.
+
+   Thank you to both Lily Chen and Steven Englehardt, editors emeritus,
+   for their significant contributions improving this draft.
+
 Authors' Addresses
 
-   Johann Hofmann (editor)
-   Google
-   Email: johannhof@google.com
+   Steven Bingler (editor)
+   Email: bingler@chromium.org
 
 
-   Anne van Kesteren (editor)
-   Apple
-   Email: annevk@annevk.nl
+   Mike West (editor)
+   Google LLC
+   Email: mkwst@google.com
+   URI:   https://mikewest.org/
+
+
+   John Wilander (editor)
+   Apple, Inc
+   Email: wilander@apple.com
